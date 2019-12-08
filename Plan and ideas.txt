@@ -17,14 +17,16 @@ Do we store the objects in the rooms or the rooms in the objects?
 Command parsing; keywords for now - look at nlp stuff in the future?
 
 Save games using cookies to start with - maybe have save slots that the user can select?
+Do we have some sort of game progress score - as an absolute figure and a percentage of the game perhaps?
 ---------------
 ---------------
 Plot/story Ideas
-Main goal to be reach a certain 'room' to obtain an object
+Main goal to be reach a certain 'room' to obtain an object?
 Different types of objects
-Have a max number of 'standard' objects that can be carried at once 
+Have a max number of 'standard' objects that can be carried at once
 
-Maybe some special objects like an invisibility cloak
+Maybe some special objects of various kinds e.g. an invisibility cloak which when worn don't occupy your inventory, but maybe some can only be used for a certain number of turns.
+
 ---------------
 ================================
 
@@ -34,4 +36,6 @@ Ideas for the side projects;
  - Conways game of life in JS - goal for user is to create a pattern which survives for at least a certain number of generations to pass into the new area.
 
 - Block slider puzzle in JS - solve the puzzle to pass or open the safe to get the object, like a key etc...
+
+- Bug reporting tool - with an option to choose the image of your insect and what it had done to deserve reporting in the fictional local town's newspaper. A variation on this must have been done a million times before, so it needs some twists - maybe an report is generated as a newspaper article based on what options the user selects during the reporting process. 
 =================================
