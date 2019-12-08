@@ -8,13 +8,24 @@ Initial idea is to implement a basic version fully in-browser, implementing the 
 
 ================================
 Main adventure game Ideas
-
+--------------
 Code;
-
+Just do it all in one textbox in the web page to begin with.
 Need to have a 'map' of 'rooms' and the links between the rooms.
+Do we store the objects in the rooms or the rooms in the objects?
 
+Command parsing; keywords for now - look at nlp stuff in the future?
 
+Save games using cookies to start with - maybe have save slots that the user can select?
+---------------
+---------------
+Plot/story Ideas
+Main goal to be reach a certain 'room' to obtain an object
+Different types of objects
+Have a max number of 'standard' objects that can be carried at once 
 
+Maybe some special objects like an invisibility cloak
+---------------
 ================================
 
 
