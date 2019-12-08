@@ -1,0 +1,10 @@
+Start working on outline of project;
+
+Need to create a basic outline and then flesh it out in stages.
+
+Ideas for side projects can be listed as we go along, done as a separate repository, and pulled in as we go.
+
+Initial idea is to implement a basic version fully in-browser, implementing the saves via cookies cookies. Then re-implement as a Node project.
+
+Ideas for the side projects;
+ - Conways game of life in JS - goal for user is to create a pattern which survives for at least a certain number number of generations to pass into the new area.
