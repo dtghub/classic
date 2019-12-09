@@ -14,7 +14,7 @@ Just do it all in one textbox in the web page to begin with.
 Need to have a 'map' of 'rooms' and the links between the rooms.
 Do we store the objects in the rooms or the rooms in the objects?
 Do we give objects properties such as 'lamp is lit or not'?
-Could also have 'global' properties based on number of moves or other factors e.g. day/night might mean darkness, or unsafe from wolves etc? 
+Could also have 'global' properties based on number of moves or other factors e.g. day/night might mean darkness, or unsafe from wolves etc?
 
 
 Command parsing; keywords for now - maybe look at nlp stuff in the future?
@@ -53,3 +53,4 @@ Ideas for the side projects;
 
 - Bug reporting tool - with an option to choose the image of your insect and what it had done to deserve reporting in the fictional local town's newspaper. A variation on this must have been done a million times before, so it needs some twists - maybe a report is generated in the form of a newspaper article based on what options the user selects during the reporting process. The report is then seen somewhere else in the game - pinned to a noticeboard or on a newspaper stand as part of a newspaper page?
 =================================
+Test mod to ensure Github integratioon works
