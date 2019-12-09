@@ -53,4 +53,4 @@ Ideas for the side projects;
 
 - Bug reporting tool - with an option to choose the image of your insect and what it had done to deserve reporting in the fictional local town's newspaper. A variation on this must have been done a million times before, so it needs some twists - maybe a report is generated in the form of a newspaper article based on what options the user selects during the reporting process. The report is then seen somewhere else in the game - pinned to a noticeboard or on a newspaper stand as part of a newspaper page?
 =================================
-Test mod to ensure Github integratioon works
+Test mod removed
