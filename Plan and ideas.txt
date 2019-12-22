@@ -1,3 +1,7 @@
+freecodecamp.org is the address?
+CSS zen garden
+
+
 Start working on outline of project;
 
 Need to create a basic outline and then flesh it out in stages.
@@ -11,17 +15,17 @@ Main adventure game Ideas
 --------------
 Code;
 Just do it all in one textbox in the web page to begin with.
-Need to have a 'map' of 'rooms' and the links between the rooms.
+Need to have a 'map' of 'rooms' and the links between the rooms. A JSON file or files is the obvious route.
 Do we store the objects in the rooms or the rooms in the objects?
 Do we give objects properties such as 'lamp is lit or not'?
 Could also have 'global' properties based on number of moves or other factors e.g. day/night might mean darkness, or prone to attack by wolves etc?
 
 
 Command parsing; keywords for now - maybe look at nlp stuff in the future?
-Keywords will be action then optional object to apply action to.
-Parse engine examines words from the start of the sentence entered until it identifies an action word - if appropriate to that action word, the parsing continues until an object is identified.
+Keywords will be action ('noun') then optional object ('verb') to apply the action to.
+Parse engine examines words from the start of the sentence entered until it identifies an action word ('noun')- if appropriate to that action word, the parsing continues until an object or other 'verb' is identified.
 Have appropriate response messages when appropriate action and/or keywords aren't identified.
-If and object is identified but no action then say something like 'what do you want me to do to the <e.g. lamp?'. Pick something random from a list of appropriate responses, but also maybe have some specific responses for specific keywords, either helpful and/or humorous.
+If a noun is identified but no verb then say something like 'what do you want me to do to the <e.g. lamp?'. Pick something random from a list of appropriate responses, but also maybe have some specific responses for specific keywords, either helpful and/or humorous.
 
 Save games using cookies to start with - maybe have save slots that the user can select?
 Do we have some sort of game progress score - as an absolute figure and a percentage of the game perhaps?
@@ -53,3 +57,43 @@ Ideas for the side projects;
 
 - Bug reporting tool - with an option to choose the image of your insect and what it had done to deserve reporting in the fictional local town's newspaper. A variation on this must have been done a million times before, so it needs some twists - maybe a report is generated in the form of a newspaper article based on what options the user selects during the reporting process. The report is then seen somewhere else in the game - pinned to a noticeboard or on a newspaper stand as part of a newspaper page?
 =================================
+
+==================================
+Functions needed;
+
+Initialising;
+
+- Need an initialise function which runs at the start of the game or when we load a saved game (is this covered by the entering_a_room function below as a special case or do we keep it as a separate function?)
+
+- When we enter the room, we effectively need to initialise our presence (description, exits, objects/special objects, special properties (is it dark etc), other events triggered by entering that room (these might be flagged by the special properties) -
+
+- Need a function which will retrieve room descriptions from the 'rooms' dataset. Also the possible exits from the room. Also any special room-specific properties that we might need.
+- Retrieve list of objects which are in the room.
+
+
+
+Entering a command i.e. initialising a 'turn'.
+
+- This 'turn' function is effectively the main function - once the initial functions have completed the game revolves around responding to user input.
+
+- When a command is entered we need a parse command function to identify the first command 'verb' on the line. Initially implement this to call a separate function for each different keyword to get things going, but implement a more sophisticated approach afterwards. Make it more sophisticated in stages.
+  -Does the input box need disabled until the turn function has completed?
+
+- Have a generic parse function that has a list of keywords that the function recognises, so that it can be used to parse and identify both verbs and nouns.
+
+- As the turn ends, we need to call a function similar/common to the initialise function, which allows us to factor in the results of the changes that have occurred, such as entering a new room, changing the environment (e.g. it's now dark) etc
+
+
+-------
+
+As an initial, very first implementation, implement a set of rooms that we can navigate through, showing the room description after each navigation command, and then expand out from there - adding features and more generic functions as we go.
+
+Details of how to do this initial implementation;
+
+Special introductory 'init' - don't start with this, implement it when the turn function gets clarified.
+
+
+
+
+
+==================================
