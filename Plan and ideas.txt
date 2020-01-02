@@ -6,7 +6,7 @@ Start working on outline of project;
 
 Need to create a basic outline and then flesh it out in stages.
 
-Ideas for side projects can be listed as we go along, done as a separate repository, and pulled in as we go.
+Ideas for side projects can be listed as we go along, the side projects done as a separate repository, and pulled in as we go along.
 
 Initial idea is to implement a basic version fully in-browser, implementing the saves via cookies. Then re-implement as a Node project.
 
