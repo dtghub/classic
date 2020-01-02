@@ -9,20 +9,20 @@ function process() {
 
   var enteredCommand = commandBox.value;
   commandBox.value = '';
-
+console.log('zeroeth');
   //Kludge the room and status descritiption for now
   try {
     locationID;
-    declared = true;
+    var declared = true;
   } catch(e) {
-    declared = false;
+    var declared = false;
   }
-console.log(first);
+console.log('first');
   if (!declared) {
     var locationID = 1;
   }
 console.log(second);
-  switch (locationID) {
+/*  switch (locationID) {
     case 1:
       game.value = "You are in test room number one."
       break;
@@ -32,7 +32,7 @@ console.log(second);
     default:
     }
 console.log(third);
-
+*/
 
   // return false to prevent submission for now:
   return false;
