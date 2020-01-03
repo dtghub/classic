@@ -6,33 +6,42 @@ function process() {
   var game = document.getElementById('game');
   var commandBox = document.getElementById('commandBox');
   var submit = document.getElementById('submit');
+  //var locationID;
 
   var enteredCommand = commandBox.value;
   commandBox.value = '';
 console.log('zeroeth');
-  //Kludge the room and status descritiption for now
-  try {
-    locationID;
-    var declared = true;
-  } catch(e) {
-    var declared = false;
-  }
-console.log('first');
-  if (!declared) {
+  if (locationID === undefined) {
     var locationID = 1;
   }
-console.log(second);
-/*  switch (locationID) {
+
+  //Kludge the room and status descritiption for now
+  //try {
+    //locationID;
+    //var isDeclared = true;
+  //} catch(e) {
+    //var isDeclared = false;
+  //}
+  //console.log(isDeclared === false);
+console.log('first');
+  if (isDeclared === false) {
+    locationID = 1;
+    console.log('here we are');
+  }
+console.log('second');
+console.log(isDeclared);
+console.log(locationID);
+  switch (locationID) {
     case 1:
-      game.value = "You are in test room number one."
+      game.innerText = "You are in test room number one."
       break;
     case 2:
-      game.value = "This is test room number two."
+      game.innerText = "This is test room number two."
       break;
     default:
     }
-console.log(third);
-*/
+console.log('third');
+
 
   // return false to prevent submission for now:
   return false;
