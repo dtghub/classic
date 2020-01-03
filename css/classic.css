@@ -1,1 +1,12 @@
-css to be added here
+
+#game {
+  height: 20pc;
+  width: 80%;
+}
+
+#commandBox {
+  width: 30pc;
+  border: 2px solid grey;
+  padding: 2px;
+  margin: 20px;
+}
