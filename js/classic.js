@@ -1,55 +1,56 @@
-// Functioning as 'Main loop'
-function process() {
+(function(){
   'use strict';
+  var locationID = 0;
 
-  // Form references: - once the code gets fleshed out, consider if maybe these references should be move to the init function for efficiency...
-  var game = document.getElementById('game');
-  var commandBox = document.getElementById('commandBox');
-  var submit = document.getElementById('submit');
-  //var locationID;
 
-  var enteredCommand = commandBox.value;
-  commandBox.value = '';
-console.log('zeroeth');
-  if (locationID === undefined) {
-    var locationID = 1;
-  }
+  function classicUpdateDescription(gameStatus) {
+    'use strict';
 
-  //Kludge the room and status descritiption for now
-  //try {
-    //locationID;
-    //var isDeclared = true;
-  //} catch(e) {
-    //var isDeclared = false;
-  //}
-  //console.log(isDeclared === false);
-console.log('first');
-  if (isDeclared === false) {
-    locationID = 1;
-    console.log('here we are');
-  }
-console.log('second');
-console.log(isDeclared);
-console.log(locationID);
-  switch (locationID) {
-    case 1:
-      game.innerText = "You are in test room number one."
-      break;
-    case 2:
-      game.innerText = "This is test room number two."
-      break;
-    default:
+    if (locationID === 0) {
+      locationID = 1;
+      console.log('here we are');
     }
-console.log('third');
 
+    gameStatus.setAttribute('disabled', false);
+    switch (locationID) {
+      case 1:
+        gameStatus.value = "You are in test room number one."
+        break;
+      case 2:
+        gameStatus.value = "This is test room number two."
+        break;
+      default:
+      }
+      gameStatus.setAttribute('disabled', true);
+      console.log('third');
+  }
 
-  // return false to prevent submission for now:
-  return false;
-}
+  function classicEnteredCommand(commandBox) {
+    'use strict';
+    commandBox.value = '';
+  }
 
-function init() {
-  'use strict';
-  document.getElementById('theForm').onsubmit = process;
-}
+  // Functioning as 'Main loop' for now...
+  function classicTurn() {
+    'use strict';
 
-window.onload = init;
+    // Form references: - once the code gets fleshed out, consider if maybe these references should be move to the init function for efficiency...
+    var gameStatus = document.getElementById('game');
+    var commandBox = document.getElementById('commandBox');
+//    var submit = document.getElementById('submit');
+
+    classicEnteredCommand(commandBox);
+    classicUpdateDescription(gameStatus);
+
+    // return false to prevent submission for now:
+    return false;
+  }
+
+  function init() {
+    'use strict';
+    document.getElementById('theForm').onsubmit = classicTurn;
+  }
+
+  window.onload = init;
+
+})();
