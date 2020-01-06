@@ -11,6 +11,7 @@
       console.log('here we are');
     }
 
+    //This is initial kludge to get the code structure into place
     gameStatus.setAttribute('disabled', false);
     switch (locationID) {
       case 1:
@@ -25,8 +26,18 @@
       console.log('third');
   }
 
-  function classicEnteredCommand(commandBox) {
+  function classicEnteredCommand(commandBox, classicVerb, classicNoun) {
     'use strict';
+
+    if (commandBox.value.search(/north/i) !== -1) {
+      classicVerb = "north";
+    }
+
+    if (commandBox.value.search(/south/i) !== -1) {
+      classicVerb = "south";
+    }
+
+    console.log(classicVerb);
     commandBox.value = '';
   }
 
@@ -39,7 +50,21 @@
     var commandBox = document.getElementById('commandBox');
 //    var submit = document.getElementById('submit');
 
-    classicEnteredCommand(commandBox);
+    var classicFuntionReturn = [];
+
+    // Noun and verb are produced by the classicParsing funtion, and used as the command interface - might implement adverbs later?
+    var classicNoun;
+    var classicVerb;
+
+
+
+
+    classicFuntionReturn = classicEnteredCommand(commandBox, classicVerb, classicNoun);
+    commandBox = classicFuntionReturn[0];
+    classicVerb = classicFuntionReturn[1];
+    classicNoun = classicFuntionReturn[2];
+
+    console.log(classicVerb);
     classicUpdateDescription(gameStatus);
 
     // return false to prevent submission for now:
