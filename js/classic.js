@@ -3,9 +3,13 @@
   var locationID = 0;
 
 
+
+
+
   function classicUpdateDescription(gameStatus) {
     'use strict';
 
+    //Initialise location on first use
     if (locationID === 0) {
       locationID = 1;
       console.log('here we are');
@@ -26,7 +30,11 @@
       console.log('third');
   }
 
-  function classicEnteredCommand(commandBox, classicVerb, classicNoun) {
+
+
+
+
+  function classicParseEnteredCommand(commandBox, classicVerb, classicNoun) {
     'use strict';
 
     if (commandBox.value.search(/north/i) !== -1) {
@@ -39,7 +47,30 @@
 
     console.log(classicVerb);
     commandBox.value = '';
+    return [commandBox, classicVerb, classicNoun];
   }
+
+
+
+
+
+  function classicProcessCommand(classicVerb, classicNoun) {
+    'use strict';
+
+    if (classicVerb === 'north') {
+      locationID = 2;
+    }
+
+    if (classicVerb === 'south') {
+      locationID = 1;
+    }
+
+  }
+
+
+
+
+
 
   // Functioning as 'Main loop' for now...
   function classicTurn() {
@@ -50,26 +81,33 @@
     var commandBox = document.getElementById('commandBox');
 //    var submit = document.getElementById('submit');
 
-    var classicFuntionReturn = [];
+    var classicFunctionReturn = [];
 
     // Noun and verb are produced by the classicParsing funtion, and used as the command interface - might implement adverbs later?
     var classicNoun;
     var classicVerb;
 
 
+    classicFunctionReturn = classicParseEnteredCommand(commandBox, classicVerb, classicNoun);
+    commandBox = classicFunctionReturn[0];
+    classicVerb = classicFunctionReturn[1];
+    classicNoun = classicFunctionReturn[2];
 
-
-    classicFuntionReturn = classicEnteredCommand(commandBox, classicVerb, classicNoun);
-    commandBox = classicFuntionReturn[0];
-    classicVerb = classicFuntionReturn[1];
-    classicNoun = classicFuntionReturn[2];
 
     console.log(classicVerb);
+
+    classicProcessCommand(classicVerb, classicNoun);
+
     classicUpdateDescription(gameStatus);
 
     // return false to prevent submission for now:
     return false;
   }
+
+
+
+
+
 
   function init() {
     'use strict';
