@@ -6,7 +6,8 @@
 
 
 
-  function classicUpdateDescription(gameStatus) {
+
+  function classicUpdateDescription(gameStatus, classicTurnCommand) {
     'use strict';
 
     //Initialise location on first use
@@ -15,14 +16,16 @@
       console.log('here we are');
     }
 
+    gameStatus.value += '\n' + classicTurnCommand;
+
     //This is initial kludge to get the code structure into place
     gameStatus.setAttribute('disabled', false);
     switch (locationID) {
       case 1:
-        gameStatus.value = "You are in test room number one."
+        gameStatus.value += "\nYou are in test room number one.";
         break;
       case 2:
-        gameStatus.value = "This is test room number two."
+        gameStatus.value += "\nThis is test room number two.";
         break;
       default:
       }
@@ -34,21 +37,25 @@
 
 
 
+
   function classicParseEnteredCommand(commandBox, classicVerb, classicNoun) {
     'use strict';
 
-    if (commandBox.value.search(/north/i) !== -1) {
+    var classicTurnCommand = commandBox.value;
+
+    if (classicTurnCommand.search(/north/i) !== -1) {
       classicVerb = "north";
     }
 
-    if (commandBox.value.search(/south/i) !== -1) {
+    if (classicTurnCommand.search(/south/i) !== -1) {
       classicVerb = "south";
     }
 
     console.log(classicVerb);
     commandBox.value = '';
-    return [commandBox, classicVerb, classicNoun];
+    return [classicTurnCommand, classicVerb, classicNoun];
   }
+
 
 
 
@@ -71,7 +78,6 @@
 
 
 
-
   // Functioning as 'Main loop' for now...
   function classicTurn() {
     'use strict';
@@ -86,10 +92,10 @@
     // Noun and verb are produced by the classicParsing funtion, and used as the command interface - might implement adverbs later?
     var classicNoun;
     var classicVerb;
-
+    var classicTurnCommand;
 
     classicFunctionReturn = classicParseEnteredCommand(commandBox, classicVerb, classicNoun);
-    commandBox = classicFunctionReturn[0];
+    classicTurnCommand = classicFunctionReturn[0];
     classicVerb = classicFunctionReturn[1];
     classicNoun = classicFunctionReturn[2];
 
@@ -98,11 +104,12 @@
 
     classicProcessCommand(classicVerb, classicNoun);
 
-    classicUpdateDescription(gameStatus);
+    classicUpdateDescription(gameStatus, classicTurnCommand);
 
     // return false to prevent submission for now:
     return false;
   }
+
 
 
 
