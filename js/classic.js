@@ -29,6 +29,7 @@
         break;
       default:
       }
+      
       gameStatus.setAttribute('disabled', true);
       console.log('third');
   }
@@ -43,12 +44,13 @@
 
     var classicTurnCommand = commandBox.value;
 
+    //Parsing logic to go here - in the meantime...
     if (classicTurnCommand.search(/north/i) !== -1) {
       classicVerb = "north";
-    }
-
-    if (classicTurnCommand.search(/south/i) !== -1) {
+    } else if (classicTurnCommand.search(/south/i) !== -1) {
       classicVerb = "south";
+    } else {
+      classicVerb = undefined;
     }
 
     console.log(classicVerb);
