@@ -18,7 +18,7 @@
 
     gameStatus.value += '\n' + classicTurnCommand;
 
-    //This is initial kludge to get the code structure into place
+    //This is initial kludge to help get the code structure into place
     gameStatus.setAttribute('disabled', false);
     switch (locationID) {
       case 1:
@@ -29,7 +29,10 @@
         break;
       default:
       }
-      
+
+      //This makes sure that the bottom line of text in the gameStatus box is visible after an update.
+      gameStatus.scrollTop = gameStatus.scrollHeight;
+
       gameStatus.setAttribute('disabled', true);
       console.log('third');
   }
@@ -87,7 +90,7 @@
     // Form references: - once the code gets fleshed out, consider if maybe these references should be move to the init function for efficiency...
     var gameStatus = document.getElementById('game');
     var commandBox = document.getElementById('commandBox');
-//    var submit = document.getElementById('submit');
+    //var submit = document.getElementById('submit');
 
     var classicFunctionReturn = [];
 
