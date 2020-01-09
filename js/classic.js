@@ -66,7 +66,7 @@
 
 
 
-  function classicProcessCommand(classicVerb, classicNoun) {
+  function classicProcessParsedCommand(classicVerb, classicNoun) {
     'use strict';
 
     if (classicVerb === 'north') {
@@ -107,7 +107,7 @@
 
     console.log(classicVerb);
 
-    classicProcessCommand(classicVerb, classicNoun);
+    classicProcessParsedCommand(classicVerb, classicNoun);
 
     classicUpdateDescription(gameStatus, classicTurnCommand);
 
