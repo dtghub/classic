@@ -6,7 +6,8 @@
 
 
 
-  function classicUpdateDescription(gameStatus) {
+
+  function classicUpdateDescription(gameStatus, classicTurnCommand) {
     'use strict';
 
     //Initialise location on first use
@@ -15,17 +16,23 @@
       console.log('here we are');
     }
 
-    //This is initial kludge to get the code structure into place
+    gameStatus.value += '\n' + classicTurnCommand;
+
+    //This is initial kludge to help get the code structure into place
     gameStatus.setAttribute('disabled', false);
     switch (locationID) {
       case 1:
-        gameStatus.value = "You are in test room number one."
+        gameStatus.value += "\nYou are in test room number one.";
         break;
       case 2:
-        gameStatus.value = "This is test room number two."
+        gameStatus.value += "\nThis is test room number two.";
         break;
       default:
       }
+
+      //This makes sure that the bottom line of text in the gameStatus box is visible after an update.
+      gameStatus.scrollTop = gameStatus.scrollHeight;
+
       gameStatus.setAttribute('disabled', true);
       console.log('third');
   }
@@ -34,27 +41,32 @@
 
 
 
+
   function classicParseEnteredCommand(commandBox, classicVerb, classicNoun) {
     'use strict';
 
-    if (commandBox.value.search(/north/i) !== -1) {
-      classicVerb = "north";
-    }
+    var classicTurnCommand = commandBox.value;
 
-    if (commandBox.value.search(/south/i) !== -1) {
+    //Parsing logic to go here - in the meantime...
+    if (classicTurnCommand.search(/north/i) !== -1) {
+      classicVerb = "north";
+    } else if (classicTurnCommand.search(/south/i) !== -1) {
       classicVerb = "south";
+    } else {
+      classicVerb = undefined;
     }
 
     console.log(classicVerb);
     commandBox.value = '';
-    return [commandBox, classicVerb, classicNoun];
+    return [classicTurnCommand, classicVerb, classicNoun];
   }
 
 
 
 
 
-  function classicProcessCommand(classicVerb, classicNoun) {
+
+  function classicProcessParsedCommand(classicVerb, classicNoun) {
     'use strict';
 
     if (classicVerb === 'north') {
@@ -71,7 +83,6 @@
 
 
 
-
   // Functioning as 'Main loop' for now...
   function classicTurn() {
     'use strict';
@@ -79,30 +90,31 @@
     // Form references: - once the code gets fleshed out, consider if maybe these references should be move to the init function for efficiency...
     var gameStatus = document.getElementById('game');
     var commandBox = document.getElementById('commandBox');
-//    var submit = document.getElementById('submit');
+    //var submit = document.getElementById('submit');
 
     var classicFunctionReturn = [];
 
     // Noun and verb are produced by the classicParsing funtion, and used as the command interface - might implement adverbs later?
     var classicNoun;
     var classicVerb;
-
+    var classicTurnCommand;
 
     classicFunctionReturn = classicParseEnteredCommand(commandBox, classicVerb, classicNoun);
-    commandBox = classicFunctionReturn[0];
+    classicTurnCommand = classicFunctionReturn[0];
     classicVerb = classicFunctionReturn[1];
     classicNoun = classicFunctionReturn[2];
 
 
     console.log(classicVerb);
 
-    classicProcessCommand(classicVerb, classicNoun);
+    classicProcessParsedCommand(classicVerb, classicNoun);
 
-    classicUpdateDescription(gameStatus);
+    classicUpdateDescription(gameStatus, classicTurnCommand);
 
     // return false to prevent submission for now:
     return false;
   }
+
 
 
 
