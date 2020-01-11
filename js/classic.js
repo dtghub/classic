@@ -7,7 +7,7 @@
 
 
 
-  function classicUpdateDescription(gameStatus, classicTurnCommand) {
+  function classicUpdateDescription(gameStatus, classicTurnCommand, classicCommandNotRecognised) {
     'use strict';
 
     //Initialise location on first use
@@ -17,6 +17,10 @@
     }
 
     gameStatus.value += '\n' + classicTurnCommand;
+
+    if (classicCommandNotRecognised) {
+      gameStatus.value += "\nSorry, I didn't understand that!";
+    }
 
     //This is initial kludge to help get the code structure into place
     gameStatus.setAttribute('disabled', false);
@@ -29,6 +33,7 @@
         break;
       default:
       }
+
 
       //This makes sure that the bottom line of text in the gameStatus box is visible after an update.
       gameStatus.scrollTop = gameStatus.scrollHeight;
@@ -69,6 +74,8 @@
   function classicProcessParsedCommand(classicVerb, classicNoun) {
     'use strict';
 
+    var classicCommandNotRecognised = false;
+
     if (classicVerb === 'north') {
       locationID = 2;
     }
@@ -77,6 +84,11 @@
       locationID = 1;
     }
 
+    if (classicVerb !== 'north' && classicVerb !== 'south') {
+      classicCommandNotRecognised = true;
+    }
+
+    return [classicCommandNotRecognised, classicVerb, classicNoun]
   }
 
 
@@ -98,6 +110,7 @@
     var classicNoun;
     var classicVerb;
     var classicTurnCommand;
+    var classicCommandNotRecognised = false;
 
     classicFunctionReturn = classicParseEnteredCommand(commandBox, classicVerb, classicNoun);
     classicTurnCommand = classicFunctionReturn[0];
@@ -107,9 +120,13 @@
 
     console.log(classicVerb);
 
-    classicProcessParsedCommand(classicVerb, classicNoun);
+    classicFunctionReturn = classicProcessParsedCommand(classicVerb, classicNoun);
+    classicCommandNotRecognised = classicFunctionReturn[0];
+    classicVerb = classicFunctionReturn[1];
+    classicNoun = classicFunctionReturn[2];
 
-    classicUpdateDescription(gameStatus, classicTurnCommand);
+
+    classicUpdateDescription(gameStatus, classicTurnCommand, classicCommandNotRecognised);
 
     // return false to prevent submission for now:
     return false;
