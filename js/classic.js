@@ -5,6 +5,18 @@
 
 
 
+  function loadJSON(callback) {
+    var xobj = new XMLHttpRequest();
+    xobj.overrideMimeType("application/json");
+    xobj.open('GET', 'http://localhost/home/derek/Atom/Classic/json/rooms.json', true);
+    xobj.onreadystatechange = function () {
+      if (xobj.readyState == 4 && xobj.status == "200") {
+        callback(JSON.parse(xobj.responseText));
+      }
+    };
+    xobj.send(null);
+  }
+
 
 
   function classicUpdateDescription(gameStatus, classicTurnCommand, classicCommandNotRecognised) {
@@ -119,6 +131,10 @@
 
 
     console.log(classicVerb);
+
+    loadJSON(function(json) {
+      console.log(json); // this will log out the json object
+    });
 
     classicFunctionReturn = classicProcessParsedCommand(classicVerb, classicNoun);
     classicCommandNotRecognised = classicFunctionReturn[0];
