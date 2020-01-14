@@ -8,7 +8,7 @@
   function loadJSON(callback) {
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("application/json");
-    xobj.open('GET', 'http://localhost/home/derek/Atom/Classic/json/rooms.json', true);
+    xobj.open('GET', 'http://localhost/json/rooms.json', true);
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
         callback(JSON.parse(xobj.responseText));
