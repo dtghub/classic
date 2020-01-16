@@ -11,7 +11,7 @@
     xobj.open('GET', 'http://localhost/json/rooms.json', true);
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
-        //console.log(xobj.responseText);
+        console.log(xobj.responseText);
         callback(JSON.parse(xobj.responseText));
       }
     };
