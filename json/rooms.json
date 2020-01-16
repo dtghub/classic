@@ -1,4 +1,4 @@
-{
+[
   {
     "roomNumber":1,
     "shortDescription":"You are in the starting room.",
@@ -6,10 +6,9 @@
     "dark":false,
     "flags":{},
     "exit":{
-      "north":2
-    }
-  }
-
+    "north":2
+      }
+  },
   {
     "roomNumber":2,
     "shortDescription":"You are in the second starting room.",
@@ -17,7 +16,7 @@
     "dark":false,
     "flags":{},
     "exit":{
-      "south":1
-    }
+    "south":1
+      }
   }
-}
+]
