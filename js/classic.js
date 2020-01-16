@@ -2,10 +2,17 @@
   'use strict';
   var locationID = 0;
 
+  var classicGameStatus {
+    locationID:0, //the current room
+    //an array to store room statuses
+    //an array to store object status elements
+  }
+
 
 
 
   function loadJSON(callback) {
+    'use strict';
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("application/json");
     xobj.open('GET', 'http://localhost/json/rooms.json', true);
@@ -44,7 +51,6 @@
       case 2:
         gameStatus.value += "\nThis is test room number two.";
         break;
-      default:
       }
 
 
@@ -132,11 +138,11 @@
 
 
     console.log(classicVerb);
-
+/*
     loadJSON(function(json) {
       console.log(json); // this will log out the json object
     });
-
+*/
     classicFunctionReturn = classicProcessParsedCommand(classicVerb, classicNoun);
     classicCommandNotRecognised = classicFunctionReturn[0];
     classicVerb = classicFunctionReturn[1];
