@@ -2,12 +2,32 @@
   'use strict';
   var locationID = 0;
 
+  var classicGameStatus {
+    locationID:0, //the current room
+    //an array to store room statuses
+    //an array to store object status elements
+  }
 
 
 
 
+  function loadJSON(callback) {
+    'use strict';
+    var xobj = new XMLHttpRequest();
+    xobj.overrideMimeType("application/json");
+    xobj.open('GET', 'http://localhost/json/rooms.json', true);
+    xobj.onreadystatechange = function () {
+      if (xobj.readyState == 4 && xobj.status == "200") {
+        console.log(xobj.responseText);
+        callback(JSON.parse(xobj.responseText));
+      }
+    };
+    xobj.send(null);
+  }
 
-  function classicUpdateDescription(gameStatus, classicTurnCommand) {
+
+
+  function classicUpdateDescription(gameStatus, classicTurnCommand, classicCommandNotRecognised) {
     'use strict';
 
     //Initialise location on first use
@@ -18,6 +38,10 @@
 
     gameStatus.value += '\n' + classicTurnCommand;
 
+    if (classicCommandNotRecognised) {
+      gameStatus.value += "\nSorry, I didn't understand that!";
+    }
+
     //This is initial kludge to help get the code structure into place
     gameStatus.setAttribute('disabled', false);
     switch (locationID) {
@@ -27,8 +51,8 @@
       case 2:
         gameStatus.value += "\nThis is test room number two.";
         break;
-      default:
       }
+
 
       //This makes sure that the bottom line of text in the gameStatus box is visible after an update.
       gameStatus.scrollTop = gameStatus.scrollHeight;
@@ -69,6 +93,8 @@
   function classicProcessParsedCommand(classicVerb, classicNoun) {
     'use strict';
 
+    var classicCommandNotRecognised = false;
+
     if (classicVerb === 'north') {
       locationID = 2;
     }
@@ -77,6 +103,11 @@
       locationID = 1;
     }
 
+    if (classicVerb !== 'north' && classicVerb !== 'south') {
+      classicCommandNotRecognised = true;
+    }
+
+    return [classicCommandNotRecognised, classicVerb, classicNoun]
   }
 
 
@@ -98,6 +129,7 @@
     var classicNoun;
     var classicVerb;
     var classicTurnCommand;
+    var classicCommandNotRecognised = false;
 
     classicFunctionReturn = classicParseEnteredCommand(commandBox, classicVerb, classicNoun);
     classicTurnCommand = classicFunctionReturn[0];
@@ -106,10 +138,18 @@
 
 
     console.log(classicVerb);
+/*
+    loadJSON(function(json) {
+      console.log(json); // this will log out the json object
+    });
+*/
+    classicFunctionReturn = classicProcessParsedCommand(classicVerb, classicNoun);
+    classicCommandNotRecognised = classicFunctionReturn[0];
+    classicVerb = classicFunctionReturn[1];
+    classicNoun = classicFunctionReturn[2];
 
-    classicProcessParsedCommand(classicVerb, classicNoun);
 
-    classicUpdateDescription(gameStatus, classicTurnCommand);
+    classicUpdateDescription(gameStatus, classicTurnCommand, classicCommandNotRecognised);
 
     // return false to prevent submission for now:
     return false;
