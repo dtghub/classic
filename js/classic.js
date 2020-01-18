@@ -1,24 +1,23 @@
 (function(){
   'use strict';
-  var locationID = 0;
 
-  var classicGameStatus {
+  var classicGameStatus = {
     locationID:0, //the current room
     //an array to store room statuses
     //an array to store object status elements
-  }
+  };
 
 
 
-
-  function loadJSON(callback) {
+  //Should expand this to load in all the JSONs in one go
+  function classicLoadRoomJson(callback) {
     'use strict';
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("application/json");
     xobj.open('GET', 'http://localhost/json/rooms.json', true);
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
-        console.log(xobj.responseText);
+        //console.log(xobj.responseText);
         callback(JSON.parse(xobj.responseText));
       }
     };
@@ -31,8 +30,8 @@
     'use strict';
 
     //Initialise location on first use
-    if (locationID === 0) {
-      locationID = 1;
+    if (classicGameStatus.locationID === 0) {
+      classicGameStatus.locationID = 1;
       console.log('here we are');
     }
 
@@ -44,7 +43,7 @@
 
     //This is initial kludge to help get the code structure into place
     gameStatus.setAttribute('disabled', false);
-    switch (locationID) {
+    switch (classicGameStatus.locationID) {
       case 1:
         gameStatus.value += "\nYou are in test room number one.";
         break;
@@ -96,11 +95,11 @@
     var classicCommandNotRecognised = false;
 
     if (classicVerb === 'north') {
-      locationID = 2;
+      classicGameStatus.locationID = 2;
     }
 
     if (classicVerb === 'south') {
-      locationID = 1;
+      classicGameStatus.locationID = 1;
     }
 
     if (classicVerb !== 'north' && classicVerb !== 'south') {
@@ -138,11 +137,11 @@
 
 
     console.log(classicVerb);
-/*
-    loadJSON(function(json) {
-      console.log(json); // this will log out the json object
+
+    classicLoadRoomJson(function(classicRoomJson) {
+      console.log(classicRoomJson); // this will log out the json object
     });
-*/
+
     classicFunctionReturn = classicProcessParsedCommand(classicVerb, classicNoun);
     classicCommandNotRecognised = classicFunctionReturn[0];
     classicVerb = classicFunctionReturn[1];
