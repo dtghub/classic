@@ -3,6 +3,12 @@
 
   var classicGameStatus = {
     locationID:0, //the current room
+
+    //The following are used for command parsing
+    classicTurnCommand:"", //the text the user has entered in the current turn
+    classicVerb:"", // the result of teh parsing logic
+    classicNoun:"", // the result of teh parsing logic
+    classicCommandNotRecognised:false, // set to true if no verb was identified
     //an array to store room statuses
     //an array to store object status elements
   };
@@ -69,10 +75,12 @@
 
 
 
-  function classicParseEnteredCommand(commandBox, classicVerb, classicNoun) {
+  function classicParseEnteredCommand(commandBox) {
     'use strict';
 
     var classicTurnCommand = commandBox.value;
+    var classicVerb = "";
+    var classicNoun = "";
 
     //Parsing logic to go here - in the meantime...
     if (classicTurnCommand.search(/north/i) !== -1) {
@@ -134,7 +142,7 @@
     var classicTurnCommand;
     var classicCommandNotRecognised = false;
 
-    classicFunctionReturn = classicParseEnteredCommand(commandBox, classicVerb, classicNoun);
+    classicFunctionReturn = classicParseEnteredCommand(commandBox);
     classicTurnCommand = classicFunctionReturn[0];
     classicVerb = classicFunctionReturn[1];
     classicNoun = classicFunctionReturn[2];
@@ -144,6 +152,8 @@
 
     classicLoadRoomJson(function(classicRoomJson) {
       console.log(classicRoomJson);// this will log out the json object
+        //Take the values (or references?...) from classicRoomJson and populate them into the relevant parts of classicGameStatus
+        //Do we maybe just link the object we are currently calling classicRoomJson directly into classicGameStatus in the function call??? - or is it better to have the values...
           });
 
     classicFunctionReturn = classicProcessParsedCommand(classicVerb, classicNoun);
