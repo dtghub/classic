@@ -52,6 +52,10 @@
         break;
       }
 
+      //Extract and add the room description from the rooms JSON
+      //gameStatus.value += "/n" +
+
+
 
       //This makes sure that the bottom line of text in the gameStatus box is visible after an update.
       gameStatus.scrollTop = gameStatus.scrollHeight;
@@ -139,8 +143,8 @@
     console.log(classicVerb);
 
     classicLoadRoomJson(function(classicRoomJson) {
-      console.log(classicRoomJson); // this will log out the json object
-    });
+      console.log(classicRoomJson);// this will log out the json object
+          });
 
     classicFunctionReturn = classicProcessParsedCommand(classicVerb, classicNoun);
     classicCommandNotRecognised = classicFunctionReturn[0];
