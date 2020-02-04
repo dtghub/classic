@@ -2,13 +2,14 @@
   'use strict';
 
   var classicGameStatus = {
-    locationID:0, //the current room
+    locationID: 0, //the current room
 
     //The following are used for command parsing
-    classicTurnCommand:"", //the text the user has entered in the current turn
-    classicVerb:"", // the result of teh parsing logic
-    classicNoun:"", // the result of teh parsing logic
-    classicCommandNotRecognised:false, // set to true if no verb was identified
+    classicTurnCommand: "", //the text the user has entered in the current turn
+    // Noun and verb are produced by the classicParsing funtion, and used as the command interface - might implement adverbs later?
+    classicVerb: "", // the result of the parsing logic
+    classicNoun: "", // the result of the parsing logic
+    classicCommandNotRecognised: false, // set to true if no verb was identified
     //an array to store room statuses
     //an array to store object status elements
   };
@@ -32,7 +33,7 @@
 
 
 
-  function classicUpdateDescription(gameStatus, classicTurnCommand, classicCommandNotRecognised) {
+  function classicUpdateDescription(gameStatus) {
     'use strict';
 
     //Initialise location on first use
@@ -41,7 +42,7 @@
       console.log('here we are');
     }
 
-    gameStatus.value += '\n' + classicTurnCommand;
+    gameStatus.value += '\n' + classicGameStatus.classicTurnCommand;
 
     if (classicCommandNotRecognised) {
       gameStatus.value += "\nSorry, I didn't understand that!";
@@ -78,14 +79,14 @@
   function classicParseEnteredCommand(commandBox) {
     'use strict';
 
-    var classicTurnCommand = commandBox.value;
+    classicGameStatus.classicTurnCommand = commandBox.value;
     var classicVerb = "";
     var classicNoun = "";
 
     //Parsing logic to go here - in the meantime...
-    if (classicTurnCommand.search(/north/i) !== -1) {
+    if (classicGameStatus.classicTurnCommand.search(/north/i) !== -1) {
       classicVerb = "north";
-    } else if (classicTurnCommand.search(/south/i) !== -1) {
+    } else if (classicGameStatus.classicTurnCommand.search(/south/i) !== -1) {
       classicVerb = "south";
     } else {
       classicVerb = undefined;
@@ -93,7 +94,6 @@
 
     console.log(classicVerb);
     commandBox.value = '';
-    return [classicTurnCommand, classicVerb, classicNoun];
   }
 
 
@@ -136,14 +136,8 @@
 
     var classicFunctionReturn = [];
 
-    // Noun and verb are produced by the classicParsing funtion, and used as the command interface - might implement adverbs later?
-    var classicNoun;
-    var classicVerb;
-    var classicTurnCommand;
-    var classicCommandNotRecognised = false;
 
     classicFunctionReturn = classicParseEnteredCommand(commandBox);
-    classicTurnCommand = classicFunctionReturn[0];
     classicVerb = classicFunctionReturn[1];
     classicNoun = classicFunctionReturn[2];
 
@@ -162,7 +156,7 @@
     classicNoun = classicFunctionReturn[2];
 
 
-    classicUpdateDescription(gameStatus, classicTurnCommand, classicCommandNotRecognised);
+    classicUpdateDescription(gameStatus);
 
     // return false to prevent submission for now:
     return false;
