@@ -142,6 +142,7 @@
       console.log(classicRoomJson);// this will log out the json object
         //Take the values (or references?...) from classicRoomJson and populate them into the relevant parts of classicGameStatus
         //Do we maybe just link the object we are currently calling classicRoomJson directly into classicGameStatus in the function call??? - or is it better to have the values...
+        console.log(classicGameStatus);
           });
 
     classicFunctionReturn = classicProcessParsedCommand();
