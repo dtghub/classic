@@ -44,7 +44,7 @@
 
     gameStatus.value += '\n' + classicGameStatus.classicTurnCommand;
 
-    if (classicCommandNotRecognised) {
+    if (classicGameStatus.classicCommandNotRecognised) {
       gameStatus.value += "\nSorry, I didn't understand that!";
     }
 
@@ -80,19 +80,17 @@
     'use strict';
 
     classicGameStatus.classicTurnCommand = commandBox.value;
-    var classicVerb = "";
-    var classicNoun = "";
 
     //Parsing logic to go here - in the meantime...
     if (classicGameStatus.classicTurnCommand.search(/north/i) !== -1) {
-      classicVerb = "north";
+      classicGameStatus.classicVerb = "north";
     } else if (classicGameStatus.classicTurnCommand.search(/south/i) !== -1) {
-      classicVerb = "south";
+      classicGameStatus.classicVerb = "south";
     } else {
-      classicVerb = undefined;
+      classicGameStatus.classicVerb = undefined;
     }
 
-    console.log(classicVerb);
+    console.log(classicGameStatus.classicVerb);
     commandBox.value = '';
   }
 
@@ -101,25 +99,24 @@
 
 
 
-  function classicProcessParsedCommand(classicVerb, classicNoun) {
+  function classicProcessParsedCommand() {
     'use strict';
 
-    var classicCommandNotRecognised = false;
+    classicGameStatus.classicCommandNotRecognised = false;
 
-    if (classicVerb === 'north') {
+    if (classicGameStatus.classicVerb === 'north') {
       classicGameStatus.locationID = 2;
     }
 
-    if (classicVerb === 'south') {
+    if (classicGameStatus.classicVerb === 'south') {
       classicGameStatus.locationID = 1;
     }
 
-    if (classicVerb !== 'north' && classicVerb !== 'south') {
-      classicCommandNotRecognised = true;
+    if (classicGameStatus.classicVerb !== 'north' && classicGameStatus.classicVerb !== 'south') {
+      classicGameStatus.classicCommandNotRecognised = true;
     }
 
-    return [classicCommandNotRecognised, classicVerb, classicNoun]
-  }
+}
 
 
 
@@ -138,11 +135,8 @@
 
 
     classicFunctionReturn = classicParseEnteredCommand(commandBox);
-    classicVerb = classicFunctionReturn[1];
-    classicNoun = classicFunctionReturn[2];
 
-
-    console.log(classicVerb);
+    console.log(classicGameStatus.classicVerb);
 
     classicLoadRoomJson(function(classicRoomJson) {
       console.log(classicRoomJson);// this will log out the json object
@@ -150,11 +144,7 @@
         //Do we maybe just link the object we are currently calling classicRoomJson directly into classicGameStatus in the function call??? - or is it better to have the values...
           });
 
-    classicFunctionReturn = classicProcessParsedCommand(classicVerb, classicNoun);
-    classicCommandNotRecognised = classicFunctionReturn[0];
-    classicVerb = classicFunctionReturn[1];
-    classicNoun = classicFunctionReturn[2];
-
+    classicFunctionReturn = classicProcessParsedCommand();
 
     classicUpdateDescription(gameStatus);
 
