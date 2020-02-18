@@ -129,7 +129,7 @@
   function classicTurn() {
     'use strict';
 
-    // Form references: - once the code gets fleshed out, consider if maybe these references should be move to the init function for efficiency...
+    // Form references: - once the code gets fleshed out, consider if maybe these references should be moved to the init function for efficiency...
     var gameStatus = document.getElementById('game');
     var commandBox = document.getElementById('commandBox');
     //var submit = document.getElementById('submit');
@@ -139,13 +139,11 @@
 
     classicFunctionReturn = classicParseEnteredCommand(commandBox);
 
-    console.log(classicGameStatus.classicVerb);
-
     classicLoadRoomJson(function(classicRoomJson) {
-      debugger;
-      console.log(classicRoomJson);// this will log out the json object
+        //console.log(classicRoomJson);// this will log out the json object
         //Take the values (or references?...) from classicRoomJson and populate them into the relevant parts of classicGameStatus
         //Do we maybe just link the object we are currently calling classicRoomJson directly into classicGameStatus in the function call??? - or is it better to have the values...
+        debugger
         console.log(classicGameStatus);
           });
 
