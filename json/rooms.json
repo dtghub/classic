@@ -1,23 +1,23 @@
 {
   "rooms": [
       {
-        "roomNumber":1,
+        "roomNumber":0,
         "shortDescription":"You are in the starting room.",
         "longDescription":"For the purposes of this draft, this is the initial starting room. i.e. the default starting room number one.",
         "dark":false,
         "flags":{},
         "exit":{
-        "north":2
+          "north":1
           }
       },
       {
-        "roomNumber":2,
+        "roomNumber":1,
         "shortDescription":"You are in the second starting room.",
         "longDescription":"This is the second starting room. i.e. the default starting room number two!",
         "dark":true,
         "flags":{},
         "exit":{
-        "south":1
+          "south":0
           }
       }
     ]

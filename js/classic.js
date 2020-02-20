@@ -2,7 +2,9 @@
   'use strict';
 
   var classicGameStatus = {
-    locationID: 0, //the current room
+    locationID: -1, //the current room
+
+    classicRoomJson: {},
 
     //The following are used for command parsing
     classicTurnCommand: "", //the text the user has entered in the current turn
@@ -24,7 +26,7 @@
     xobj.open('GET', 'http://localhost/json/rooms.json', true);
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
-        console.log(xobj.responseText);
+        //console.log(xobj.responseText);
         callback(JSON.parse(xobj.responseText));
       }
     };
@@ -37,8 +39,8 @@
     'use strict';
 
     //Initialise location on first use
-    if (classicGameStatus.locationID === 0) {
-      classicGameStatus.locationID = 1;
+    if (classicGameStatus.locationID === -1) {
+      classicGameStatus.locationID = 0;
       console.log('here we are');
     }
 
@@ -54,10 +56,10 @@
 
       }
       switch (classicGameStatus.locationID) {
-        case 1:
+        case 0:
           gameStatus.value += "\nYou are in test room number one.";
           break;
-        case 2:
+        case 1:
           gameStatus.value += "\nThis is test room number two.";
           break;
         }
@@ -108,11 +110,11 @@
     classicGameStatus.classicCommandNotRecognised = false;
 
     if (classicGameStatus.classicVerb === 'north') {
-      classicGameStatus.locationID = 2;
+      classicGameStatus.locationID = 1;
     }
 
     if (classicGameStatus.classicVerb === 'south') {
-      classicGameStatus.locationID = 1;
+      classicGameStatus.locationID = 0;
     }
 
     if (classicGameStatus.classicVerb !== 'north' && classicGameStatus.classicVerb !== 'south') {
@@ -139,12 +141,13 @@
 
     classicFunctionReturn = classicParseEnteredCommand(commandBox);
 
-    classicLoadRoomJson(function(classicRoomJson) {
-        //console.log(classicRoomJson);// this will log out the json object
+    classicLoadRoomJson(function(classicLoadRoomJson) {
+        classicGameStatus.classicRoomJson = classicLoadRoomJson;
+        console.log(classicGameStatus.classicRoomJson);// this will log out the json object
         //Take the values (or references?...) from classicRoomJson and populate them into the relevant parts of classicGameStatus
         //Do we maybe just link the object we are currently calling classicRoomJson directly into classicGameStatus in the function call??? - or is it better to have the values...
-        debugger
         console.log(classicGameStatus);
+        console.log("That's it!");
           });
 
     classicFunctionReturn = classicProcessParsedCommand();
@@ -163,6 +166,7 @@
 
   function init() {
     'use strict';
+
     document.getElementById('theForm').onsubmit = classicTurn;
   }
 
