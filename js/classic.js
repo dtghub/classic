@@ -2,7 +2,9 @@
   'use strict';
 
   var classicGameStatus = {
-    locationID: 0, //the current room
+    locationID: -1, //the current room
+
+    classicRoomJson: {},
 
     //The following are used for command parsing
     classicTurnCommand: "", //the text the user has entered in the current turn
@@ -37,8 +39,8 @@
     'use strict';
 
     //Initialise location on first use
-    if (classicGameStatus.locationID === 0) {
-      classicGameStatus.locationID = 1;
+    if (classicGameStatus.locationID === -1) {
+      classicGameStatus.locationID = 0;
       console.log('here we are');
     }
 
@@ -49,15 +51,18 @@
     }
 
     //This is initial kludge to help get the code structure into place
-    gameStatus.setAttribute('disabled', false);
-    switch (classicGameStatus.locationID) {
-      case 1:
-        gameStatus.value += "\nYou are in test room number one.";
-        break;
-      case 2:
-        gameStatus.value += "\nThis is test room number two.";
-        break;
+    //gameStatus.setAttribute('disabled', false);
+      if (true) {
+
       }
+      switch (classicGameStatus.locationID) {
+        case 0:
+          gameStatus.value += "\nYou are in test room number one.";
+          break;
+        case 1:
+          gameStatus.value += "\nThis is test room number two.";
+          break;
+        }
 
       //Extract and add the room description from the rooms JSON
       //gameStatus.value += "/n" +
@@ -105,11 +110,11 @@
     classicGameStatus.classicCommandNotRecognised = false;
 
     if (classicGameStatus.classicVerb === 'north') {
-      classicGameStatus.locationID = 2;
+      classicGameStatus.locationID = 1;
     }
 
     if (classicGameStatus.classicVerb === 'south') {
-      classicGameStatus.locationID = 1;
+      classicGameStatus.locationID = 0;
     }
 
     if (classicGameStatus.classicVerb !== 'north' && classicGameStatus.classicVerb !== 'south') {
@@ -126,7 +131,7 @@
   function classicTurn() {
     'use strict';
 
-    // Form references: - once the code gets fleshed out, consider if maybe these references should be move to the init function for efficiency...
+    // Form references: - once the code gets fleshed out, consider if maybe these references should be moved to the init function for efficiency...
     var gameStatus = document.getElementById('game');
     var commandBox = document.getElementById('commandBox');
     //var submit = document.getElementById('submit');
@@ -136,13 +141,13 @@
 
     classicFunctionReturn = classicParseEnteredCommand(commandBox);
 
-    console.log(classicGameStatus.classicVerb);
-
-    classicLoadRoomJson(function(classicRoomJson) {
-      console.log(classicRoomJson);// this will log out the json object
+    classicLoadRoomJson(function(classicLoadRoomJson) {
+        classicGameStatus.classicRoomJson = classicLoadRoomJson;
+        console.log(classicGameStatus.classicRoomJson);// this will log out the json object
         //Take the values (or references?...) from classicRoomJson and populate them into the relevant parts of classicGameStatus
         //Do we maybe just link the object we are currently calling classicRoomJson directly into classicGameStatus in the function call??? - or is it better to have the values...
         console.log(classicGameStatus);
+        console.log("That's it!");
           });
 
     classicFunctionReturn = classicProcessParsedCommand();
@@ -161,6 +166,7 @@
 
   function init() {
     'use strict';
+
     document.getElementById('theForm').onsubmit = classicTurn;
   }
 
