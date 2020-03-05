@@ -4,7 +4,7 @@
   var classicGameStatus = {
     locationID: -1, //the current room
 
-    classicRoomJson: {},
+    classicRoomJson: {uninitialised: true},
 
     //The following are used for command parsing
     classicTurnCommand: "", //the text the user has entered in the current turn
@@ -141,14 +141,18 @@
 
     classicFunctionReturn = classicParseEnteredCommand(commandBox);
 
-    classicLoadRoomJson(function(classicLoadRoomJson) {
-        classicGameStatus.classicRoomJson = classicLoadRoomJson;
-        console.log(classicGameStatus.classicRoomJson);// this will log out the json object
-        //Take the values (or references?...) from classicRoomJson and populate them into the relevant parts of classicGameStatus
-        //Do we maybe just link the object we are currently calling classicRoomJson directly into classicGameStatus in the function call??? - or is it better to have the values...
-        console.log(classicGameStatus);
-        console.log("That's it!");
-          });
+    //No need to load the JSON in every time
+    //this will be replaced by a sql server
+    if (classicGameStatus.classicRoomJson.uninitialised) {
+      classicLoadRoomJson(function(classicLoadRoomJson) {
+          classicGameStatus.classicRoomJson = classicLoadRoomJson;
+          console.log(classicGameStatus.classicRoomJson);// this will log out the json object
+          //Take the values (or references?...) from classicRoomJson and populate them into the relevant parts of classicGameStatus
+          //Do we maybe just link the object we are currently calling classicRoomJson .directly into classicGameStatus in the function call??? - or is it better to have the values...
+          console.log(classicGameStatus);
+          console.log("That's it!");
+            });
+      }
 
     classicFunctionReturn = classicProcessParsedCommand();
 
