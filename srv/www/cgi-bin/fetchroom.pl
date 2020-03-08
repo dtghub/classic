@@ -9,11 +9,11 @@ use JSON;
 use Data::Dumper qw(Dumper);
 
 
-my $dtroom = 1;
-
-#my $roomNumber 
+#my $dtroom = 1;
 
 
+$q = new CGI;
+my $dtroom = $q->param(‘value’);
 
 
 
