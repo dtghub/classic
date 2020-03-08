@@ -24,7 +24,7 @@
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("application/json");
     xobj.open('POST', 'http://localhost/srv/www/cgi-bin/fetchroom.pln', true);
-    xhr.send(JSON.stringify({value: classicGameStatus.locationID}));
+    xobj.send(JSON.stringify({value: classicGameStatus.locationID}));
 
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
