@@ -23,7 +23,8 @@
     'use strict';
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("application/json");
-    xobj.open('GET', 'http://localhost/json/rooms.json', true);
+    xobj.open('POST', 'http://localhost/cgi-bin/fetchroom.pl', classicGameStatus.locationID);
+    //xobj.open('GET', 'http://localhost/json/rooms.json', true);
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
         //console.log(xobj.responseText);
