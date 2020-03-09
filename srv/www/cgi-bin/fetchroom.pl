@@ -12,10 +12,13 @@ use Data::Dumper qw(Dumper);
 #my $dtroom = 1;
 
 
-$q = new CGI;
-my $dtroom = $q->param(‘value’);
+my $q = new CGI;
+#print $q->header();
+my $dtroom = $q->param("value");
 
+#$dtroom = 1;
 
+#print $dtroom;
 
 my $dbh = DBI->connect('dbi:Pg:dbname=classic;host=localhost','derek','dtDerek',{AutoCommit=>1,RaiseError=>1,PrintError=>0});
 
@@ -31,7 +34,7 @@ my $fields = $sth->{NAME};
 my $sql = "SELECT * FROM rooms WHERE \"roomNumber\" = ?";
 
 my @row = $dbh->selectrow_array($sql,undef,$dtroom);
-unless (@row) { die "room not found in database"; }
+unless (@row) { die "\{oops\}room not found in database"; }
 
 #print @row,"\n";
 
@@ -44,4 +47,4 @@ my %hash;
 
 my $json = encode_json \%hash;
 
-print $json,"\n";
+print $json,"\n\n";
