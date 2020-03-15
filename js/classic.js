@@ -2,7 +2,7 @@
   'use strict';
 
   var classicGameStatus = {
-    locationID: -1, //the current room
+    locationID: 1, //the current room Initialised to room 1 just now - this needs to be looked at to allow for saved games
 
     classicRoomJson: {uninitialised: true},
 
@@ -22,15 +22,24 @@
   function classicLoadRoomJson(callback) {
     'use strict';
     var xobj = new XMLHttpRequest();
-    xobj.overrideMimeType("application/json");
-    xobj.open('GET', 'http://localhost/json/rooms.json', true);
+    xobj.overrideMimeType("text/application");
+    //xobj.open('POST', 'http://localhost/srv/www/cgi-bin/fetchroom.pl', true);
+    xobj.open('GET', 'http://localhost/cgi-bin/fetchroom.pl?value=' + classicGameStatus.locationID, true);
+
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
         //console.log(xobj.responseText);
         callback(JSON.parse(xobj.responseText));
       }
     };
-    xobj.send(null);
+    //var dtOutput = "value=" + classicGameStatus.locationID;
+    //console.log(dtOutput);
+    //console.log(JSON.stringify({value: classicGameStatus.locationID}));
+    //xobj.send(dtOutput);
+    //console.log(classicGameStatus.locationID);
+    xobj.send(classicGameStatus.locationID);
+    //xobj.send(JSON.stringify("{value: " + classicGameStatus.locationID + "}"));
+    //xobj.send(null);
   }
 
 
@@ -40,7 +49,7 @@
 
     //Initialise location on first use
     if (classicGameStatus.locationID === -1) {
-      classicGameStatus.locationID = 0;
+      classicGameStatus.locationID = 1;
       console.log('here we are');
     }
 
@@ -56,10 +65,10 @@
 
       }
       switch (classicGameStatus.locationID) {
-        case 0:
+        case 1:
           gameStatus.value += "\nYou are in test room number one.";
           break;
-        case 1:
+        case 2:
           gameStatus.value += "\nThis is test room number two.";
           break;
         }
@@ -110,11 +119,11 @@
     classicGameStatus.classicCommandNotRecognised = false;
 
     if (classicGameStatus.classicVerb === 'north') {
-      classicGameStatus.locationID = 1;
+      classicGameStatus.locationID = 2;
     }
 
     if (classicGameStatus.classicVerb === 'south') {
-      classicGameStatus.locationID = 0;
+      classicGameStatus.locationID = 1;
     }
 
     if (classicGameStatus.classicVerb !== 'north' && classicGameStatus.classicVerb !== 'south') {
@@ -141,18 +150,16 @@
 
     classicFunctionReturn = classicParseEnteredCommand(commandBox);
 
-    //No need to load the JSON in every time
-    //this will be replaced by a sql server
-    if (classicGameStatus.classicRoomJson.uninitialised) {
-      classicLoadRoomJson(function(classicLoadRoomJson) {
-          classicGameStatus.classicRoomJson = classicLoadRoomJson;
-          console.log(classicGameStatus.classicRoomJson);// this will log out the json object
-          //Take the values (or references?...) from classicRoomJson and populate them into the relevant parts of classicGameStatus
-          //Do we maybe just link the object we are currently calling classicRoomJson .directly into classicGameStatus in the function call??? - or is it better to have the values...
-          console.log(classicGameStatus);
-          console.log("That's it!");
-            });
-      }
+
+    classicLoadRoomJson(function(classicLoadRoomJson) {
+        classicGameStatus.classicRoomJson = classicLoadRoomJson;
+        console.log(classicGameStatus.classicRoomJson);// this will log out the json object
+        //Take the values (or references?...) from classicRoomJson and populate them into the relevant parts of classicGameStatus
+        //Do we maybe just link the object we are currently calling classicRoomJson .directly into classicGameStatus in the function call??? - or is it better to have the values...
+        console.log(classicGameStatus);
+        console.log("That's it!");
+    });
+
 
     classicFunctionReturn = classicProcessParsedCommand();
 
