@@ -24,18 +24,21 @@
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("text/application");
     //xobj.open('POST', 'http://localhost/srv/www/cgi-bin/fetchroom.pl', true);
-    xobj.open('POST', 'http://localhost/cgi-bin/fetchroom.pl', true);
+    xobj.open('GET', 'http://localhost/cgi-bin/fetchroom.pl?value=' + classicGameStatus.locationID, true);
 
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
-        console.log(xobj.responseText);
+        //console.log(xobj.responseText);
         callback(JSON.parse(xobj.responseText));
       }
     };
-    var dtOutput = "value=" + classicGameStatus.locationID;
-    console.log(dtOutput);
+    //var dtOutput = "value=" + classicGameStatus.locationID;
+    //console.log(dtOutput);
     //console.log(JSON.stringify({value: classicGameStatus.locationID}));
-    xobj.send(dtOutput);
+    //xobj.send(dtOutput);
+    //console.log(classicGameStatus.locationID);
+    xobj.send(classicGameStatus.locationID);
+    //xobj.send(JSON.stringify("{value: " + classicGameStatus.locationID + "}"));
     //xobj.send(null);
   }
 
@@ -62,10 +65,10 @@
 
       }
       switch (classicGameStatus.locationID) {
-        case 0:
+        case 1:
           gameStatus.value += "\nYou are in test room number one.";
           break;
-        case 1:
+        case 2:
           gameStatus.value += "\nThis is test room number two.";
           break;
         }
@@ -116,11 +119,11 @@
     classicGameStatus.classicCommandNotRecognised = false;
 
     if (classicGameStatus.classicVerb === 'north') {
-      classicGameStatus.locationID = 1;
+      classicGameStatus.locationID = 2;
     }
 
     if (classicGameStatus.classicVerb === 'south') {
-      classicGameStatus.locationID = 0;
+      classicGameStatus.locationID = 1;
     }
 
     if (classicGameStatus.classicVerb !== 'north' && classicGameStatus.classicVerb !== 'south') {
