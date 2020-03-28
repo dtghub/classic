@@ -27,7 +27,6 @@
     'use strict';
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("text/application");
-    //xobj.open('POST', 'http://localhost/srv/www/cgi-bin/fetchroom.pl', true);
     xobj.open('GET', 'http://localhost/cgi-bin/fetchroom.pl?value=' + classicGameStatus.locationID, true);
 
     xobj.onreadystatechange = function () {
@@ -36,14 +35,7 @@
         callback(JSON.parse(xobj.responseText));
       }
     };
-    //var dtOutput = "value=" + classicGameStatus.locationID;
-    //console.log(dtOutput);
-    //console.log(JSON.stringify({value: classicGameStatus.locationID}));
-    //xobj.send(dtOutput);
-    //console.log(classicGameStatus.locationID);
     xobj.send(classicGameStatus.locationID);
-    //xobj.send(JSON.stringify("{value: " + classicGameStatus.locationID + "}"));
-    //xobj.send(null);
   }
 
 
