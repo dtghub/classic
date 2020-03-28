@@ -2,7 +2,11 @@
   'use strict';
 
   var classicGameStatus = {
-    locationID: 1, //the current room Initialised to room 1 just now - this needs to be looked at to allow for saved games
+    locationID: -1, //the current room Initialised to room 1 just now - this needs to be looked at to allow for saved games - I don't think this is needed - just do the initialisation from the init function!
+
+    //Form references
+    gameStatus: document.getElementById('game'),
+    commandBox: document.getElementById('commandBox'),
 
     classicRoomJson: {uninitialised: true},
 
@@ -11,40 +15,30 @@
     // Noun and verb are produced by the classicParsing funtion, and used as the command interface - might implement adverbs later?
     classicVerb: "", // the result of the parsing logic
     classicNoun: "", // the result of the parsing logic
-    classicCommandNotRecognised: false, // set to true if no verb was identified
+    classicCommandNotRecognised: false, // will set to true if no verb was identified
     //an array to store room statuses
     //an array to store object status elements
   };
 
 
 
-  //Should expand this to load in all the JSONs in one go
   function classicLoadRoomJson(callback) {
     'use strict';
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("text/application");
-    //xobj.open('POST', 'http://localhost/srv/www/cgi-bin/fetchroom.pl', true);
     xobj.open('GET', 'http://localhost/cgi-bin/fetchroom.pl?value=' + classicGameStatus.locationID, true);
 
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
-        //console.log(xobj.responseText);
         callback(JSON.parse(xobj.responseText));
       }
     };
-    //var dtOutput = "value=" + classicGameStatus.locationID;
-    //console.log(dtOutput);
-    //console.log(JSON.stringify({value: classicGameStatus.locationID}));
-    //xobj.send(dtOutput);
-    //console.log(classicGameStatus.locationID);
     xobj.send(classicGameStatus.locationID);
-    //xobj.send(JSON.stringify("{value: " + classicGameStatus.locationID + "}"));
-    //xobj.send(null);
   }
 
 
 
-  function classicUpdateDescription(gameStatus) {
+  function classicUpdateDescription() {
     'use strict';
 
     //Initialise location on first use
@@ -53,10 +47,10 @@
       console.log('here we are');
     }
 
-    gameStatus.value += '\n' + classicGameStatus.classicTurnCommand;
+    classicGameStatus.gameStatus.value += '\n' + classicGameStatus.classicTurnCommand;
 
     if (classicGameStatus.classicCommandNotRecognised) {
-      gameStatus.value += "\nSorry, I didn't understand that!";
+      classicGameStatus.gameStatus.value += "\nSorry, I didn't understand that!";
     }
 
     //This is initial kludge to help get the code structure into place
@@ -66,10 +60,10 @@
       }
       switch (classicGameStatus.locationID) {
         case 1:
-          gameStatus.value += "\nYou are in test room number one.";
+          classicGameStatus.gameStatus.value += "\nYou are in test room number one.";
           break;
         case 2:
-          gameStatus.value += "\nThis is test room number two.";
+          classicGameStatus.gameStatus.value += "\nThis is test room number two.";
           break;
         }
 
@@ -79,9 +73,9 @@
 
 
       //This makes sure that the bottom line of text in the gameStatus box is visible after an update.
-      gameStatus.scrollTop = gameStatus.scrollHeight;
+      classicGameStatus.gameStatus.scrollTop = classicGameStatus.gameStatus.scrollHeight;
 
-      gameStatus.setAttribute('disabled', true);
+      classicGameStatus.gameStatus.setAttribute('disabled', true);
       console.log('third');
   }
 
@@ -90,10 +84,10 @@
 
 
 
-  function classicParseEnteredCommand(commandBox) {
+  function classicParseEnteredCommand() {
     'use strict';
 
-    classicGameStatus.classicTurnCommand = commandBox.value;
+    classicGameStatus.classicTurnCommand = classicGameStatus.commandBox.value;
 
     //Parsing logic to go here - in the meantime...
     if (classicGameStatus.classicTurnCommand.search(/north/i) !== -1) {
@@ -105,7 +99,7 @@
     }
 
     console.log(classicGameStatus.classicVerb);
-    commandBox.value = '';
+    classicGameStatus.commandBox.value = '';
   }
 
 
@@ -140,30 +134,20 @@
   function classicTurn() {
     'use strict';
 
-    // Form references: - once the code gets fleshed out, consider if maybe these references should be moved to the init function for efficiency...
-    var gameStatus = document.getElementById('game');
-    var commandBox = document.getElementById('commandBox');
-    //var submit = document.getElementById('submit');
-
-    var classicFunctionReturn = [];
 
 
-    classicFunctionReturn = classicParseEnteredCommand(commandBox);
+    classicParseEnteredCommand();
 
 
     classicLoadRoomJson(function(classicLoadRoomJson) {
-        classicGameStatus.classicRoomJson = classicLoadRoomJson;
-        console.log(classicGameStatus.classicRoomJson);// this will log out the json object
-        //Take the values (or references?...) from classicRoomJson and populate them into the relevant parts of classicGameStatus
-        //Do we maybe just link the object we are currently calling classicRoomJson .directly into classicGameStatus in the function call??? - or is it better to have the values...
-        console.log(classicGameStatus);
-        console.log("That's it!");
+      classicGameStatus.classicRoomJson = classicLoadRoomJson;
     });
 
+    console.log(classicGameStatus);
 
-    classicFunctionReturn = classicProcessParsedCommand();
+    classicProcessParsedCommand();
 
-    classicUpdateDescription(gameStatus);
+    classicUpdateDescription();
 
     // return false to prevent submission for now:
     return false;
@@ -177,7 +161,7 @@
 
   function init() {
     'use strict';
-
+    // We will call an init funtion here to set the initial parameters, and either load a saved game or initialise new game
     document.getElementById('theForm').onsubmit = classicTurn;
   }
 
