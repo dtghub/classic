@@ -2,7 +2,7 @@
   'use strict';
 
   var classicGameStatus = {
-    locationID: -1, //the current room Initialised to room 1 just now - this needs to be looked at to allow for saved games
+    locationID: -1, //the current room Initialised to room 1 just now - this needs to be looked at to allow for saved games - I don't think this is needed - just do the initialisation from the init function!
 
     //Form references
     gameStatus: document.getElementById('game'),
@@ -136,10 +136,9 @@
   function classicTurn() {
     'use strict';
 
-    var classicFunctionReturn = [];
 
 
-    classicFunctionReturn = classicParseEnteredCommand();
+    classicParseEnteredCommand();
 
 
     classicLoadRoomJson(function(classicLoadRoomJson) {
@@ -151,7 +150,7 @@
     });
 
 
-    classicFunctionReturn = classicProcessParsedCommand();
+    classicProcessParsedCommand();
 
     classicUpdateDescription();
 
