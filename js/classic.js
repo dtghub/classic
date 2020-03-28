@@ -22,7 +22,6 @@
 
 
 
-  //Should expand this to load in all the JSONs in one go
   function classicLoadRoomJson(callback) {
     'use strict';
     var xobj = new XMLHttpRequest();
@@ -31,7 +30,6 @@
 
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
-        //console.log(xobj.responseText);
         callback(JSON.parse(xobj.responseText));
       }
     };
@@ -142,13 +140,10 @@
 
 
     classicLoadRoomJson(function(classicLoadRoomJson) {
-        classicGameStatus.classicRoomJson = classicLoadRoomJson;
-        console.log(classicGameStatus.classicRoomJson);// this will log out the json object
-
-        console.log(classicGameStatus);
-        console.log("That's it!");
+      classicGameStatus.classicRoomJson = classicLoadRoomJson;
     });
 
+    console.log(classicGameStatus);
 
     classicProcessParsedCommand();
 
