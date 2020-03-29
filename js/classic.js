@@ -28,6 +28,10 @@
 
 
 
+
+
+
+
   function classicLoadRoomJson(callback) {
     'use strict';
     var xobj = new XMLHttpRequest();
@@ -37,10 +41,14 @@
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
         callback(JSON.parse(xobj.responseText));
+        classicTurnPart2(); //Complete the classicTurn loop when ready.
       }
     };
     xobj.send(classicGameStatus.locationID);
   }
+
+
+
 
 
 
@@ -152,24 +160,18 @@
 
 
 
+
   // Functioning as 'Main loop' for now...
-  function classicTurn() {
+  function classicTurnPart1() {
     'use strict';
-
-
 
     classicParseEnteredCommand();
 
+    classicProcessParsedCommand();
 
     classicLoadRoomJson(function(classicLoadRoomJson) {
       classicGameStatus.classicRoomJson = classicLoadRoomJson;
-    });
-
-    console.log(classicGameStatus);
-
-    classicProcessParsedCommand();
-
-    classicUpdateDescription();
+    }); //When the JSON is loaded the loop resumes in classicTurnPart2
 
     // return false to prevent submission for now:
     return false;
@@ -181,10 +183,23 @@
 
 
 
+  function classicTurnPart2() {
+    'use strict';
+
+    classicUpdateDescription();
+    console.log(classicGameStatus);
+
+  }
+
+
+
+
+
+
   function init() {
     'use strict';
     // We will call an init funtion here to set the initial parameters, and either load a saved game or initialise new game
-    document.getElementById('theForm').onsubmit = classicTurn;
+    document.getElementById('theForm').onsubmit = classicTurnPart1;
   }
 
   window.onload = init;
