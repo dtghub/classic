@@ -9,6 +9,7 @@
     commandBox: document.getElementById('commandBox'),
 
     classicRoomJson: {uninitialised: true},
+    classicCommandsJson: {uninitialised: true},
 
     //This is an array to record whch rooms have already been visited - as each new room is visited it is pushed into the array. We can access the rooms list using if (roomAlreadyVisited.includes(<roomnumber>))
     roomAlreadyVisited: [],
@@ -28,6 +29,20 @@
 
 
 
+
+  function classicLoadCommandsJson(callback) {
+    'use strict';
+    var xobj = new XMLHttpRequest();
+    xobj.overrideMimeType("text/application");
+    xobj.open('GET', 'http://localhost/cgi-bin/fetchcommands.pl', true);
+
+    xobj.onreadystatechange = function () {
+      if (xobj.readyState == 4 && xobj.status == "200") {
+        callback(JSON.parse(xobj.responseText));
+      }
+    };
+    xobj.send(null);
+  }
 
 
 
@@ -199,6 +214,14 @@
   function init() {
     'use strict';
     // We will call an init funtion here to set the initial parameters, and either load a saved game or initialise new game
+
+    //fetch list of game commands from the server
+    classicLoadCommandsJson(function(classicLoadCommandsJson) {
+      classicGameStatus.classicCommandsJson = classicLoadCommandsJson;
+    });
+
+
+
     document.getElementById('theForm').onsubmit = classicTurnPart1;
   }
 

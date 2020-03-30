@@ -7,13 +7,9 @@ use DBI;
 use JSON;
 use Data::Dumper qw(Dumper);
 
-
-my $cgi = new CGI;
-print $cgi->header();
-
 my $q = new CGI;
+print $q->header();
 my $dtroom = $q->param("value");
-
 
 
 
