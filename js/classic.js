@@ -171,7 +171,7 @@
 
     classicLoadRoomJson(function(classicLoadRoomJson) {
       classicGameStatus.classicRoomJson = classicLoadRoomJson;
-    }); //When the JSON is loaded the loop resumes in classicTurnPart2
+    }); //When the JSON is loaded the loop resumes in classicTurnPart2()
 
     // return false to prevent submission for now:
     return false;
