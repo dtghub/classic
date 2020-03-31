@@ -208,6 +208,34 @@
     classicGameStatus.roomLongDescriptionRequired = false;
 
 
+    // classicGameStatus.gameStatus.value += "\n" +
+
+
+    if (classicGameStatus.classicMovementVerb === "" && classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun === "") {
+      classicGameStatus.gameStatus.value += "\nI'm sorry, I didn't understand that!";
+    }
+
+    //Needs improvement;
+    //As written, this allows the user to confirm the existance of any object name.
+    if (classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun !== "") {
+      classicGameStatus.gameStatus.value += "\nHmmm, I don't follow; Please clarify what you would like me to do with the " + classicGameStatus.classicNoun + "?";
+    }
+
+    // verb-only and verb+noun processing to follow...
+
+    if (classicGameStatus.classicMovementVerb !== "") {
+      
+    }
+
+
+
+
+
+
+
+
+
+
     if (classicGameStatus.classicVerb === 'north') {
       classicGameStatus.locationID = 2;
       classicGameStatus.roomDescriptionRequired = true;
