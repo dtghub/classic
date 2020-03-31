@@ -21,7 +21,7 @@
     //The following are used for command parsing
     classicTurnCommand: "", //the text the user has entered in the current turn
     // Noun and verb are produced by the classicParsing funtion, and used as the command interface - might implement adverbs later?
-    classicMovementVerb: false, //Has the user requested to move?
+    classicMovementVerb: "", //Has the user requested to move?
     classicVerb: "", // the result of the parsing logic
     classicNoun: "", // the result of the parsing logic
     classicCommandNotRecognised: false, // will set to true if no verb was identified
@@ -115,7 +115,7 @@
     'use strict';
 
 
-    classicGameStatus.classicMovementVerb = false;
+    classicGameStatus.classicMovementVerb = "";
     classicGameStatus.classicVerb = "";
     classicGameStatus.classicNoun = "";
     classicGameStatus.classicCommandNotRecognised = false;
@@ -131,9 +131,9 @@
     var clExp = "";
 
     //Locate the first two words from our syntax list that the user has entered into the commandBox.
+    //This is done by stepping through the list of recognised words ('commands').
 
-
-    for(var index in classicGameStatus.classicCommandsJson) {
+    for (var index in classicGameStatus.classicCommandsJson) {
       clExp = new RegExp('\\b' + index + '\\b', 'i');
       wordMatch = classicGameStatus.classicTurnCommand.search(clExp);
       if ((wordMatch > -1) && (wordMatch < secondStartPosition)) {
@@ -149,11 +149,25 @@
       }
     }
 
+    if (firstStartPosition < classicGameStatus.classicTurnCommand.length) {
+      if (classicGameStatus.classicCommandsJson[firstCommand].charAt(0) == 'M') {
+        classicGameStatus.classicMovementVerb = classicGameStatus.classicCommandsJson[firstCommand].slice(1);
+      } else if (classicGameStatus.classicCommandsJson[firstCommand].charAt(0) == 'N') {
+        classicGameStatus.classicNoun = classicGameStatus.classicCommandsJson[firstCommand].slice(1);
+      } else if (classicGameStatus.classicCommandsJson[firstCommand].charAt(0) == 'V') {
+        classicGameStatus.classicVerb = classicGameStatus.classicCommandsJson[firstCommand].slice(1);
+        if (secondStartPosition < classicGameStatus.classicTurnCommand.length) {
+          if (classicGameStatus.classicCommandsJson[secondCommand].charAt(0) == 'N') {
+          classicGameStatus.classicNoun = classicGameStatus.classicCommandsJson[secondCommand].slice(1);
+          }
+        }
+      }
+    }
 
-    console.log(firstCommand);
-    console.log(firstStartPosition);
-    console.log(secondCommand);
-    console.log(secondStartPosition);
+    console.log(classicGameStatus.classicMovementVerb);
+    console.log(classicGameStatus.classicVerb);
+    console.log(classicGameStatus.classicNoun);
+
 
     //Parsing logic to go here - in the meantime...
     if (classicGameStatus.classicTurnCommand.search(/north/i) !== -1) {
