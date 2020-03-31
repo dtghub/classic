@@ -123,27 +123,37 @@
 
     classicGameStatus.classicTurnCommand = classicGameStatus.commandBox.value;
 
-    var theCommand = "";
-    var startPosition = classicGameStatus.classicTurnCommand.length;
+    var firstCommand = "";
+    var secondCommand = "";
+    var firstStartPosition = classicGameStatus.classicTurnCommand.length;
+    var secondStartPosition = classicGameStatus.classicTurnCommand.length;
     var wordMatch = 0;
     var clExp = "";
 
-    //Locate the first verb that the user has entered into the commandBox.
+    //Locate the first two words from our syntax list that the user has entered into the commandBox.
 
 
     for(var index in classicGameStatus.classicCommandsJson) {
       clExp = new RegExp('\\b' + index + '\\b', 'i');
       wordMatch = classicGameStatus.classicTurnCommand.search(clExp);
-      if ((wordMatch > -1) && (wordMatch < startPosition)) {
-        theCommand = index;
-        startPosition = wordMatch;
+      if ((wordMatch > -1) && (wordMatch < secondStartPosition)) {
+        if (wordMatch < firstStartPosition) {
+          secondCommand = firstCommand;
+          secondStartPosition = firstStartPosition;
+          firstCommand = index;
+          firstStartPosition = wordMatch;
+        } else {
+          secondCommand = index;
+          secondStartPosition = wordMatch;
+        }
       }
     }
 
 
-
-    console.log(theCommand);
-    console.log(startPosition);
+    console.log(firstCommand);
+    console.log(firstStartPosition);
+    console.log(secondCommand);
+    console.log(secondStartPosition);
 
     //Parsing logic to go here - in the meantime...
     if (classicGameStatus.classicTurnCommand.search(/north/i) !== -1) {
