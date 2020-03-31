@@ -8,11 +8,12 @@
     gameStatus: document.getElementById('game'),
     commandBox: document.getElementById('commandBox'),
 
+    //These are places to load the game data to - the 'rooms' 'commands' 'objects' etc
     classicRoomJson: {uninitialised: true},
     classicCommandsJson: {uninitialised: true},
 
-    //This is an array to record whch rooms have already been visited - as each new room is visited it is pushed into the array. We can access the rooms list using if (roomAlreadyVisited.includes(<roomnumber>))
-    roomAlreadyVisited: [],
+    //This is an array to record whch rooms have already been visited - as each new room is visited it is pushed into the array. We can access the rooms list using if (roomPreviouslyVisited.includes(<roomnumber>))
+    roomPreviouslyVisited: [],
     roomDescriptionRequired: true,
     roomLongDescriptionRequired: true,
 
@@ -20,6 +21,7 @@
     //The following are used for command parsing
     classicTurnCommand: "", //the text the user has entered in the current turn
     // Noun and verb are produced by the classicParsing funtion, and used as the command interface - might implement adverbs later?
+    classicMovementVerb: false, //Has the user requested to move?
     classicVerb: "", // the result of the parsing logic
     classicNoun: "", // the result of the parsing logic
     classicCommandNotRecognised: false, // will set to true if no verb was identified
@@ -112,7 +114,36 @@
   function classicParseEnteredCommand() {
     'use strict';
 
+
+    classicGameStatus.classicMovementVerb = false;
+    classicGameStatus.classicVerb = "";
+    classicGameStatus.classicNoun = "";
+    classicGameStatus.classicCommandNotRecognised = false;
+
+
     classicGameStatus.classicTurnCommand = classicGameStatus.commandBox.value;
+
+    var theCommand = "";
+    var startPosition = classicGameStatus.classicTurnCommand.length;
+    var wordMatch = 0;
+    var clExp = "";
+
+    //Locate the first verb that the user has entered into the commandBox.
+
+
+    for(var index in classicGameStatus.classicCommandsJson) {
+      clExp = new RegExp('\\b' + index + '\\b', 'i');
+      wordMatch = classicGameStatus.classicTurnCommand.search(clExp);
+      if ((wordMatch > -1) && (wordMatch < startPosition)) {
+        theCommand = index;
+        startPosition = wordMatch;
+      }
+    }
+
+
+
+    console.log(theCommand);
+    console.log(startPosition);
 
     //Parsing logic to go here - in the meantime...
     if (classicGameStatus.classicTurnCommand.search(/north/i) !== -1) {
@@ -145,8 +176,8 @@
     if (classicGameStatus.classicVerb === 'north') {
       classicGameStatus.locationID = 2;
       classicGameStatus.roomDescriptionRequired = true;
-      if (!classicGameStatus.roomAlreadyVisited.includes(2)) {
-        classicGameStatus.roomAlreadyVisited.push(2);
+      if (!classicGameStatus.roomPreviouslyVisited.includes(2)) {
+        classicGameStatus.roomPreviouslyVisited.push(2);
         classicGameStatus.roomLongDescriptionRequired = true;
       }
     }
@@ -154,8 +185,8 @@
     if (classicGameStatus.classicVerb === 'south') {
       classicGameStatus.locationID = 1;
       classicGameStatus.roomDescriptionRequired = true;
-      if (!classicGameStatus.roomAlreadyVisited.includes(1)) {
-        classicGameStatus.roomAlreadyVisited.push(1);
+      if (!classicGameStatus.roomPreviouslyVisited.includes(1)) {
+        classicGameStatus.roomPreviouslyVisited.push(1);
         classicGameStatus.roomLongDescriptionRequired = true;
       }
     }
