@@ -149,6 +149,17 @@
       }
     }
 
+    //Now that we have checked for the first 2 words, we categorise what we have.
+    //The list of commands obtained from the database are in key:value pairs
+    // - the key is what the user would type.
+    // - the first character of the value defines the type of command; either M, V or N (movement, verb or noun).
+    // -- the rest of the value is the token; e.g. the user typing either 'ne' or 'northeast' will both be tokenised to 'northeast' - stored as 'Mnortheast' so classed as a movement verb
+
+    //if the first command is an M we assign the token to classicGameStatus.classicMovementVerb and ignore any second word.
+    //if the first command is an N we assign the token to classicGameStatus.classicNoun and ignore any second word
+    //if the first command is a V we assign the token to classicGameStatus.classicVerb and we then check if the second word is an N; if so we assign the second token to classicGameStatus.classicNoun
+
+
     if (firstStartPosition < classicGameStatus.classicTurnCommand.length) {
       if (classicGameStatus.classicCommandsJson[firstCommand].charAt(0) == 'M') {
         classicGameStatus.classicMovementVerb = classicGameStatus.classicCommandsJson[firstCommand].slice(1);
