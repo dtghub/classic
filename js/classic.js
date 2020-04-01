@@ -2,7 +2,7 @@
   'use strict';
 
   var classicGameStatus = {
-    locationID: -1, //the current room Initialised to room 1 just now - this needs to be looked at to allow for saved games - I don't think this is needed - just do the initialisation from the init function!
+    locationID: 1, //the current room Initialised to room 1 just now - this needs to be looked at to allow for saved games - I don't think this is needed - just do the initialisation from the init function!
 
     //Form references
     gameStatus: document.getElementById('game'),
@@ -13,7 +13,7 @@
     classicCommandsJson: {uninitialised: true},
 
     //This is an array to record whch rooms have already been visited - as each new room is visited it is pushed into the array. We can access the rooms list using if (roomPreviouslyVisited.includes(<roomnumber>))
-    roomPreviouslyVisited: [],
+    roomPreviouslyVisited: [1],
     roomDescriptionRequired: true,
     roomLongDescriptionRequired: true,
 
@@ -72,13 +72,8 @@
   function classicUpdateDescription() {
     'use strict';
 
-    //Initialise location on first use
-    if (classicGameStatus.locationID === -1) {
-      classicGameStatus.locationID = 1;
-      console.log('here we are');
-    }
 
-    classicGameStatus.gameStatus.value += '\n' + classicGameStatus.classicTurnCommand;
+
 
     if (classicGameStatus.classicCommandNotRecognised) {
       classicGameStatus.gameStatus.value += "\nSorry, I didn't understand that!";
@@ -179,19 +174,6 @@
     console.log(classicGameStatus.classicVerb);
     console.log(classicGameStatus.classicNoun);
 
-
-    //Parsing logic to go here - in the meantime...
-    if (classicGameStatus.classicTurnCommand.search(/north/i) !== -1) {
-      classicGameStatus.classicVerb = "north";
-    } else if (classicGameStatus.classicTurnCommand.search(/south/i) !== -1) {
-      classicGameStatus.classicVerb = "south";
-    } else if (classicGameStatus.classicTurnCommand.search(/look/i) !== -1) {
-      classicGameStatus.classicVerb = "look";
-    } else {
-      classicGameStatus.classicVerb = undefined;
-    }
-
-    console.log(classicGameStatus.classicVerb);
     classicGameStatus.commandBox.value = '';
   }
 
@@ -207,35 +189,41 @@
     classicGameStatus.roomDescriptionRequired = false;
     classicGameStatus.roomLongDescriptionRequired = false;
 
+    //echo the entered command to the main window
+    classicGameStatus.gameStatus.value += '\n' + classicGameStatus.classicTurnCommand;
 
-    if (classicGameStatus.classicVerb === 'north') {
-      classicGameStatus.locationID = 2;
-      classicGameStatus.roomDescriptionRequired = true;
-      if (!classicGameStatus.roomPreviouslyVisited.includes(2)) {
-        classicGameStatus.roomPreviouslyVisited.push(2);
-        classicGameStatus.roomLongDescriptionRequired = true;
-      }
+
+    if (classicGameStatus.classicMovementVerb === "" && classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun === "") {
+      classicGameStatus.gameStatus.value += "\nI'm sorry, I didn't understand that!";
     }
 
-    if (classicGameStatus.classicVerb === 'south') {
-      classicGameStatus.locationID = 1;
-      classicGameStatus.roomDescriptionRequired = true;
-      if (!classicGameStatus.roomPreviouslyVisited.includes(1)) {
-        classicGameStatus.roomPreviouslyVisited.push(1);
-        classicGameStatus.roomLongDescriptionRequired = true;
-      }
+    //Needs improvement;
+    //As written, this allows the user to confirm the existance of any object name.
+    if (classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun !== "") {
+      classicGameStatus.gameStatus.value += "\nHmmm, I don't follow; Please clarify what you would like me to do with the " + classicGameStatus.classicNoun + "?";
     }
 
-    if (classicGameStatus.classicVerb === 'look') {
+    // verb-only and verb+noun processing to follow, but for now...
+    if (classicGameStatus.classicVerb === "look") {
       classicGameStatus.roomDescriptionRequired = true;
       classicGameStatus.roomLongDescriptionRequired = true;
     }
 
-    if (classicGameStatus.classicVerb !== 'north' && classicGameStatus.classicVerb !== 'south' && classicGameStatus.classicVerb !== 'look') {
-      classicGameStatus.classicCommandNotRecognised = true;
-    }
 
-}
+    if (classicGameStatus.classicMovementVerb !== "") {
+      var clRoomNumber = classicGameStatus.classicRoomJson[classicGameStatus.classicMovementVerb];
+      if (clRoomNumber !== 0) {
+        classicGameStatus.locationID = clRoomNumber;
+        classicGameStatus.roomDescriptionRequired = true;
+        if (!classicGameStatus.roomPreviouslyVisited.includes(clRoomNumber)) {
+          classicGameStatus.roomPreviouslyVisited.push(clRoomNumber);
+          classicGameStatus.roomLongDescriptionRequired = true;
+        }
+      } else {
+        classicGameStatus.gameStatus.value += "\nYou can't go that way.";
+      }
+    }
+  }
 
 
 
