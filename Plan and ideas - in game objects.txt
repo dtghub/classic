@@ -1,0 +1,1 @@
+Currently a separate document from the main plan and ideas document, for me to plan and work out the implementation details for the command parser; in particular how to handle the in-game objects.
