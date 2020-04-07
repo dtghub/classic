@@ -10,6 +10,6 @@ Types of objects we might need to deal with;
 
 Ways to interact with objects;
 
-  - examine an object 'examine paper' "This is a ordinary looking piece of notepaper. It has a note scribbled on it in blue ink" (also display information e.g. 'read note' or do we make note a synonym which gets tokenised to 'Npaper'?).
-  - set a property flag (e.g. lamp is lit - or do we just swap a lamp for a lit lamp i.e. they are two different objects?)
-  - set the location of an item (room number, ?room number but invisible?, in your inventory, other special locations such as in a drawer).
+  - know information; examine an item 'examine paper' "This is a ordinary looking piece of notepaper. It has a note scribbled on it in blue ink" (also display information e.g. 'read note' or do we make note a synonym which gets tokenised to 'Npaper'?).
+  - take action; set a property flag (e.g. lamp is lit - or do we just swap a lamp for a lit lamp i.e. they are two different objects?)
+  - move item; set the location of an item (room number, ?room number but invisible?, in your inventory, other special locations such as in a drawer).
