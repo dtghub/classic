@@ -35,8 +35,6 @@
   function classicLoadCommandsJson(callback) {
     'use strict';
     var xobj = new XMLHttpRequest();
-    xobj.overrideMimeType("text/application");
-    xobj.open('GET', 'http://localhost/cgi-bin/fetchcommands.pl', true);
 
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
@@ -156,14 +154,14 @@
 
 
     if (firstStartPosition < classicGameStatus.classicTurnCommand.length) {
-      if (classicGameStatus.classicCommandsJson[firstCommand].charAt(0) == 'M') {
+      if (classicGameStatus.classicCommandsJson[firstCommand].charAt(0) === 'M') {
         classicGameStatus.classicMovementVerb = classicGameStatus.classicCommandsJson[firstCommand].slice(1);
-      } else if (classicGameStatus.classicCommandsJson[firstCommand].charAt(0) == 'N') {
+      } else if (classicGameStatus.classicCommandsJson[firstCommand].charAt(0) === 'N') {
         classicGameStatus.classicNoun = classicGameStatus.classicCommandsJson[firstCommand].slice(1);
-      } else if (classicGameStatus.classicCommandsJson[firstCommand].charAt(0) == 'V') {
+      } else if (classicGameStatus.classicCommandsJson[firstCommand].charAt(0) === 'V') {
         classicGameStatus.classicVerb = classicGameStatus.classicCommandsJson[firstCommand].slice(1);
         if (secondStartPosition < classicGameStatus.classicTurnCommand.length) {
-          if (classicGameStatus.classicCommandsJson[secondCommand].charAt(0) == 'N') {
+          if (classicGameStatus.classicCommandsJson[secondCommand].charAt(0) === 'N') {
           classicGameStatus.classicNoun = classicGameStatus.classicCommandsJson[secondCommand].slice(1);
           }
         }

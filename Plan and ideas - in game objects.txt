@@ -1,0 +1,15 @@
+Currently a separate document from the main plan and ideas document, to help plan and work out the implementation details for the command parser; in particular how to handle the in-game items such as things that the player can pick up and / or interact with.
+
+Types of objects we might need to deal with;
+
+  - Physical items like a lamp, a box of matches etc which can be picked up and dropped and manipulated.
+  - Items which are actually properties of a room such as door locks, pictures hanging on walls, (darkness?).
+  - Properties which are partially or completely room independent such as day/night (darkness), hunger and other decrement counters (e.g. the lamp needs filled with oil)?
+
+
+
+Ways to interact with objects;
+
+  - know information; examine an item 'examine paper' "This is a ordinary looking piece of notepaper. It has a note scribbled on it in blue ink" (also display information e.g. 'read note' or do we make note a synonym which gets tokenised to 'Npaper'?).
+  - take action; set a property flag (e.g. lamp is lit - or do we just swap a lamp for a lit lamp i.e. they are two different objects?)
+  - move item; set the location of an item (room number, ?room number but invisible?, in your inventory, other special locations such as in a drawer).
