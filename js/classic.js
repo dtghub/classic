@@ -16,7 +16,7 @@
     //an array to store object status elements
   };
 
-//Test comment
+
 
   //Should expand this to load in all the JSONs in one go
   function classicLoadRoomJson(callback) {
@@ -24,7 +24,7 @@
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("application/json");
     xobj.open('POST', 'http://localhost/srv/www/cgi-bin/fetchroom.pln', true);
-    xobj.send(JSON.stringify({value: classicGameStatus.locationID}));
+    xhr.send(JSON.stringify({value: classicGameStatus.locationID}));
 
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
