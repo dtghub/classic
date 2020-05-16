@@ -2,33 +2,42 @@
   'use strict';
 
   var classicGameStatus = {
-    locationID: -1, //the current room
+    locationID: 1, //the current room Initialised to room 1 just now - this needs to be looked at to allow for saved games - I don't think this is needed - just do the initialisation from the init function!
 
+    //Form references
+    gameStatus: document.getElementById('game'),
+    commandBox: document.getElementById('commandBox'),
+
+    //These are places to load the game data to - the 'rooms' 'commands' 'objects' etc
     classicRoomJson: {uninitialised: true},
+    classicCommandsJson: {uninitialised: true},
+
+    //This is an array to record whch rooms have already been visited - as each new room is visited it is pushed into the array. We can access the rooms list using if (roomPreviouslyVisited.includes(<roomnumber>))
+    roomPreviouslyVisited: [1],
+    roomDescriptionRequired: true,
+    roomLongDescriptionRequired: true,
+
 
     //The following are used for command parsing
     classicTurnCommand: "", //the text the user has entered in the current turn
     // Noun and verb are produced by the classicParsing funtion, and used as the command interface - might implement adverbs later?
+    classicMovementVerb: "", //Has the user requested to move?
     classicVerb: "", // the result of the parsing logic
     classicNoun: "", // the result of the parsing logic
-    classicCommandNotRecognised: false, // set to true if no verb was identified
+    classicCommandNotRecognised: false, // will set to true if no verb was identified
     //an array to store room statuses
     //an array to store object status elements
   };
 
 
 
-  //Should expand this to load in all the JSONs in one go
-  function classicLoadRoomJson(callback) {
+
+  function classicLoadCommandsJson(callback) {
     'use strict';
     var xobj = new XMLHttpRequest();
-    xobj.overrideMimeType("application/json");
-    xobj.open('POST', 'http://localhost/srv/www/cgi-bin/fetchroom.pln', true);
-    xhr.send(JSON.stringify({value: classicGameStatus.locationID}));
 
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
-        //console.log(xobj.responseText);
         callback(JSON.parse(xobj.responseText));
       }
     };
@@ -37,34 +46,46 @@
 
 
 
-  function classicUpdateDescription(gameStatus) {
+
+  function classicLoadRoomJson(callback) {
+    'use strict';
+    var xobj = new XMLHttpRequest();
+    xobj.overrideMimeType("text/application");
+    xobj.open('GET', 'http://localhost/cgi-bin/fetchroom.pl?value=' + classicGameStatus.locationID, true);
+
+    xobj.onreadystatechange = function () {
+      if (xobj.readyState == 4 && xobj.status == "200") {
+        callback(JSON.parse(xobj.responseText));
+        classicTurnPart2(); //Complete the classicTurn loop when ready.
+      }
+    };
+    xobj.send(classicGameStatus.locationID);
+  }
+
+
+
+
+
+
+  function classicUpdateDescription() {
     'use strict';
 
-    //Initialise location on first use
-    if (classicGameStatus.locationID === -1) {
-      classicGameStatus.locationID = 0;
-      console.log('here we are');
-    }
 
-    gameStatus.value += '\n' + classicGameStatus.classicTurnCommand;
+
 
     if (classicGameStatus.classicCommandNotRecognised) {
-      gameStatus.value += "\nSorry, I didn't understand that!";
+      classicGameStatus.gameStatus.value += "\nSorry, I didn't understand that!";
     }
 
     //This is initial kludge to help get the code structure into place
     //gameStatus.setAttribute('disabled', false);
-      if (true) {
-
-      }
-      switch (classicGameStatus.locationID) {
-        case 0:
-          gameStatus.value += "\nYou are in test room number one.";
-          break;
-        case 1:
-          gameStatus.value += "\nThis is test room number two.";
-          break;
+      if (classicGameStatus.roomDescriptionRequired) {
+        if (classicGameStatus.roomLongDescriptionRequired)  {
+          classicGameStatus.gameStatus.value += "\n" + classicGameStatus.classicRoomJson.longDescription;
+        } else {
+          classicGameStatus.gameStatus.value += "\n" + classicGameStatus.classicRoomJson.shortDescription;
         }
+      }
 
       //Extract and add the room description from the rooms JSON
       //gameStatus.value += "/n" +
@@ -72,9 +93,9 @@
 
 
       //This makes sure that the bottom line of text in the gameStatus box is visible after an update.
-      gameStatus.scrollTop = gameStatus.scrollHeight;
+      classicGameStatus.gameStatus.scrollTop = classicGameStatus.gameStatus.scrollHeight;
 
-      gameStatus.setAttribute('disabled', true);
+      classicGameStatus.gameStatus.setAttribute('disabled', true);
       console.log('third');
   }
 
@@ -83,22 +104,75 @@
 
 
 
-  function classicParseEnteredCommand(commandBox) {
+  function classicParseEnteredCommand() {
     'use strict';
 
-    classicGameStatus.classicTurnCommand = commandBox.value;
 
-    //Parsing logic to go here - in the meantime...
-    if (classicGameStatus.classicTurnCommand.search(/north/i) !== -1) {
-      classicGameStatus.classicVerb = "north";
-    } else if (classicGameStatus.classicTurnCommand.search(/south/i) !== -1) {
-      classicGameStatus.classicVerb = "south";
-    } else {
-      classicGameStatus.classicVerb = undefined;
+    classicGameStatus.classicMovementVerb = "";
+    classicGameStatus.classicVerb = "";
+    classicGameStatus.classicNoun = "";
+    classicGameStatus.classicCommandNotRecognised = false;
+
+
+    classicGameStatus.classicTurnCommand = classicGameStatus.commandBox.value;
+
+    var firstCommand = "";
+    var secondCommand = "";
+    var firstStartPosition = classicGameStatus.classicTurnCommand.length;
+    var secondStartPosition = classicGameStatus.classicTurnCommand.length;
+    var wordMatch = 0;
+    var clExp = "";
+
+    //Locate the first two words from our syntax list that the user has entered into the commandBox.
+    //This is done by stepping through the list of recognised words ('commands').
+
+    for (var index in classicGameStatus.classicCommandsJson) {
+      clExp = new RegExp('\\b' + index + '\\b', 'i');
+      wordMatch = classicGameStatus.classicTurnCommand.search(clExp);
+      if ((wordMatch > -1) && (wordMatch < secondStartPosition)) {
+        if (wordMatch < firstStartPosition) {
+          secondCommand = firstCommand;
+          secondStartPosition = firstStartPosition;
+          firstCommand = index;
+          firstStartPosition = wordMatch;
+        } else {
+          secondCommand = index;
+          secondStartPosition = wordMatch;
+        }
+      }
     }
 
+    //Now that we have checked for the first 2 words, we categorise what we have.
+    //The list of commands obtained from the database are in key:value pairs
+    // - the key is what the user would type.
+    // - the first character of the value defines the type of command; either M, V or N (movement, verb or noun).
+    // -- the rest of the value is the token; e.g. the user typing either 'ne' or 'northeast' will both be tokenised to 'northeast' - stored as 'Mnortheast' so classed as a movement verb
+
+    //if the first command is an M we assign the token to classicGameStatus.classicMovementVerb and ignore any second word.
+    //if the first command is an N we assign the token to classicGameStatus.classicNoun and ignore any second word
+    //if the first command is a V we assign the token to classicGameStatus.classicVerb and we then check if the second word is an N; if so we assign the second token to classicGameStatus.classicNoun
+
+
+    if (firstStartPosition < classicGameStatus.classicTurnCommand.length) {
+      if (classicGameStatus.classicCommandsJson[firstCommand].charAt(0) === 'M') {
+        classicGameStatus.classicMovementVerb = classicGameStatus.classicCommandsJson[firstCommand].slice(1);
+      } else if (classicGameStatus.classicCommandsJson[firstCommand].charAt(0) === 'N') {
+        classicGameStatus.classicNoun = classicGameStatus.classicCommandsJson[firstCommand].slice(1);
+      } else if (classicGameStatus.classicCommandsJson[firstCommand].charAt(0) === 'V') {
+        classicGameStatus.classicVerb = classicGameStatus.classicCommandsJson[firstCommand].slice(1);
+        if (secondStartPosition < classicGameStatus.classicTurnCommand.length) {
+          if (classicGameStatus.classicCommandsJson[secondCommand].charAt(0) === 'N') {
+          classicGameStatus.classicNoun = classicGameStatus.classicCommandsJson[secondCommand].slice(1);
+          }
+        }
+      }
+    }
+
+    console.log(classicGameStatus.classicMovementVerb);
     console.log(classicGameStatus.classicVerb);
-    commandBox.value = '';
+    console.log(classicGameStatus.classicNoun);
+
+    classicGameStatus.commandBox.value = '';
   }
 
 
@@ -110,55 +184,61 @@
     'use strict';
 
     classicGameStatus.classicCommandNotRecognised = false;
+    classicGameStatus.roomDescriptionRequired = false;
+    classicGameStatus.roomLongDescriptionRequired = false;
 
-    if (classicGameStatus.classicVerb === 'north') {
-      classicGameStatus.locationID = 1;
+    //echo the entered command to the main window
+    classicGameStatus.gameStatus.value += '\n' + classicGameStatus.classicTurnCommand;
+
+
+    if (classicGameStatus.classicMovementVerb === "" && classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun === "") {
+      classicGameStatus.gameStatus.value += "\nI'm sorry, I didn't understand that!";
     }
 
-    if (classicGameStatus.classicVerb === 'south') {
-      classicGameStatus.locationID = 0;
+    //Needs improvement;
+    //As written, this allows the user to confirm the existance of any object name.
+    if (classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun !== "") {
+      classicGameStatus.gameStatus.value += "\nHmmm, I don't follow; Please clarify what you would like me to do with the " + classicGameStatus.classicNoun + "?";
     }
 
-    if (classicGameStatus.classicVerb !== 'north' && classicGameStatus.classicVerb !== 'south') {
-      classicGameStatus.classicCommandNotRecognised = true;
+    // verb-only and verb+noun processing to follow, but for now...
+    if (classicGameStatus.classicVerb === "look") {
+      classicGameStatus.roomDescriptionRequired = true;
+      classicGameStatus.roomLongDescriptionRequired = true;
     }
 
-}
+
+    if (classicGameStatus.classicMovementVerb !== "") {
+      var clRoomNumber = classicGameStatus.classicRoomJson[classicGameStatus.classicMovementVerb];
+      if (clRoomNumber !== 0) {
+        classicGameStatus.locationID = clRoomNumber;
+        classicGameStatus.roomDescriptionRequired = true;
+        if (!classicGameStatus.roomPreviouslyVisited.includes(clRoomNumber)) {
+          classicGameStatus.roomPreviouslyVisited.push(clRoomNumber);
+          classicGameStatus.roomLongDescriptionRequired = true;
+        }
+      } else {
+        classicGameStatus.gameStatus.value += "\nYou can't go that way.";
+      }
+    }
+  }
+
 
 
 
 
 
   // Functioning as 'Main loop' for now...
-  function classicTurn() {
+  function classicTurnPart1() {
     'use strict';
 
-    // Form references: - once the code gets fleshed out, consider if maybe these references should be moved to the init function for efficiency...
-    var gameStatus = document.getElementById('game');
-    var commandBox = document.getElementById('commandBox');
-    //var submit = document.getElementById('submit');
+    classicParseEnteredCommand();
 
-    var classicFunctionReturn = [];
+    classicProcessParsedCommand();
 
-
-    classicFunctionReturn = classicParseEnteredCommand(commandBox);
-
-    //No need to load the JSON in every time
-    //this will be replaced by a sql server
-    if (classicGameStatus.classicRoomJson.uninitialised) {
-      classicLoadRoomJson(function(classicLoadRoomJson) {
-          classicGameStatus.classicRoomJson = classicLoadRoomJson;
-          console.log(classicGameStatus.classicRoomJson);// this will log out the json object
-          //Take the values (or references?...) from classicRoomJson and populate them into the relevant parts of classicGameStatus
-          //Do we maybe just link the object we are currently calling classicRoomJson .directly into classicGameStatus in the function call??? - or is it better to have the values...
-          console.log(classicGameStatus);
-          console.log("That's it!");
-            });
-      }
-
-    classicFunctionReturn = classicProcessParsedCommand();
-
-    classicUpdateDescription(gameStatus);
+    classicLoadRoomJson(function(classicLoadRoomJson) {
+      classicGameStatus.classicRoomJson = classicLoadRoomJson;
+    }); //When the JSON is loaded the loop resumes in classicTurnPart2()
 
     // return false to prevent submission for now:
     return false;
@@ -170,10 +250,31 @@
 
 
 
-  function init() {
+  function classicTurnPart2() {
     'use strict';
 
-    document.getElementById('theForm').onsubmit = classicTurn;
+    classicUpdateDescription();
+    console.log(classicGameStatus);
+
+  }
+
+
+
+
+
+
+  function init() {
+    'use strict';
+    // We will call an init funtion here to set the initial parameters, and either load a saved game or initialise new game
+
+    //fetch list of game commands from the server
+    classicLoadCommandsJson(function(classicLoadCommandsJson) {
+      classicGameStatus.classicCommandsJson = classicLoadCommandsJson;
+    });
+
+
+
+    document.getElementById('theForm').onsubmit = classicTurnPart1;
   }
 
   window.onload = init;
