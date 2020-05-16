@@ -16,7 +16,7 @@
     //an array to store object status elements
   };
 
-
+//Test comment
 
   //Should expand this to load in all the JSONs in one go
   function classicLoadRoomJson(callback) {
