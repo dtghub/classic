@@ -35,6 +35,8 @@
   function classicLoadCommandsJson(callback) {
     'use strict';
     var xobj = new XMLHttpRequest();
+    xobj.overrideMimeType("text/application");
+    xobj.open('GET', 'http://localhost/cgi-bin/fetchcommands.pl', true);
 
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
