@@ -10,7 +10,7 @@ use Data::Dumper qw(Dumper);
 my $q = new CGI;
 print $q->header();
 #my $dtroom = $q->param("value");
-
+#I'm midway through adapting fetchroom.pl to get the full command database
 
 
 my $dbh = DBI->connect('dbi:Pg:dbname=classic;host=localhost','derek','dtDerek',{AutoCommit=>1,RaiseError=>1,PrintError=>0});
