@@ -11,6 +11,10 @@
     //These are places to load the game data to - the 'rooms' 'commands' 'objects' etc
     classicRoomJson: {uninitialised: true},
     classicCommandsJson: {uninitialised: true},
+    classicItemsJson: {uninitialised: true},//This is only used during initialisation and then cleared to save resources
+
+    //objects
+    classicItems: {uninitialised: true},
 
     //This is an array to record whch rooms have already been visited - as each new room is visited it is pushed into the array. We can access the rooms list using if (roomPreviouslyVisited.includes(<roomnumber>))
     roomPreviouslyVisited: [1],
@@ -32,6 +36,25 @@
 
 
 
+
+  function classicLoadItemsJson(callback) {
+    'use strict';
+    var xobj = new XMLHttpRequest();
+    xobj.overrideMimeType("text/application");
+    xobj.open('GET', 'http://localhost/cgi-bin/fetchitems.pl', true);
+
+    xobj.onreadystatechange = function () {
+      if (xobj.readyState == 4 && xobj.status == "200") {
+        callback(JSON.parse(xobj.responseText));
+      }
+    };
+    xobj.send(null);
+  }
+
+
+
+
+
   function classicLoadCommandsJson(callback) {
     'use strict';
     var xobj = new XMLHttpRequest();
@@ -41,6 +64,9 @@
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
         callback(JSON.parse(xobj.responseText));
+        classicLoadItemsJson(function(classicLoadItemsJson) {
+          classicGameStatus.classicItemsJson = classicLoadItemsJson;
+        });
       }
     };
     xobj.send(null);
@@ -270,6 +296,10 @@
     // We will call an init funtion here to set the initial parameters, and either load a saved game or initialise new game
 
     //fetch list of game commands from the server
+    //Since this needs callbacks to fetch the data,
+    //I've implemented this as a chain of callbacks to ensure that we can't start the game until the data is ready
+    //We start by loading classicLoadCommandsJson which calls the next function  whenit's ready
+    //description tbd
     classicLoadCommandsJson(function(classicLoadCommandsJson) {
       classicGameStatus.classicCommandsJson = classicLoadCommandsJson;
     });
