@@ -65,11 +65,10 @@
       if (xobj.readyState == 4 && xobj.status == "200") {
         callback(JSON.parse(xobj.responseText));
 
-/*        
+
         classicLoadItemsJson(function(classicLoadItemsJson) {
           classicGameStatus.classicItemsJson = classicLoadItemsJson;
         });
-*/
 
       }
     };

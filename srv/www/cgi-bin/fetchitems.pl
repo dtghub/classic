@@ -21,9 +21,13 @@ my $fields = $sth->{NAME};
 
 
 
+print "{\n\"items\" : [\n";
 
 my %hash;
 my $json;
+my $useacomma;
+
+$useacomma = 0;
 
 my $sth = $dbh->prepare("SELECT * FROM items");
 $sth->execute();
@@ -32,5 +36,13 @@ while (my @row = $sth->fetchrow_array) {  # retrieve one row
 
 @hash{@$fields} = @row;
 $json = encode_json \%hash;
-print $json,"\n";
+if ($useacomma) {
+  print ",\n";
+} else {
+  $useacomma = 1;
+};
+
+print $json;
 }
+
+print "\n]\n}\n\n";
