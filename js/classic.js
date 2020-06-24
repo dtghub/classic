@@ -11,7 +11,7 @@
     //These are places to load the game data to - the 'rooms' 'commands' 'objects' etc
     classicRoomJson: {uninitialised: true},
     classicCommandsJson: {uninitialised: true},
-    classicItemsJson: {uninitialised: true},//This is only used during initialisation and then cleared to save resources
+    classicItemsJson: {uninitialised: true},//This is only used during initialisation and then cleared to save resources?
 
     //objects
     classicItems: {uninitialised: true},
@@ -301,7 +301,9 @@
     //fetch list of game commands from the server
     //Since this needs callbacks to fetch the data,
     //I've implemented this as a chain of callbacks to ensure that we can't start the game until the data is ready
-    //We start by loading classicLoadCommandsJson which calls the next function  whenit's ready
+    //We start by calling classicLoadCommandsJson which calls the next function  when it's ready
+    //The successful callback for classicLoadCommandsJson calls classicLoadItemsJson
+    //The successful callback for classicLoadItemsJson calls a routine to create the item objects (underconstruction)
     //description tbd
     classicLoadCommandsJson(function(classicLoadCommandsJson) {
       classicGameStatus.classicCommandsJson = classicLoadCommandsJson;
