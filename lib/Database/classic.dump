@@ -57,7 +57,10 @@ CREATE TABLE public.items (
     name text,
     look text,
     read text,
-    lit boolean
+    lit boolean,
+    light text,
+    get text,
+    drop text
 );
 
 
@@ -138,9 +141,10 @@ COPY public.commands ("ID", command, token) FROM stdin;
 -- Data for Name: items; Type: TABLE DATA; Schema: public; Owner: derek
 --
 
-COPY public.items ("ID", location, name, look, read, lit) FROM stdin;
-1	1	lamp	This is an oil lamp	\N	f
-2	2	paper	A grotty looking piece of paper. You can see a faded note written on it.	The note reads; "Light the lamp!"	f
+COPY public.items ("ID", location, name, look, read, lit, light, get, drop) FROM stdin;
+2	2	paper	A grotty looking piece of paper. You can see a faded note written on it.	The note reads; "Light the lamp!"	f	\N	\N	\N
+3	9999	lit lamp	The oil lamp is lit, providing a dull glow which is just bright enough to let you see you immediate surroundings when it is dark.	\N	f	\N	\N	\N
+1	1	lamp	This is an oil lamp	\N	f	I1L9999:I3L0	I1:L0	I1L1
 \.
 
 
