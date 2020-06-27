@@ -27,3 +27,4 @@ Ways to interact with objects;
         - might want to be able to require that you have a box of matches - and have a way of decrementing the number left (swapping items) - to implement this we could have conditionals e.g. {?I23L0?I23L9999?I22L0?} meaning if box with 3 matches in inventory (L0) then move I23 out and put I22 (box with 2 matches) in inventory. Also can use conditional for something as simple as if the item is in your inventory then
         - need to be able to access the properties of an object - syntax maybe %I15%location% returns the location of I15
           -in a wider sense, commands that don't (directly) affect items could also use this syntax - it actually follows that they should do for consistency
+          - another consequence is that I now need to implement (at least) 2 more database tables one for messages to display, and another as a repository of commands/command chains that can be called

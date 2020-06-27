@@ -50,7 +50,7 @@
 
         classicLoadRoomJson(function(classicLoadRoomJson) {
           classicGameStatus.classicRoomJson = classicLoadRoomJson;
-        }); 
+        });
       }
     };
     xobj.send(null);
@@ -106,14 +106,14 @@
   function classicUpdateDescription() {
     'use strict';
 
-
+    var classicItemList = "";
 
 
     if (classicGameStatus.classicCommandNotRecognised) {
       classicGameStatus.gameStatus.value += "\nSorry, I didn't understand that!";
     }
 
-    //This is initial kludge to help get the code structure into place
+
     //gameStatus.setAttribute('disabled', false);
       if (classicGameStatus.roomDescriptionRequired) {
         if (classicGameStatus.roomLongDescriptionRequired)  {
@@ -121,10 +121,20 @@
         } else {
           classicGameStatus.gameStatus.value += "\n" + classicGameStatus.classicRoomJson.shortDescription;
         }
+
+        //List the items in the room - this will probably get replaced as the command parsing is implemented as it probably belongs up at that level
+        //Cheating and using ES6
+        Object.keys(classicGameStatus.classicItemsJson.items).forEach(function (item) {
+          if (classicGameStatus.classicItemsJson.items[item].location === classicGameStatus.locationID) {
+            classicItemList += "\n" + classicGameStatus.classicItemsJson.items[item].name;
+          }
+        });
+
+        if (classicItemList !== "") {
+          classicGameStatus.gameStatus.value += "\nYou can see the following;" + classicItemList;
+        }
       }
 
-      //Extract and add the room description from the rooms JSON
-      //gameStatus.value += "/n" +
 
 
 
@@ -132,7 +142,6 @@
       classicGameStatus.gameStatus.scrollTop = classicGameStatus.gameStatus.scrollHeight;
 
       classicGameStatus.gameStatus.setAttribute('disabled', true);
-      console.log('third');
   }
 
 
