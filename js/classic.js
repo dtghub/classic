@@ -46,6 +46,11 @@
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
         callback(JSON.parse(xobj.responseText));
+
+
+        classicLoadRoomJson(function(classicLoadRoomJson) {
+          classicGameStatus.classicRoomJson = classicLoadRoomJson;
+        }); 
       }
     };
     xobj.send(null);
