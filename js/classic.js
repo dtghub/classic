@@ -123,7 +123,7 @@
         }
 
         //List the items in the room - this will probably get replaced as the command parsing is implemented as it probably belongs up at that level
-        //Cheating and using ES6
+        //"Cheating" and using ES6!!!!
         Object.keys(classicGameStatus.classicItemsJson.items).forEach(function (item) {
           if (classicGameStatus.classicItemsJson.items[item].location === classicGameStatus.locationID) {
             classicItemList += "\n" + classicGameStatus.classicItemsJson.items[item].name;
@@ -246,11 +246,20 @@
       classicGameStatus.gameStatus.value += "\nHmmm, I don't follow; Please clarify what you would like me to do with the " + classicGameStatus.classicNoun + "?";
     }
 
+
     // verb-only and verb+noun processing to follow, but for now...
+
+    //verb only processing - this will be done by loking at the current room's table.
     if (classicGameStatus.classicVerb === "look") {
       classicGameStatus.roomDescriptionRequired = true;
       classicGameStatus.roomLongDescriptionRequired = true;
     }
+
+    //verb+noun processing to go here.
+    
+
+
+
 
 
     if (classicGameStatus.classicMovementVerb !== "") {
