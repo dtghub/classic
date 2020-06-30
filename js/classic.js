@@ -241,22 +241,33 @@
     }
 
     //Needs improvement;
-    //As written, this allows the user to confirm the existance of any object name.
+    //As written, this allows the user to confirm the existance of any object name
+    //To be re-implemented - this will be done by loking at the nouns  table -the command associated with the noverb entry will be executed.
     if (classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun !== "") {
       classicGameStatus.gameStatus.value += "\nHmmm, I don't follow; Please clarify what you would like me to do with the " + classicGameStatus.classicNoun + "?";
     }
 
 
-    // verb-only and verb+noun processing to follow, but for now...
+    // verb-only and verb+noun processing under construction...
 
-    //verb only processing - this will be done by loking at the current room's table.
-    if (classicGameStatus.classicVerb === "look") {
-      classicGameStatus.roomDescriptionRequired = true;
-      classicGameStatus.roomLongDescriptionRequired = true;
+
+    if (classicGameStatus.classicVerb !== "" && classicGameStatus.classicNoun !== "") {
+      //verb+noun processing to go here.
+
+
+    } else {
+      //verb only processing - to be re-implemented - this will be done by loking at the current room's table - if the verb exists there, then the command is executed.
+      if (classicGameStatus.classicVerb === "look") {
+        classicGameStatus.roomDescriptionRequired = true;
+        classicGameStatus.roomLongDescriptionRequired = true;
+      }
     }
 
-    //verb+noun processing to go here.
-    
+
+
+
+
+
 
 
 

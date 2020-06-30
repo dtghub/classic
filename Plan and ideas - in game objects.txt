@@ -29,3 +29,19 @@ Ways to interact with objects;
           -in a wider sense, commands that don't (directly) affect items could also use this syntax - it actually follows that they should do for consistency - so the processing of a verb like 'look' with no noun should be implemented as an action attached to the room.
             - a consequence of this is that we no longer need movement verbs as a special case.
           - another consequence is that I now need to implement (at least) 2 more database tables one for messages to display, and another as a repository of commands/command chains that can be called
+          - need to reimplement the initialisation routine so that it pulls all of these databases in via one JSON
+          - 'blank' values need to have a default response - populate the blank values for the initial early stage, but implement some form of prototype inheritance
+
+
+    - So now we need a 'protype' database table(s) which has a set of default commands for each inventory
+      - maybe allow different items to inherit from other than the default.
+
+
+
+
+So the immediate plan is
+  -1st early version of command interpreter to simply implement get and drop as an initial skeleton (initially drop will return the item to its original location)
+  - create yet more database tables for prototypes, messages, and functions
+  - reimplement the initialisation to import all of the initial tables using one big JSON rather than several unnecessary callbacks
+
+  - loads of other t6hings to add to the above list
