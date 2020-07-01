@@ -222,6 +222,34 @@
 
 
 
+  //UNDER CONSTRUCTION
+  function classsicProcessInstruction(classicInstruction) {
+    'use strict';
+
+    var clExp = "";
+
+    //A very clumsy initial implementation - definitely needs a better solution
+
+    var classicItemID = -1; //Initialise with -1 as 0 is used to address the player
+    var classicParsedValue = 0;
+    var classicCommandParts = [];
+
+
+    classicCommandParts = classicInstruction.match(/[A-Z][0-9]+/g);
+    console.log(classicCommandParts);
+
+
+    classicCommandParts.forEach((item) => {
+      //'I' is the item ID number from the items database table
+      if (item.charAt(0) === 'I') {
+        console.log(item);
+        console.log(parseInt(item.slice(1),10));
+      }
+    });
+
+
+
+  }
 
 
 
@@ -230,8 +258,7 @@
 
     //This holds the instruction line derived from the commands entered
     var classicInstruction = "";
-    var classicInstructionInventory = "";
-    var classicInstructionRoom = "";
+
 
 
     classicGameStatus.classicCommandNotRecognised = false;
@@ -289,10 +316,6 @@
 
 
 
-
-
-
-
     if (classicGameStatus.classicMovementVerb !== "") {
       var clRoomNumber = classicGameStatus.classicRoomJson[classicGameStatus.classicMovementVerb];
       if (clRoomNumber !== 0) {
@@ -305,6 +328,10 @@
       } else {
         classicGameStatus.gameStatus.value += "\nYou can't go that way.";
       }
+    }
+
+    if (classicInstruction !== "") {
+      classsicProcessInstruction(classicInstruction);
     }
   }
 
