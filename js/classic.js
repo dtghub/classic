@@ -228,6 +228,12 @@
   function classicProcessParsedCommand() {
     'use strict';
 
+    //This holds the instruction line derived from the commands entered
+    var classicInstruction = "";
+    var classicInstructionInventory = "";
+    var classicInstructionRoom = "";
+
+
     classicGameStatus.classicCommandNotRecognised = false;
     classicGameStatus.roomDescriptionRequired = false;
     classicGameStatus.roomLongDescriptionRequired = false;
@@ -249,10 +255,24 @@
 
 
     // verb-only and verb+noun processing under construction...
-
+    //UNDER CONSTRUCTION
 
     if (classicGameStatus.classicVerb !== "" && classicGameStatus.classicNoun !== "") {
       //verb+noun processing to go here.
+
+      //First identify the item matching the noun - scope is to check those in the inventory first then in the current room - frst to match wins
+      //Then, from that item, extract the instruction string associated with the verb
+      Object.keys(classicGameStatus.classicItemsJson.items).forEach(function (item) {
+        if (classicGameStatus.classicItemsJson.items[item].word === classicGameStatus.classicNoun) {
+          if (classicGameStatus.classicItemsJson.items[item].location === 0) {
+            classicInstruction = classicGameStatus.classicItemsJson.items[item][classicGameStatus.classicVerb];
+            console.log(classicInstruction + " inventory");
+          } else if (classicGameStatus.classicItemsJson.items[item].location === classicGameStatus.locationID) {
+            classicInstruction = classicGameStatus.classicItemsJson.items[item][classicGameStatus.classicVerb];
+            console.log(classicInstruction + " location");
+          }
+        }
+      });
 
 
     } else {

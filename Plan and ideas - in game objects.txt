@@ -44,4 +44,4 @@ So the immediate plan is
   - create yet more database tables for prototypes, messages, and functions
   - reimplement the initialisation to import all of the initial tables using one big JSON rather than several unnecessary callbacks
 
-  - loads of other t6hings to add to the above list
+  - loads of other things to add to the above list
