@@ -231,11 +231,12 @@
     //A very clumsy initial implementation - definitely needs a better solution
 
     var classicItemID = -1; //Initialise with -1 as 0 is used to address the player
+    var itemID = -1;
     var classicParsedValue = 0;
     var classicCommandParts = [];
 
-
-    classicCommandParts = classicInstruction.match(/[A-Z][0-9]+/g);
+    console.log(classicInstruction);
+    classicCommandParts = classicInstruction.match(/[A-Z][\-]?[0-9]+/g);
     console.log(classicCommandParts);
 
 
@@ -243,12 +244,24 @@
       //'I' is the item ID number from the items database table
       if (item.charAt(0) === 'I') {
         console.log(item);
-        classicItemID = parseInt(item.slice(1),10);
+        itemID = parseInt(item.slice(1),10);
+
+        Object.keys(classicGameStatus.classicItemsJson.items).forEach(function (itemNum) {
+          if (classicGameStatus.classicItemsJson.items[itemNum].ID === itemID) {
+            classicItemID = itemNum;
+          }
+        });
+
+
+
       }
 
       if (item.charAt(0) === 'L') {
         console.log(item);
         classicParsedValue = parseInt(item.slice(1),10);
+        if (classicParsedValue === -1) {
+          classicParsedValue = classicGameStatus.locationID;
+        }
         classicGameStatus.classicItemsJson.items[classicItemID].location = classicParsedValue;
       }
     });
