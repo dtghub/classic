@@ -226,7 +226,7 @@
   function classsicProcessInstruction(classicInstruction) {
     'use strict';
 
-    var clExp = "";
+    //var clExp = "";
 
     //A very clumsy initial implementation - definitely needs a better solution
 
@@ -243,7 +243,13 @@
       //'I' is the item ID number from the items database table
       if (item.charAt(0) === 'I') {
         console.log(item);
-        console.log(parseInt(item.slice(1),10));
+        classicItemID = parseInt(item.slice(1),10);
+      }
+
+      if (item.charAt(0) === 'L') {
+        console.log(item);
+        classicParsedValue = parseInt(item.slice(1),10);
+        classicGameStatus.classicItemsJson.items[classicItemID].location = classicParsedValue;
       }
     });
 
@@ -256,7 +262,7 @@
   function classicProcessParsedCommand() {
     'use strict';
 
-    //This holds the instruction line derived from the commands entered
+    //This variable holds the instruction line derived from the commands entered
     var classicInstruction = "";
 
 
