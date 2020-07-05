@@ -107,6 +107,7 @@
     'use strict';
 
     var classicItemList = "";
+    var classicItemsArrayLength;
 
 
     if (classicGameStatus.classicCommandNotRecognised) {
@@ -115,33 +116,47 @@
 
 
     //gameStatus.setAttribute('disabled', false);
-      if (classicGameStatus.roomDescriptionRequired) {
-        if (classicGameStatus.roomLongDescriptionRequired)  {
-          classicGameStatus.gameStatus.value += "\n" + classicGameStatus.classicRoomJson.longDescription;
-        } else {
-          classicGameStatus.gameStatus.value += "\n" + classicGameStatus.classicRoomJson.shortDescription;
-        }
+    if (classicGameStatus.roomDescriptionRequired) {
+      if (classicGameStatus.roomLongDescriptionRequired)  {
+        classicGameStatus.gameStatus.value += "\n" + classicGameStatus.classicRoomJson.longDescription;
+      } else {
+        classicGameStatus.gameStatus.value += "\n" + classicGameStatus.classicRoomJson.shortDescription;
+      }
 
-        //List the items in the room - this will probably get replaced as the command parsing is implemented as it probably belongs up at that level
-        //"Cheating" and using ES6!!!!
-        Object.keys(classicGameStatus.classicItemsJson.items).forEach(function (item) {
-          if (classicGameStatus.classicItemsJson.items[item].location === classicGameStatus.locationID) {
-            classicItemList += "\n" + classicGameStatus.classicItemsJson.items[item].name;
-          }
-        });
+      //List the items in the room - this will probably get replaced as the command parsing is implemented as it probably belongs up at that level
+      //"Cheating" and using ES6!!!!
 
-        if (classicItemList !== "") {
-          classicGameStatus.gameStatus.value += "\nYou can see the following;" + classicItemList;
+      classicItemsArrayLength = classicGameStatus.classicItemsJson.items.length;
+
+      for (var i = 0; i < classicItemsArrayLength; i += 1) {
+        if (classicGameStatus.classicItemsJson.items[i].location === classicGameStatus.locationID) {
+          console.log("/nMatched " + i);
+          classicItemList += "\n" + classicGameStatus.classicItemsJson.items[i].name;
         }
       }
 
 
 
 
-      //This makes sure that the bottom line of text in the gameStatus box is visible after an update.
-      classicGameStatus.gameStatus.scrollTop = classicGameStatus.gameStatus.scrollHeight;
 
-      classicGameStatus.gameStatus.setAttribute('disabled', true);
+
+/*
+      Object.keys(classicGameStatus.classicItemsJson.items).forEach(function (item) {
+        if (classicGameStatus.classicItemsJson.items[item].location === classicGameStatus.locationID) {
+          classicItemList += "\n" + classicGameStatus.classicItemsJson.items[item].name;
+        }
+      });
+*/
+      if (classicItemList !== "") {
+        classicGameStatus.gameStatus.value += "\nYou can see the following;" + classicItemList;
+      }
+    }
+
+
+    //This makes sure that the bottom line of text in the gameStatus box is visible after an update.
+    classicGameStatus.gameStatus.scrollTop = classicGameStatus.gameStatus.scrollHeight;
+
+    classicGameStatus.gameStatus.setAttribute('disabled', true);
   }
 
 
@@ -207,7 +222,7 @@
         classicGameStatus.classicVerb = classicGameStatus.classicCommandsJson[firstCommand].slice(1);
         if (secondStartPosition < classicGameStatus.classicTurnCommand.length) {
           if (classicGameStatus.classicCommandsJson[secondCommand].charAt(0) === 'N') {
-          classicGameStatus.classicNoun = classicGameStatus.classicCommandsJson[secondCommand].slice(1);
+            classicGameStatus.classicNoun = classicGameStatus.classicCommandsJson[secondCommand].slice(1);
           }
         }
       }
@@ -234,12 +249,45 @@
     var itemID = -1;
     var classicParsedValue = 0;
     var classicCommandParts = [];
+    //var i;
+    var classicCommandPartsArrayLength;
+    var classicItemsArrayLength;
 
     console.log(classicInstruction);
     classicCommandParts = classicInstruction.match(/[A-Z][\-]?[0-9]+/g);
     console.log(classicCommandParts);
 
+    //Need to re-implement this a a flat loop as callbacks aren't appropriate in this situation (need the code to be synchonous)
 
+    classicCommandPartsArrayLength = classicCommandParts.length;
+    classicItemsArrayLength = classicGameStatus.classicItemsJson.items.length;
+
+    for (var i = 0; i < classicCommandPartsArrayLength; i += 1) {
+      var item = classicCommandParts[i];
+
+      if (item.charAt(0) === 'I') {
+        console.log(item);
+        itemID = parseInt(item.slice(1),10);
+
+        for (var j = 0; j < classicItemsArrayLength; j += 1) {
+          if (classicGameStatus.classicItemsJson.items[j].ID === itemID) {
+            classicItemID = j;
+          }
+        }
+      }
+
+      if (item.charAt(0) === 'L') {
+        console.log(item);
+        classicParsedValue = parseInt(item.slice(1),10);
+        if (classicParsedValue === -1) {
+          classicParsedValue = classicGameStatus.locationID;
+        }
+        classicGameStatus.classicItemsJson.items[classicItemID].location = classicParsedValue;
+      }
+
+    }
+
+/*
     classicCommandParts.forEach((item) => {
       //'I' is the item ID number from the items database table
       if (item.charAt(0) === 'I') {
@@ -251,9 +299,6 @@
             classicItemID = itemNum;
           }
         });
-
-
-
       }
 
       if (item.charAt(0) === 'L') {
@@ -265,8 +310,7 @@
         classicGameStatus.classicItemsJson.items[classicItemID].location = classicParsedValue;
       }
     });
-
-
+*/
 
   }
 
@@ -277,7 +321,7 @@
 
     //This variable holds the instruction line derived from the commands entered
     var classicInstruction = "";
-
+    var classicItemsArrayLength;
 
 
     classicGameStatus.classicCommandNotRecognised = false;
@@ -308,17 +352,22 @@
 
       //First identify the item matching the noun - scope is to check those in the inventory first then in the current room - frst to match wins
       //Then, from that item, extract the instruction string associated with the verb
-      Object.keys(classicGameStatus.classicItemsJson.items).forEach(function (item) {
-        if (classicGameStatus.classicItemsJson.items[item].word === classicGameStatus.classicNoun) {
-          if (classicGameStatus.classicItemsJson.items[item].location === 0) {
-            classicInstruction = classicGameStatus.classicItemsJson.items[item][classicGameStatus.classicVerb];
+      classicItemsArrayLength = classicGameStatus.classicItemsJson.items.length;
+
+      for (var i = 0; i < classicItemsArrayLength; i += 1) {
+
+        if (classicGameStatus.classicItemsJson.items[i].word === classicGameStatus.classicNoun) {
+          if (classicGameStatus.classicItemsJson.items[i].location === 0) {
+            classicInstruction = classicGameStatus.classicItemsJson.items[i][classicGameStatus.classicVerb] || "";
             console.log(classicInstruction + " inventory");
-          } else if (classicGameStatus.classicItemsJson.items[item].location === classicGameStatus.locationID) {
-            classicInstruction = classicGameStatus.classicItemsJson.items[item][classicGameStatus.classicVerb];
+          } else if (classicGameStatus.classicItemsJson.items[i].location === classicGameStatus.locationID) {
+            classicInstruction = classicGameStatus.classicItemsJson.items[i][classicGameStatus.classicVerb] || "";
             console.log(classicInstruction + " location");
           }
         }
-      });
+      }
+
+
 
 
     } else {
@@ -328,9 +377,6 @@
         classicGameStatus.roomLongDescriptionRequired = true;
       }
     }
-
-
-
 
 
 

@@ -135,6 +135,7 @@ COPY public.commands ("ID", command, token) FROM stdin;
 35	lamp	Nlamp
 36	note	Nnote
 37	paper	Nnote
+38	light	Vlight
 \.
 
 
@@ -143,9 +144,9 @@ COPY public.commands ("ID", command, token) FROM stdin;
 --
 
 COPY public.items ("ID", location, name, look, read, lit, light, get, drop, word) FROM stdin;
-2	2	paper	A grotty looking piece of paper. You can see a faded note written on it.	The note reads; "Light the lamp!"	f	\N	\N	\N	paper
-1	1	lamp	This is an oil lamp	\N	f	I1L9999:I3L0	I1L0	I1L1	lamp
-3	9999	lit lamp	The oil lamp is lit, providing a dull glow which is just bright enough to let you see you immediate surroundings when it is dark.	\N	f	\N	\N	\N	lamp
+1	1	lamp	This is an oil lamp	\N	f	I1L9999:I3L0	I1L0	I1L-1	lamp
+2	2	paper	A grotty looking piece of paper. You can see a faded note written on it.	The note reads; "Light the lamp!"	f	\N	I2L0	I2L-1	note
+3	9999	lit lamp	The oil lamp is lit, providing a dull glow which is just bright enough to let you see you immediate surroundings when it is dark.	\N	f	\N	\N	I3L9999I1L-1	lamp
 \.
 
 
