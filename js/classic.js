@@ -124,7 +124,6 @@
       }
 
       //List the items in the room - this will probably get replaced as the command parsing is implemented as it probably belongs up at that level
-      //"Cheating" and using ES6!!!!
 
       classicItemsArrayLength = classicGameStatus.classicItemsJson.items.length;
 
@@ -135,18 +134,6 @@
         }
       }
 
-
-
-
-
-
-/*
-      Object.keys(classicGameStatus.classicItemsJson.items).forEach(function (item) {
-        if (classicGameStatus.classicItemsJson.items[item].location === classicGameStatus.locationID) {
-          classicItemList += "\n" + classicGameStatus.classicItemsJson.items[item].name;
-        }
-      });
-*/
       if (classicItemList !== "") {
         classicGameStatus.gameStatus.value += "\nYou can see the following;" + classicItemList;
       }
@@ -284,34 +271,7 @@
         }
         classicGameStatus.classicItemsJson.items[classicItemID].location = classicParsedValue;
       }
-
     }
-
-/*
-    classicCommandParts.forEach((item) => {
-      //'I' is the item ID number from the items database table
-      if (item.charAt(0) === 'I') {
-        console.log(item);
-        itemID = parseInt(item.slice(1),10);
-
-        Object.keys(classicGameStatus.classicItemsJson.items).forEach(function (itemNum) {
-          if (classicGameStatus.classicItemsJson.items[itemNum].ID === itemID) {
-            classicItemID = itemNum;
-          }
-        });
-      }
-
-      if (item.charAt(0) === 'L') {
-        console.log(item);
-        classicParsedValue = parseInt(item.slice(1),10);
-        if (classicParsedValue === -1) {
-          classicParsedValue = classicGameStatus.locationID;
-        }
-        classicGameStatus.classicItemsJson.items[classicItemID].location = classicParsedValue;
-      }
-    });
-*/
-
   }
 
 
