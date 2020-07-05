@@ -68,6 +68,18 @@ CREATE TABLE public.items (
 ALTER TABLE public.items OWNER TO derek;
 
 --
+-- Name: messages; Type: TABLE; Schema: public; Owner: derek
+--
+
+CREATE TABLE public.messages (
+    "ID" integer NOT NULL,
+    "Message" text
+);
+
+
+ALTER TABLE public.messages OWNER TO derek;
+
+--
 -- Name: rooms; Type: TABLE; Schema: public; Owner: derek
 --
 
@@ -92,6 +104,18 @@ CREATE TABLE public.rooms (
 
 
 ALTER TABLE public.rooms OWNER TO derek;
+
+--
+-- Name: snippets; Type: TABLE; Schema: public; Owner: derek
+--
+
+CREATE TABLE public.snippets (
+    "ID" integer NOT NULL,
+    code text
+);
+
+
+ALTER TABLE public.snippets OWNER TO derek;
 
 --
 -- Data for Name: commands; Type: TABLE DATA; Schema: public; Owner: derek
@@ -151,6 +175,15 @@ COPY public.items ("ID", location, name, look, read, lit, light, get, drop, word
 
 
 --
+-- Data for Name: messages; Type: TABLE DATA; Schema: public; Owner: derek
+--
+
+COPY public.messages ("ID", "Message") FROM stdin;
+1	0
+\.
+
+
+--
 -- Data for Name: rooms; Type: TABLE DATA; Schema: public; Owner: derek
 --
 
@@ -158,6 +191,14 @@ COPY public.rooms ("roomNumber", "shortDescription", "longDescription", dark, no
 3	Room number three looks ominous.	You have entered room number three. It has a foreboding look about it. Some would say ominous...	f	0	0	0	0	1	0	2	0	0	0	0	0
 2	You are in the second starting room.	This is the second starting room. i.e. the default starting room number two!	f	0	1	0	0	0	0	0	3	0	0	0	0
 1	You are in the starting room.	For the purposes of this draft, this is the initial starting room. i.e. the default starting room number one.	f	2	0	0	0	0	3	0	0	0	0	0	0
+\.
+
+
+--
+-- Data for Name: snippets; Type: TABLE DATA; Schema: public; Owner: derek
+--
+
+COPY public.snippets ("ID", code) FROM stdin;
 \.
 
 
@@ -178,11 +219,27 @@ ALTER TABLE ONLY public.items
 
 
 --
+-- Name: messages messages_pkey; Type: CONSTRAINT; Schema: public; Owner: derek
+--
+
+ALTER TABLE ONLY public.messages
+    ADD CONSTRAINT messages_pkey PRIMARY KEY ("ID");
+
+
+--
 -- Name: rooms rooms_pkey; Type: CONSTRAINT; Schema: public; Owner: derek
 --
 
 ALTER TABLE ONLY public.rooms
     ADD CONSTRAINT rooms_pkey PRIMARY KEY ("roomNumber");
+
+
+--
+-- Name: snippets snippets_pkey; Type: CONSTRAINT; Schema: public; Owner: derek
+--
+
+ALTER TABLE ONLY public.snippets
+    ADD CONSTRAINT snippets_pkey PRIMARY KEY ("ID");
 
 
 --

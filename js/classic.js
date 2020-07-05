@@ -252,24 +252,29 @@
     for (var i = 0; i < classicCommandPartsArrayLength; i += 1) {
       var item = classicCommandParts[i];
 
-      if (item.charAt(0) === 'I') {
-        console.log(item);
-        itemID = parseInt(item.slice(1),10);
+      switch (item.charAt(0)) {
+        //The "I" instruction changes the active "item" to which subsequent incstructions refer
+        case "I":
+          console.log(item);
+          itemID = parseInt(item.slice(1),10);
 
-        for (var j = 0; j < classicItemsArrayLength; j += 1) {
-          if (classicGameStatus.classicItemsJson.items[j].ID === itemID) {
-            classicItemID = j;
+          for (var j = 0; j < classicItemsArrayLength; j += 1) {
+            if (classicGameStatus.classicItemsJson.items[j].ID === itemID) {
+              classicItemID = j;
+            }
           }
-        }
-      }
-
-      if (item.charAt(0) === 'L') {
-        console.log(item);
-        classicParsedValue = parseInt(item.slice(1),10);
-        if (classicParsedValue === -1) {
-          classicParsedValue = classicGameStatus.locationID;
-        }
-        classicGameStatus.classicItemsJson.items[classicItemID].location = classicParsedValue;
+          break;
+        //The "L" instruction sets the location of the current item
+        //location 0 is your own inventory
+        //location -1 is the current location
+        case "L":
+          console.log(item);
+          classicParsedValue = parseInt(item.slice(1),10);
+          if (classicParsedValue === -1) {
+            classicParsedValue = classicGameStatus.locationID;
+          }
+          classicGameStatus.classicItemsJson.items[classicItemID].location = classicParsedValue;
+          break;
       }
     }
   }
