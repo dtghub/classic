@@ -10,13 +10,8 @@
 
     //These are places to load the game data to - the 'rooms' 'commands' 'objects' etc
     classicRoomJson: {uninitialised: true},
-    classicCommandsJson: {uninitialised: true},
-    classicItemsJson: {uninitialised: true},//This is only used during initialisation and then cleared to save resources?
 
-    //objects
-    classicItems: {uninitialised: true},
-
-    //generic place to put tables
+    //generic place to put tables imported from the database
     classicTablesJson: {uninitialised: true},
 
     //This is an array to record whch rooms have already been visited - as each new room is visited it is pushed into the array. We can access the rooms list using if (roomPreviouslyVisited.includes(<roomnumber>))
@@ -39,26 +34,7 @@
 
 
 
-/*
-  function classicLoadItemsJson(callback) {
-    'use strict';
-    var xobj = new XMLHttpRequest();
-    xobj.overrideMimeType("text/application");
-    xobj.open('GET', 'http://localhost/cgi-bin/fetchitems.pl', true);
 
-    xobj.onreadystatechange = function () {
-      if (xobj.readyState == 4 && xobj.status == "200") {
-        callback(JSON.parse(xobj.responseText));
-
-
-        classicLoadRoomJson(function(classicLoadRoomJson) {
-          classicGameStatus.classicRoomJson = classicLoadRoomJson;
-        });
-      }
-    };
-    xobj.send(null);
-  }
-*/
 
   function classicLoadTablesJson(callback) {
     'use strict';
@@ -70,45 +46,18 @@
       if (xobj.readyState == 4 && xobj.status == "200") {
         callback(JSON.parse(xobj.responseText));
 
-
-/*
-        classicLoadItemsJson(function(classicLoadItemsJson) {
-          classicGameStatus.classicItemsJson = classicLoadItemsJson;
-        });
-*/
-
-
         classicLoadRoomJson(function(classicLoadRoomJson) {
           classicGameStatus.classicRoomJson = classicLoadRoomJson;
         });
-
       }
     };
     xobj.send(null);
   }
 
-/*
-  function classicLoadCommandsJson(callback) {
-    'use strict';
-    var xobj = new XMLHttpRequest();
-    xobj.overrideMimeType("text/application");
-    xobj.open('GET', 'http://localhost/cgi-bin/fetchcommands.pl', true);
-
-    xobj.onreadystatechange = function () {
-      if (xobj.readyState == 4 && xobj.status == "200") {
-        callback(JSON.parse(xobj.responseText));
 
 
-        classicLoadTablesJson(function(classicLoadTablesJson) {
-          classicGameStatus.classicTablesJson = classicLoadTablesJson;
-        });
 
-      }
-    };
-    xobj.send(null);
-  }
 
-*/
 
 
   function classicLoadRoomJson(callback) {
