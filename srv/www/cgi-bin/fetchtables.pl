@@ -44,11 +44,28 @@ print "\n],\n\n";
 
 
 
-$dbh = DBI->connect('dbi:Pg:dbname=classic;host=localhost','derek','dtDerek',{AutoCommit=>1,RaiseError=>1,PrintError=>0});
+
+
+$sth = $dbh->prepare("SELECT * FROM messages") or die +DBI->errstr;
+$sth->execute() or die DBI->errstr;
+print "\n\"messages\" : ";
+delete $hash{$_} for (keys %hash);
+while( my( $messageID, $message ) = $sth->fetchrow_array() ) {
+  $hash{ $messageID } = $message;
+}
+$json = encode_json \%hash;
+print $json,",\n\n";
+
+
+
+
+
+
+
 $sth = $dbh->prepare("SELECT command, token FROM commands") or die +DBI->errstr;
 $sth->execute() or die DBI->errstr;
 print "\n\"commands\" : ";
-%{$hash} = () ;
+delete $hash{$_} for (keys %hash);
 while( my( $command, $token ) = $sth->fetchrow_array() ) {
   $hash{ $command } = $token;
 }

@@ -179,7 +179,8 @@ COPY public.items ("ID", location, name, look, read, lit, light, get, drop, word
 --
 
 COPY public.messages ("ID", "Message") FROM stdin;
-1	0
+0	OK
+1	I have it
 \.
 
 
