@@ -16,6 +16,9 @@
     //objects
     classicItems: {uninitialised: true},
 
+    //generic place to put tables
+    classicTablesJson: {uninitialised: true},
+
     //This is an array to record whch rooms have already been visited - as each new room is visited it is pushed into the array. We can access the rooms list using if (roomPreviouslyVisited.includes(<roomnumber>))
     roomPreviouslyVisited: [1],
     roomDescriptionRequired: true,
@@ -57,7 +60,25 @@
   }
 
 
+  function classicLoadTablesJson(callback) {
+    'use strict';
+    var xobj = new XMLHttpRequest();
+    xobj.overrideMimeType("text/application");
+    xobj.open('GET', 'http://localhost/cgi-bin/fetchtables.pl', true);
 
+    xobj.onreadystatechange = function () {
+      if (xobj.readyState == 4 && xobj.status == "200") {
+        callback(JSON.parse(xobj.responseText));
+
+
+        classicLoadItemsJson(function(classicLoadItemsJson) {
+          classicGameStatus.classicItemsJson = classicLoadItemsJson;
+        });
+
+      }
+    };
+    xobj.send(null);
+  }
 
 
   function classicLoadCommandsJson(callback) {
@@ -71,8 +92,8 @@
         callback(JSON.parse(xobj.responseText));
 
 
-        classicLoadItemsJson(function(classicLoadItemsJson) {
-          classicGameStatus.classicItemsJson = classicLoadItemsJson;
+        classicLoadTablesJson(function(classicLoadTablesJson) {
+          classicGameStatus.classicTablesJson = classicLoadTablesJson;
         });
 
       }
