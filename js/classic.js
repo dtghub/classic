@@ -11,6 +11,10 @@
     //These are places to load the game data to - the 'rooms' 'commands' 'objects' etc
     classicRoomJson: {uninitialised: true},
     classicCommandsJson: {uninitialised: true},
+    classicItemsJson: {uninitialised: true},//This is only used during initialisation and then cleared to save resources?
+
+    //objects
+    classicItems: {uninitialised: true},
 
     //This is an array to record whch rooms have already been visited - as each new room is visited it is pushed into the array. We can access the rooms list using if (roomPreviouslyVisited.includes(<roomnumber>))
     roomPreviouslyVisited: [1],
@@ -32,6 +36,30 @@
 
 
 
+
+  function classicLoadItemsJson(callback) {
+    'use strict';
+    var xobj = new XMLHttpRequest();
+    xobj.overrideMimeType("text/application");
+    xobj.open('GET', 'http://localhost/cgi-bin/fetchitems.pl', true);
+
+    xobj.onreadystatechange = function () {
+      if (xobj.readyState == 4 && xobj.status == "200") {
+        callback(JSON.parse(xobj.responseText));
+
+
+        classicLoadRoomJson(function(classicLoadRoomJson) {
+          classicGameStatus.classicRoomJson = classicLoadRoomJson;
+        });
+      }
+    };
+    xobj.send(null);
+  }
+
+
+
+
+
   function classicLoadCommandsJson(callback) {
     'use strict';
     var xobj = new XMLHttpRequest();
@@ -41,6 +69,12 @@
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
         callback(JSON.parse(xobj.responseText));
+
+
+        classicLoadItemsJson(function(classicLoadItemsJson) {
+          classicGameStatus.classicItemsJson = classicLoadItemsJson;
+        });
+
       }
     };
     xobj.send(null);
@@ -72,33 +106,44 @@
   function classicUpdateDescription() {
     'use strict';
 
-
+    var classicItemList = "";
+    var classicItemsArrayLength;
 
 
     if (classicGameStatus.classicCommandNotRecognised) {
       classicGameStatus.gameStatus.value += "\nSorry, I didn't understand that!";
     }
 
-    //This is initial kludge to help get the code structure into place
+
     //gameStatus.setAttribute('disabled', false);
-      if (classicGameStatus.roomDescriptionRequired) {
-        if (classicGameStatus.roomLongDescriptionRequired)  {
-          classicGameStatus.gameStatus.value += "\n" + classicGameStatus.classicRoomJson.longDescription;
-        } else {
-          classicGameStatus.gameStatus.value += "\n" + classicGameStatus.classicRoomJson.shortDescription;
+    if (classicGameStatus.roomDescriptionRequired) {
+      if (classicGameStatus.roomLongDescriptionRequired)  {
+        classicGameStatus.gameStatus.value += "\n" + classicGameStatus.classicRoomJson.longDescription;
+      } else {
+        classicGameStatus.gameStatus.value += "\n" + classicGameStatus.classicRoomJson.shortDescription;
+      }
+
+      //List the items in the room - this will probably get replaced as the command parsing is implemented as it probably belongs up at that level
+
+      classicItemsArrayLength = classicGameStatus.classicItemsJson.items.length;
+
+      for (var i = 0; i < classicItemsArrayLength; i += 1) {
+        if (classicGameStatus.classicItemsJson.items[i].location === classicGameStatus.locationID) {
+          console.log("/nMatched " + i);
+          classicItemList += "\n" + classicGameStatus.classicItemsJson.items[i].name;
         }
       }
 
-      //Extract and add the room description from the rooms JSON
-      //gameStatus.value += "/n" +
+      if (classicItemList !== "") {
+        classicGameStatus.gameStatus.value += "\nYou can see the following;" + classicItemList;
+      }
+    }
 
 
+    //This makes sure that the bottom line of text in the gameStatus box is visible after an update.
+    classicGameStatus.gameStatus.scrollTop = classicGameStatus.gameStatus.scrollHeight;
 
-      //This makes sure that the bottom line of text in the gameStatus box is visible after an update.
-      classicGameStatus.gameStatus.scrollTop = classicGameStatus.gameStatus.scrollHeight;
-
-      classicGameStatus.gameStatus.setAttribute('disabled', true);
-      console.log('third');
+    classicGameStatus.gameStatus.setAttribute('disabled', true);
   }
 
 
@@ -164,7 +209,7 @@
         classicGameStatus.classicVerb = classicGameStatus.classicCommandsJson[firstCommand].slice(1);
         if (secondStartPosition < classicGameStatus.classicTurnCommand.length) {
           if (classicGameStatus.classicCommandsJson[secondCommand].charAt(0) === 'N') {
-          classicGameStatus.classicNoun = classicGameStatus.classicCommandsJson[secondCommand].slice(1);
+            classicGameStatus.classicNoun = classicGameStatus.classicCommandsJson[secondCommand].slice(1);
           }
         }
       }
@@ -179,11 +224,70 @@
 
 
 
+  //UNDER CONSTRUCTION
+  function classsicProcessInstruction(classicInstruction) {
+    'use strict';
+
+    //var clExp = "";
+
+    //A very clumsy initial implementation - definitely needs a better solution
+
+    var classicItemID = -1; //Initialise with -1 as 0 is used to address the player
+    var itemID = -1;
+    var classicParsedValue = 0;
+    var classicCommandParts = [];
+    //var i;
+    var classicCommandPartsArrayLength;
+    var classicItemsArrayLength;
+
+    console.log(classicInstruction);
+    classicCommandParts = classicInstruction.match(/[A-Z][\-]?[0-9]+/g);
+    console.log(classicCommandParts);
+
+    //Need to re-implement this a a flat loop as callbacks aren't appropriate in this situation (need the code to be synchonous)
+
+    classicCommandPartsArrayLength = classicCommandParts.length;
+    classicItemsArrayLength = classicGameStatus.classicItemsJson.items.length;
+
+    for (var i = 0; i < classicCommandPartsArrayLength; i += 1) {
+      var item = classicCommandParts[i];
+
+      switch (item.charAt(0)) {
+        //The "I" instruction changes the active "item" to which subsequent incstructions refer
+        case "I":
+          console.log(item);
+          itemID = parseInt(item.slice(1),10);
+
+          for (var j = 0; j < classicItemsArrayLength; j += 1) {
+            if (classicGameStatus.classicItemsJson.items[j].ID === itemID) {
+              classicItemID = j;
+            }
+          }
+          break;
+        //The "L" instruction sets the location of the current item
+        //location 0 is your own inventory
+        //location -1 is the current location
+        case "L":
+          console.log(item);
+          classicParsedValue = parseInt(item.slice(1),10);
+          if (classicParsedValue === -1) {
+            classicParsedValue = classicGameStatus.locationID;
+          }
+          classicGameStatus.classicItemsJson.items[classicItemID].location = classicParsedValue;
+          break;
+      }
+    }
+  }
 
 
 
   function classicProcessParsedCommand() {
     'use strict';
+
+    //This variable holds the instruction line derived from the commands entered
+    var classicInstruction = "";
+    var classicItemsArrayLength;
+
 
     classicGameStatus.classicCommandNotRecognised = false;
     classicGameStatus.roomDescriptionRequired = false;
@@ -198,16 +302,48 @@
     }
 
     //Needs improvement;
-    //As written, this allows the user to confirm the existance of any object name.
+    //As written, this allows the user to confirm the existance of any object name
+    //To be re-implemented - this will be done by loking at the nouns  table -the command associated with the noverb entry will be executed.
     if (classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun !== "") {
       classicGameStatus.gameStatus.value += "\nHmmm, I don't follow; Please clarify what you would like me to do with the " + classicGameStatus.classicNoun + "?";
     }
 
-    // verb-only and verb+noun processing to follow, but for now...
-    if (classicGameStatus.classicVerb === "look") {
-      classicGameStatus.roomDescriptionRequired = true;
-      classicGameStatus.roomLongDescriptionRequired = true;
+
+    // verb-only and verb+noun processing under construction...
+    //UNDER CONSTRUCTION
+
+    if (classicGameStatus.classicVerb !== "" && classicGameStatus.classicNoun !== "") {
+      //verb+noun processing to go here.
+
+      //First identify the item matching the noun - scope is to check those in the inventory first then in the current room - frst to match wins
+      //Then, from that item, extract the instruction string associated with the verb
+      classicItemsArrayLength = classicGameStatus.classicItemsJson.items.length;
+
+      for (var i = 0; i < classicItemsArrayLength; i += 1) {
+
+        if (classicGameStatus.classicItemsJson.items[i].word === classicGameStatus.classicNoun) {
+          if (classicGameStatus.classicItemsJson.items[i].location === 0) {
+            classicInstruction = classicGameStatus.classicItemsJson.items[i][classicGameStatus.classicVerb] || "";
+            console.log(classicInstruction + " inventory");
+          } else if (classicGameStatus.classicItemsJson.items[i].location === classicGameStatus.locationID) {
+            classicInstruction = classicGameStatus.classicItemsJson.items[i][classicGameStatus.classicVerb] || "";
+            console.log(classicInstruction + " location");
+          }
+        }
+      }
+
+
+
+
+    } else {
+      //verb only processing - to be re-implemented - this will be done by loking at the current room's table - if the verb exists there, then the command is executed.
+      if (classicGameStatus.classicVerb === "look") {
+        classicGameStatus.roomDescriptionRequired = true;
+        classicGameStatus.roomLongDescriptionRequired = true;
+      }
     }
+
+
 
 
     if (classicGameStatus.classicMovementVerb !== "") {
@@ -222,6 +358,10 @@
       } else {
         classicGameStatus.gameStatus.value += "\nYou can't go that way.";
       }
+    }
+
+    if (classicInstruction !== "") {
+      classsicProcessInstruction(classicInstruction);
     }
   }
 
@@ -270,6 +410,12 @@
     // We will call an init funtion here to set the initial parameters, and either load a saved game or initialise new game
 
     //fetch list of game commands from the server
+    //Since this needs callbacks to fetch the data,
+    //I've implemented this as a chain of callbacks to ensure that we can't start the game until the data is ready
+    //We start by calling classicLoadCommandsJson which calls the next function  when it's ready
+    //The successful callback for classicLoadCommandsJson calls classicLoadItemsJson
+    //The successful callback for classicLoadItemsJson calls a routine to create the item objects (underconstruction)
+    //description tbd
     classicLoadCommandsJson(function(classicLoadCommandsJson) {
       classicGameStatus.classicCommandsJson = classicLoadCommandsJson;
     });
