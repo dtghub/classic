@@ -47,10 +47,10 @@ print "\n],\n\n";
 $dbh = DBI->connect('dbi:Pg:dbname=classic;host=localhost','derek','dtDerek',{AutoCommit=>1,RaiseError=>1,PrintError=>0});
 $sth = $dbh->prepare("SELECT command, token FROM commands") or die +DBI->errstr;
 $sth->execute() or die DBI->errstr;
-print "\n\"commands\" : [\n";
+print "\n\"commands\" : ";
 %{$hash} = () ;
 while( my( $command, $token ) = $sth->fetchrow_array() ) {
   $hash{ $command } = $token;
 }
 $json = encode_json \%hash;
-print $json,"\n]\n}\n\n";
+print $json,"\n}\n\n";
