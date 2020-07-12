@@ -10,11 +10,9 @@
 
     //These are places to load the game data to - the 'rooms' 'commands' 'objects' etc
     classicRoomJson: {uninitialised: true},
-    classicCommandsJson: {uninitialised: true},
-    classicItemsJson: {uninitialised: true},//This is only used during initialisation and then cleared to save resources?
 
-    //objects
-    classicItems: {uninitialised: true},
+    //generic place to put tables imported from the database
+    classicTablesJson: {uninitialised: true},
 
     //This is an array to record whch rooms have already been visited - as each new room is visited it is pushed into the array. We can access the rooms list using if (roomPreviouslyVisited.includes(<roomnumber>))
     roomPreviouslyVisited: [1],
@@ -37,16 +35,16 @@
 
 
 
-  function classicLoadItemsJson(callback) {
+
+  function classicLoadTablesJson(callback) {
     'use strict';
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("text/application");
-    xobj.open('GET', 'http://localhost/cgi-bin/fetchitems.pl', true);
+    xobj.open('GET', 'http://localhost/cgi-bin/fetchtables.pl', true);
 
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
         callback(JSON.parse(xobj.responseText));
-
 
         classicLoadRoomJson(function(classicLoadRoomJson) {
           classicGameStatus.classicRoomJson = classicLoadRoomJson;
@@ -58,27 +56,6 @@
 
 
 
-
-
-  function classicLoadCommandsJson(callback) {
-    'use strict';
-    var xobj = new XMLHttpRequest();
-    xobj.overrideMimeType("text/application");
-    xobj.open('GET', 'http://localhost/cgi-bin/fetchcommands.pl', true);
-
-    xobj.onreadystatechange = function () {
-      if (xobj.readyState == 4 && xobj.status == "200") {
-        callback(JSON.parse(xobj.responseText));
-
-
-        classicLoadItemsJson(function(classicLoadItemsJson) {
-          classicGameStatus.classicItemsJson = classicLoadItemsJson;
-        });
-
-      }
-    };
-    xobj.send(null);
-  }
 
 
 
@@ -125,12 +102,12 @@
 
       //List the items in the room - this will probably get replaced as the command parsing is implemented as it probably belongs up at that level
 
-      classicItemsArrayLength = classicGameStatus.classicItemsJson.items.length;
+      classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
 
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
-        if (classicGameStatus.classicItemsJson.items[i].location === classicGameStatus.locationID) {
+        if (classicGameStatus.classicTablesJson.items[i].location === classicGameStatus.locationID) {
           console.log("/nMatched " + i);
-          classicItemList += "\n" + classicGameStatus.classicItemsJson.items[i].name;
+          classicItemList += "\n" + classicGameStatus.classicTablesJson.items[i].name;
         }
       }
 
@@ -173,7 +150,7 @@
     //Locate the first two words from our syntax list that the user has entered into the commandBox.
     //This is done by stepping through the list of recognised words ('commands').
 
-    for (var index in classicGameStatus.classicCommandsJson) {
+    for (var index in classicGameStatus.classicTablesJson.commands) {
       clExp = new RegExp('\\b' + index + '\\b', 'i');
       wordMatch = classicGameStatus.classicTurnCommand.search(clExp);
       if ((wordMatch > -1) && (wordMatch < secondStartPosition)) {
@@ -201,15 +178,15 @@
 
 
     if (firstStartPosition < classicGameStatus.classicTurnCommand.length) {
-      if (classicGameStatus.classicCommandsJson[firstCommand].charAt(0) === 'M') {
-        classicGameStatus.classicMovementVerb = classicGameStatus.classicCommandsJson[firstCommand].slice(1);
-      } else if (classicGameStatus.classicCommandsJson[firstCommand].charAt(0) === 'N') {
-        classicGameStatus.classicNoun = classicGameStatus.classicCommandsJson[firstCommand].slice(1);
-      } else if (classicGameStatus.classicCommandsJson[firstCommand].charAt(0) === 'V') {
-        classicGameStatus.classicVerb = classicGameStatus.classicCommandsJson[firstCommand].slice(1);
+      if (classicGameStatus.classicTablesJson.commands[firstCommand].charAt(0) === 'M') {
+        classicGameStatus.classicMovementVerb = classicGameStatus.classicTablesJson.commands[firstCommand].slice(1);
+      } else if (classicGameStatus.classicTablesJson.commands[firstCommand].charAt(0) === 'N') {
+        classicGameStatus.classicNoun = classicGameStatus.classicTablesJson.commands[firstCommand].slice(1);
+      } else if (classicGameStatus.classicTablesJson.commands[firstCommand].charAt(0) === 'V') {
+        classicGameStatus.classicVerb = classicGameStatus.classicTablesJson.commands[firstCommand].slice(1);
         if (secondStartPosition < classicGameStatus.classicTurnCommand.length) {
-          if (classicGameStatus.classicCommandsJson[secondCommand].charAt(0) === 'N') {
-            classicGameStatus.classicNoun = classicGameStatus.classicCommandsJson[secondCommand].slice(1);
+          if (classicGameStatus.classicTablesJson.commands[secondCommand].charAt(0) === 'N') {
+            classicGameStatus.classicNoun = classicGameStatus.classicTablesJson.commands[secondCommand].slice(1);
           }
         }
       }
@@ -247,7 +224,7 @@
     //Need to re-implement this a a flat loop as callbacks aren't appropriate in this situation (need the code to be synchonous)
 
     classicCommandPartsArrayLength = classicCommandParts.length;
-    classicItemsArrayLength = classicGameStatus.classicItemsJson.items.length;
+    classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
 
     for (var i = 0; i < classicCommandPartsArrayLength; i += 1) {
       var item = classicCommandParts[i];
@@ -259,7 +236,7 @@
           itemID = parseInt(item.slice(1),10);
 
           for (var j = 0; j < classicItemsArrayLength; j += 1) {
-            if (classicGameStatus.classicItemsJson.items[j].ID === itemID) {
+            if (classicGameStatus.classicTablesJson.items[j].ID === itemID) {
               classicItemID = j;
             }
           }
@@ -273,7 +250,7 @@
           if (classicParsedValue === -1) {
             classicParsedValue = classicGameStatus.locationID;
           }
-          classicGameStatus.classicItemsJson.items[classicItemID].location = classicParsedValue;
+          classicGameStatus.classicTablesJson.items[classicItemID].location = classicParsedValue;
           break;
       }
     }
@@ -317,16 +294,16 @@
 
       //First identify the item matching the noun - scope is to check those in the inventory first then in the current room - frst to match wins
       //Then, from that item, extract the instruction string associated with the verb
-      classicItemsArrayLength = classicGameStatus.classicItemsJson.items.length;
+      classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
 
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
 
-        if (classicGameStatus.classicItemsJson.items[i].word === classicGameStatus.classicNoun) {
-          if (classicGameStatus.classicItemsJson.items[i].location === 0) {
-            classicInstruction = classicGameStatus.classicItemsJson.items[i][classicGameStatus.classicVerb] || "";
+        if (classicGameStatus.classicTablesJson.items[i].word === classicGameStatus.classicNoun) {
+          if (classicGameStatus.classicTablesJson.items[i].location === 0) {
+            classicInstruction = classicGameStatus.classicTablesJson.items[i][classicGameStatus.classicVerb] || "";
             console.log(classicInstruction + " inventory");
-          } else if (classicGameStatus.classicItemsJson.items[i].location === classicGameStatus.locationID) {
-            classicInstruction = classicGameStatus.classicItemsJson.items[i][classicGameStatus.classicVerb] || "";
+          } else if (classicGameStatus.classicTablesJson.items[i].location === classicGameStatus.locationID) {
+            classicInstruction = classicGameStatus.classicTablesJson.items[i][classicGameStatus.classicVerb] || "";
             console.log(classicInstruction + " location");
           }
         }
@@ -416,11 +393,10 @@
     //The successful callback for classicLoadCommandsJson calls classicLoadItemsJson
     //The successful callback for classicLoadItemsJson calls a routine to create the item objects (underconstruction)
     //description tbd
-    classicLoadCommandsJson(function(classicLoadCommandsJson) {
-      classicGameStatus.classicCommandsJson = classicLoadCommandsJson;
+
+    classicLoadTablesJson(function(classicLoadTablesJson) {
+      classicGameStatus.classicTablesJson = classicLoadTablesJson;
     });
-
-
 
     document.getElementById('theForm').onsubmit = classicTurnPart1;
   }

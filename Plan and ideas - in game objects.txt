@@ -40,8 +40,9 @@ Ways to interact with objects;
 
 
 So the immediate plan is
-  -1st early version of command interpreter to simply implement get and drop as an initial skeleton (initially drop will return the item to its original location)
-  - create yet more database tables for prototypes, messages, and functions
-  - reimplement the initialisation to import all of the initial tables using one big JSON rather than several unnecessary callbacks
 
-  - loads of other things to add to the above list
+  - create a database table for prototypes.
+  - the initial idea was to deal with calls to the commands table by recursively calling the interpreter for each call. The problem is that if there is a command to change room within in the chain, that needs an asynchronous callback. As things stand the rooms table could probably just be read in a one table like all of the others, since the room descriptions are planned to be moved to the message table, and thats where the large table is likely to be.
+      - I had 2 ideas;
+        -stay with the rooms table for now and unwind the recursion by returning he outstanding values to the parent, and passing the array of returned values into the callback to allow it to recreate and resume the recursion
+      - Have a list of messages in the form of M1M56M02 etc which allows a new AJAX callback routine to retrieve the required messages at the end, after all instructions have been processed. This replaces the rooms AJAX requests.
