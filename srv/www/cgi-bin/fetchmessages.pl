@@ -15,10 +15,14 @@ my $dtmessage = $q->param("value");
 
 my $dbh = DBI->connect('dbi:Pg:dbname=classic;host=localhost','derek','dtDerek',{AutoCommit=>1,RaiseError=>1,PrintError=>0});
 
-#my $sth = $dbh->prepare("SELECT * FROM rooms WHERE 1=0");
-#$sth->execute();
-#my $fields = $sth->{NAME};
+my $sth = $dbh->prepare("SELECT * FROM messages WHERE 1=0");
+$sth->execute();
+my $fields = $sth->{NAME};
 
+
+#***UNDER CONSTRUCTION*****
+#this will fetch each of the requested messages and create a string ready to use.
+#to be completed once we know the syntax of the list of messages that we will receive
 
 my $sql = "SELECT * FROM rooms WHERE \"ID\" = ?";
 

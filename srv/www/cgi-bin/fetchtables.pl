@@ -12,6 +12,10 @@ my %hash;
 my $hash;
 my $json;
 my $useacomma;
+my %rhash;
+my $rhash;
+
+
 
 my $q = new CGI;
 print $q->header();
@@ -46,6 +50,32 @@ print "\n],\n\n";
 
 
 
+$sth = $dbh->prepare("SELECT * FROM rooms WHERE 1=0");
+$sth->execute();
+$fields = $sth->{NAME};
+
+print "\n\"rooms\" : [\n";
+$useacomma = 0;
+$sth = $dbh->prepare("SELECT * FROM rooms");
+$sth->execute();
+
+while (my @row = $sth->fetchrow_array) {  # retrieve one row at a time
+  @rhash{@$fields} = @row;
+  $json = encode_json \%rhash;
+  if ($useacomma) {
+    print ",\n";
+  } else {
+    $useacomma = 1;
+  };
+  print $json;
+}
+print "\n],\n\n";
+
+
+
+
+
+
 $sth = $dbh->prepare("SELECT * FROM messages") or die +DBI->errstr;
 $sth->execute() or die DBI->errstr;
 print "\n\"messages\" : ";
@@ -56,6 +86,20 @@ while( my( $messageID, $message ) = $sth->fetchrow_array() ) {
 $json = encode_json \%hash;
 print $json,",\n\n";
 
+
+
+
+
+
+$sth = $dbh->prepare("SELECT * FROM snippets") or die +DBI->errstr;
+$sth->execute() or die DBI->errstr;
+print "\n\"snippets\" : ";
+delete $hash{$_} for (keys %hash);
+while( my( $snippetID, $snippet ) = $sth->fetchrow_array() ) {
+  $hash{ $snippetID } = $snippet;
+}
+$json = encode_json \%hash;
+print $json,",\n\n";
 
 
 

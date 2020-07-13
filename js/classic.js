@@ -218,6 +218,7 @@
     //var i;
     var classicCommandPartsArrayLength;
     var classicItemsArrayLength;
+    var classicSnippetsArrayLength;
 
     console.log(classicInstruction);
     classicCommandParts = classicInstruction.match(/[A-Z][\-]?[0-9]+/g);
@@ -264,7 +265,7 @@
           console.log(item);
           for (var j = 0; j < classicSnippetsArrayLength; j =+ 1 ) {
             if (classicGameStatus.classicTablesJson.snippets[j].ID === classicParsedValue) {
-              classsicProcessInstruction(classicGameStatus.classicTablesJson.snippets[j];
+              classsicProcessInstruction(classicGameStatus.classicTablesJson.snippets[j]);
             }
           }
           break;
