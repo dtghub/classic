@@ -27,6 +27,8 @@
     classicVerb: "", // the result of the parsing logic
     classicNoun: "", // the result of the parsing logic
     classicCommandNotRecognised: false, // will set to true if no verb was identified
+
+    classicMessageList: "",
     //an array to store room statuses
     //an array to store object status elements
   };
@@ -225,18 +227,18 @@
 
     classicCommandPartsArrayLength = classicCommandParts.length;
     classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
+    classicSnippetsArrayLength = classicGameStatus.classicTablesJson.snippets.length;
 
     for (var i = 0; i < classicCommandPartsArrayLength; i += 1) {
       var item = classicCommandParts[i];
+      classicParsedValue = parseInt(item.slice(1),10);
 
       switch (item.charAt(0)) {
         //The "I" instruction changes the active "item" to which subsequent incstructions refer
         case "I":
           console.log(item);
-          itemID = parseInt(item.slice(1),10);
-
           for (var j = 0; j < classicItemsArrayLength; j += 1) {
-            if (classicGameStatus.classicTablesJson.items[j].ID === itemID) {
+            if (classicGameStatus.classicTablesJson.items[j].ID === classicParsedValue) {
               classicItemID = j;
             }
           }
@@ -246,11 +248,25 @@
         //location -1 is the current location
         case "L":
           console.log(item);
-          classicParsedValue = parseInt(item.slice(1),10);
           if (classicParsedValue === -1) {
             classicParsedValue = classicGameStatus.locationID;
           }
           classicGameStatus.classicTablesJson.items[classicItemID].location = classicParsedValue;
+          break;
+          //The "D" instruction adds a message number for Display to the classicMessageList string
+          //The messages are retrieved and displayd after all instructions have been processed
+        case "D":
+          console.log(item);
+          classicGameStatus.classicMessageList += classicParsedValue.toString();
+          break;
+          //The "X" instruction looks up the instruction code from the snippets table and executes the instructions by calling classsicProcessInstruction recursively.
+        case "X":
+          console.log(item);
+          for (var j = 0; j < classicSnippetsArrayLength; j =+ 1 ) {
+            if (classicGameStatus.classicTablesJson.snippets[j].ID === classicParsedValue) {
+              classsicProcessInstruction(classicGameStatus.classicTablesJson.snippets[j];
+            }
+          }
           break;
       }
     }

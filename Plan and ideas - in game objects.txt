@@ -42,7 +42,19 @@ Ways to interact with objects;
 So the immediate plan is
 
   - create a database table for prototypes.
-  - the initial idea was to deal with calls to the commands table by recursively calling the interpreter for each call. The problem is that if there is a command to change room within in the chain, that needs an asynchronous callback. As things stand the rooms table could probably just be read in a one table like all of the others, since the room descriptions are planned to be moved to the message table, and thats where the large table is likely to be.
+  - move the room descriptions into the messages table
+
+
+  - the initial idea was to deal with calls to the commands table by recursively calling the interpreter for each call. The problem is that if there is a command to change room within in the chain, that needs an asynchronous callback. As things stand the rooms table could probably just be read in a one table like all of the others, since the room descriptions are planned to be moved to the message table, and that's where the large table is likely to be.
       - I had 2 ideas;
         -stay with the rooms table for now and unwind the recursion by returning he outstanding values to the parent, and passing the array of returned values into the callback to allow it to recreate and resume the recursion
       - Have a list of messages in the form of M1M56M02 etc which allows a new AJAX callback routine to retrieve the required messages at the end, after all instructions have been processed. This replaces the rooms AJAX requests.
+
+
+
+
+
+- Convention for room description message numbering;
+  - room numbers map to message numbers by adding 3 zeros to the end, so room 1 maps to message 1000, 1001 etc
+  - x000 will always be the detailed room description, x001 will be the short descriptions
+  - x100 will be the start of the numbering range for 'non-standard' messages.
