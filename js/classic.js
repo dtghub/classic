@@ -238,9 +238,13 @@
         //The "I" instruction changes the active "item" to which subsequent incstructions refer
         case "I":
           console.log(item);
-          for (var j = 0; j < classicItemsArrayLength; j += 1) {
-            if (classicGameStatus.classicTablesJson.items[j].ID === classicParsedValue) {
-              classicItemID = j;
+          if (classicParsedValue === 0) {
+            classicItemID = 0;
+          } else {
+            for (var j = 0; j < classicItemsArrayLength; j += 1) {
+              if (classicGameStatus.classicTablesJson.items[j].ID === classicParsedValue) {
+                classicItemID = j;
+              }
             }
           }
           break;
