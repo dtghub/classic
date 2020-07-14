@@ -29,6 +29,7 @@
     classicCommandNotRecognised: false, // will set to true if no verb was identified
 
     classicMessageList: "",
+    classicMessages: "",
     classicActiveNumber: 0,
     //an array to store room statuses
     //an array to store object status elements
@@ -68,6 +69,27 @@
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("text/application");
     xobj.open('GET', 'http://localhost/cgi-bin/fetchroom.pl?value=' + classicGameStatus.locationID, true);
+
+    xobj.onreadystatechange = function () {
+      if (xobj.readyState == 4 && xobj.status == "200") {
+        callback(JSON.parse(xobj.responseText));
+        classicTurnPart2(); //Complete the classicTurn loop when ready.
+      }
+    };
+    xobj.send(classicGameStatus.locationID);
+  }
+
+
+
+
+
+
+
+  function classicGetMessages(callback) {
+    'use strict';
+    var xobj = new XMLHttpRequest();
+    xobj.overrideMimeType("text/application");
+    xobj.open('GET', 'http://localhost/cgi-bin/fetchmessages.pl?value=' + classicGameStatus.classicMessageList, true);
 
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
@@ -248,7 +270,7 @@
         //The messages are retrieved and displayd after all instructions have been processed
         case "D":
           console.log(item);
-          classicGameStatus.classicMessageList += classicParsedValue.toString() + ",";
+          classicGameStatus.classicMessageList += classicParsedValue.toString() + "~";
         break;
         //The "I" instruction changes the active "item" to which subsequent incstructions refer
         //This may be replaced by the "N" instruction
@@ -421,6 +443,13 @@
       classicGameStatus.classicRoomJson = classicLoadRoomJson;
     }); //When the JSON is loaded the loop resumes in classicTurnPart2()
 
+
+
+    classicGetMessages(function(classicGetMessages) {
+      classicGameStatus.classicMessages = classicGetMessages;
+    });
+
+
     // return false to prevent submission for now:
     return false;
   }
@@ -437,6 +466,7 @@
     classicUpdateDescription();
     classicGameStatus.gameStatus.value += "\n\nMessages from queue;\n" + classicGameStatus.classicMessageList;
     classicGameStatus.classicMessageList = "";
+    classicGameStatus.gameStatus.value += classicGameStatus.classicMessages.messages;
     console.log(classicGameStatus);
 
   }
