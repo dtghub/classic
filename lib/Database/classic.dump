@@ -52,6 +52,18 @@ CREATE TABLE public.items (
 ALTER TABLE public.items OWNER TO derek;
 
 --
+-- Name: lists; Type: TABLE; Schema: public; Owner: derek
+--
+
+CREATE TABLE public.lists (
+    "ID" integer NOT NULL,
+    list text
+);
+
+
+ALTER TABLE public.lists OWNER TO derek;
+
+--
 -- Name: messages; Type: TABLE; Schema: public; Owner: derek
 --
 
@@ -72,7 +84,6 @@ CREATE TABLE public.rooms (
     "shortDescription" text,
     "longDescription" text,
     dark boolean,
-    north integer,
     south integer,
     east integer,
     west integer,
@@ -83,7 +94,8 @@ CREATE TABLE public.rooms (
     up integer,
     down integer,
     "in" integer,
-    "out" integer
+    "out" integer,
+    north text
 );
 
 
@@ -152,9 +164,19 @@ COPY public.commands ("ID", command, token) FROM stdin;
 --
 
 COPY public.items ("ID", location, name, look, read, lit, light, get, drop, word) FROM stdin;
-1	1	lamp	This is an oil lamp	\N	f	I1L9999:I3L0	I1L0	I1L-1	lamp
 2	2	paper	A grotty looking piece of paper. You can see a faded note written on it.	The note reads; "Light the lamp!"	f	\N	I2L0	I2L-1	note
 3	9999	lit lamp	The oil lamp is lit, providing a dull glow which is just bright enough to let you see you immediate surroundings when it is dark.	\N	f	\N	\N	I3L9999I1L-1	lamp
+0	1	--------	player	\N	f	\N	\N	\N	\N
+1	1	lamp	This is an oil lamp	\N	f	I1L9999:I3L0	I1L0	I1L-1D1	lamp
+\.
+
+
+--
+-- Data for Name: lists; Type: TABLE DATA; Schema: public; Owner: derek
+--
+
+COPY public.lists ("ID", list) FROM stdin;
+0	1
 \.
 
 
@@ -178,10 +200,10 @@ COPY public.messages ("ID", "Message") FROM stdin;
 -- Data for Name: rooms; Type: TABLE DATA; Schema: public; Owner: derek
 --
 
-COPY public.rooms ("roomNumber", "shortDescription", "longDescription", dark, north, south, east, west, northeast, northwest, southeast, southwest, up, down, "in", "out") FROM stdin;
-3	Room number three looks ominous.	You have entered room number three. It has a foreboding look about it. Some would say ominous...	f	0	0	0	0	1	0	2	0	0	0	0	0
-2	You are in the second starting room.	This is the second starting room. i.e. the default starting room number two!	f	0	1	0	0	0	0	0	3	0	0	0	0
-1	You are in the starting room.	For the purposes of this draft, this is the initial starting room. i.e. the default starting room number one.	f	2	0	0	0	0	3	0	0	0	0	0	0
+COPY public.rooms ("roomNumber", "shortDescription", "longDescription", dark, south, east, west, northeast, northwest, southeast, southwest, up, down, "in", "out", north) FROM stdin;
+3	Room number three looks ominous.	You have entered room number three. It has a foreboding look about it. Some would say ominous...	f	0	0	0	1	0	2	0	0	0	0	0	\N
+2	You are in the second starting room.	This is the second starting room. i.e. the default starting room number two!	f	1	0	0	0	0	0	3	0	0	0	0	\N
+1	You are in the starting room.	For the purposes of this draft, this is the initial starting room. i.e. the default starting room number one.	f	0	0	0	0	3	0	0	0	0	0	0	I0L2D2000
 \.
 
 
@@ -209,6 +231,14 @@ ALTER TABLE ONLY public.commands
 
 ALTER TABLE ONLY public.items
     ADD CONSTRAINT items_pkey PRIMARY KEY ("ID");
+
+
+--
+-- Name: lists lists_pkey; Type: CONSTRAINT; Schema: public; Owner: derek
+--
+
+ALTER TABLE ONLY public.lists
+    ADD CONSTRAINT lists_pkey PRIMARY KEY ("ID");
 
 
 --
