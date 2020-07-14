@@ -248,7 +248,7 @@
         //The messages are retrieved and displayd after all instructions have been processed
         case "D":
           console.log(item);
-          classicGameStatus.classicMessageList += classicParsedValue.toString();
+          classicGameStatus.classicMessageList += classicParsedValue.toString() + ",";
         break;
         //The "I" instruction changes the active "item" to which subsequent incstructions refer
         //This may be replaced by the "N" instruction
@@ -275,6 +275,22 @@
         case "N":
           console.log(item);
           classicGameStatus.classicActiveNumber = classicParsedValue;
+        break;
+
+        //The "S" instruction executes Special cases
+        //Probable the goal is to develop the interpreter to the point where S is never needed
+        //S1 adds the names of items located at the location matching classicGameStatus.classicActiveNumber to the display queue.
+        case "S":
+          console.log(item);
+          if (classicParsedValue === 1) {
+            for (var j = 0; j < classicItemsArrayLength; j += 1) {
+              if ((classicGameStatus.classicTablesJson.items[j].location === classicGameStatus.classicActiveNumber) && classicGameStatus.classicTablesJson.items[j].ID !== 0) {
+                console.log("/nMatched " + i);
+                classicGameStatus.classicMessageList  += "\n" + classicGameStatus.classicTablesJson.items[i].name;
+              }
+            }
+            classicGameStatus.classicMessageList += ",";
+          }
         break;
         //The "U" instruction pUshes the active value into the lists table entry if it is not already there.
         case "U":
@@ -317,7 +333,7 @@
     classicGameStatus.roomLongDescriptionRequired = false;
 
     //echo the entered command to the main window
-    classicGameStatus.gameStatus.value += '\n' + classicGameStatus.classicTurnCommand;
+    classicGameStatus.gameStatus.value += '\n\n> ' + classicGameStatus.classicTurnCommand;
 
 
     if (classicGameStatus.classicMovementVerb === "" && classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun === "") {
@@ -419,6 +435,8 @@
     'use strict';
 
     classicUpdateDescription();
+    classicGameStatus.gameStatus.value += "\n\nMessages from queue;\n" + classicGameStatus.classicMessageList;
+    classicGameStatus.classicMessageList = "";
     console.log(classicGameStatus);
 
   }
