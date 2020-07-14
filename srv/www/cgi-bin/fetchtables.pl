@@ -106,6 +106,22 @@ print $json,",\n\n";
 
 
 
+$sth = $dbh->prepare("SELECT * FROM lists") or die +DBI->errstr;
+$sth->execute() or die DBI->errstr;
+print "\n\"lists\" : ";
+delete $hash{$_} for (keys %hash);
+while( my( $listsID, $lists ) = $sth->fetchrow_array() ) {
+  $hash{ $listsID } = $lists;
+}
+$json = encode_json \%hash;
+print $json,",\n\n";
+
+
+
+
+
+
+
 $sth = $dbh->prepare("SELECT command, token FROM commands") or die +DBI->errstr;
 $sth->execute() or die DBI->errstr;
 print "\n\"commands\" : ";

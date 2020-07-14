@@ -29,6 +29,7 @@
     classicCommandNotRecognised: false, // will set to true if no verb was identified
 
     classicMessageList: "",
+    classicActiveNumber: 0,
     //an array to store room statuses
     //an array to store object status elements
   };
@@ -107,7 +108,7 @@
       classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
 
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
-        if (classicGameStatus.classicTablesJson.items[i].location === classicGameStatus.locationID) {
+        if ((classicGameStatus.classicTablesJson.items[i].location === classicGameStatus.locationID) && classicGameStatus.classicTablesJson.items[i].ID !== 0) {
           console.log("/nMatched " + i);
           classicItemList += "\n" + classicGameStatus.classicTablesJson.items[i].name;
         }
@@ -219,6 +220,7 @@
     var classicCommandPartsArrayLength;
     var classicItemsArrayLength;
     var classicSnippetsArrayLength;
+    var classicListsArrayLength;
 
     console.log(classicInstruction);
     classicCommandParts = classicInstruction.match(/[A-Z][\-]?[0-9]+/g);
@@ -229,26 +231,36 @@
     classicCommandPartsArrayLength = classicCommandParts.length;
     classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
     classicSnippetsArrayLength = classicGameStatus.classicTablesJson.snippets.length;
+    classicListsArrayLength = classicGameStatus.classicTablesJson.lists.length;
 
     for (var i = 0; i < classicCommandPartsArrayLength; i += 1) {
       var item = classicCommandParts[i];
       classicParsedValue = parseInt(item.slice(1),10);
 
       switch (item.charAt(0)) {
+        //The "C" instruction is a Conditional test - if false then we skip the next instruction.
+        //In practice this means a lot of the time the next instruction will be an 'X'
+        case "C":
+          console.log(item);
+          //****UNDER CONSTRUCTION****
+        break;
+        //The "D" instruction adds a message number for Display to the classicMessageList string
+        //The messages are retrieved and displayd after all instructions have been processed
+        case "D":
+          console.log(item);
+          classicGameStatus.classicMessageList += classicParsedValue.toString();
+        break;
         //The "I" instruction changes the active "item" to which subsequent incstructions refer
+        //This may be replaced by the "N" instruction
         case "I":
           console.log(item);
-          if (classicParsedValue === 0) {
-            classicItemID = 0;
-          } else {
-            for (var j = 0; j < classicItemsArrayLength; j += 1) {
-              if (classicGameStatus.classicTablesJson.items[j].ID === classicParsedValue) {
-                classicItemID = j;
-              }
+          for (var j = 0; j < classicItemsArrayLength; j += 1) {
+            if (classicGameStatus.classicTablesJson.items[j].ID === classicParsedValue) {
+              classicItemID = j;
             }
           }
-          break;
-        //The "L" instruction sets the location of the current item
+        break;
+        //The "L" instruction sets the location of the acitive item
         //location 0 is your own inventory
         //location -1 is the current location
         case "L":
@@ -257,14 +269,25 @@
             classicParsedValue = classicGameStatus.locationID;
           }
           classicGameStatus.classicTablesJson.items[classicItemID].location = classicParsedValue;
-          break;
-          //The "D" instruction adds a message number for Display to the classicMessageList string
-          //The messages are retrieved and displayd after all instructions have been processed
-        case "D":
+        break;
+        //The "N" instruction changes the active "number" to which subsequent incstructions refer
+        //This may replace the "I" instruction
+        case "N":
           console.log(item);
-          classicGameStatus.classicMessageList += classicParsedValue.toString();
-          break;
-          //The "X" instruction looks up the instruction code from the snippets table and executes the instructions by calling classsicProcessInstruction recursively.
+          classicGameStatus.classicActiveNumber = classicParsedValue;
+        break;
+        //The "U" instruction pUshes the active value into the lists table entry if it is not already there.
+        case "U":
+          console.log(item);
+          for (var j = 0; j < classicListsArrayLength; j += 1) {
+            if (classicGameStatus.classicTablesJson.lists[j].ID === classicParsedValue) {
+              if (!classicGameStatus.classicTablesJson.lists[j].list.includes(classicGameStatus.classicActiveNumber)) {
+                classicGameStatus.classicTablesJson.lists[j].list.push(classicGameStatus.classicActiveNumber);
+              }
+            }
+          }
+        break;
+        //The "X" instruction looks up the instruction code from the snippets table and executes the instructions by calling classsicProcessInstruction recursively.
         case "X":
           console.log(item);
           for (var j = 0; j < classicSnippetsArrayLength; j =+ 1 ) {
@@ -272,7 +295,9 @@
               classsicProcessInstruction(classicGameStatus.classicTablesJson.snippets[j]);
             }
           }
-          break;
+        break;
+        default:
+          console.log("\nUnrecognised command; " + item);
       }
     }
   }
