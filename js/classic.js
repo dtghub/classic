@@ -29,7 +29,7 @@
     classicCommandNotRecognised: false, // will set to true if no verb was identified
 
     classicMessageList: "",
-    classicMessages: "",
+    classicMessages: {messages: ""},
     classicActiveNumber: 0,
     //an array to store room statuses
     //an array to store object status elements
@@ -248,7 +248,7 @@
     classicCommandParts = classicInstruction.match(/[A-Z][\-]?[0-9]+/g);
     console.log(classicCommandParts);
 
-    //Need to re-implement this a a flat loop as callbacks aren't appropriate in this situation (need the code to be synchonous)
+
 
     classicCommandPartsArrayLength = classicCommandParts.length;
     classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
@@ -348,6 +348,8 @@
     //This variable holds the instruction line derived from the commands entered
     var classicInstruction = "";
     var classicItemsArrayLength;
+    var classicRoomsArrayLength;
+    var clRoomNumberIndex;
 
 
     classicGameStatus.classicCommandNotRecognised = false;
@@ -404,9 +406,27 @@
       }
     }
 
+    if (classicGameStatus.classicMovementVerb !== "") {
 
+      classicRoomsArrayLength = classicGameStatus.classicTablesJson.rooms.length;
 
+      for (var i = 0; i < classicRoomsArrayLength; i += 1) {
+        if (classicGameStatus.classicTablesJson.rooms[i].roomNumber == classicGameStatus.locationID) {
+          clRoomNumberIndex = i;
+        }
+      }
 
+      console.log(clRoomNumberIndex);
+      console.log(classicGameStatus.locationID);
+
+      if (classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicGameStatus.classicMovementVerb] !== 0) {
+        classicInstruction = classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicGameStatus.classicMovementVerb];
+      } else {
+        classicInstruction = "D4";
+      }
+    }
+
+/*
     if (classicGameStatus.classicMovementVerb !== "") {
       var clRoomNumber = classicGameStatus.classicRoomJson[classicGameStatus.classicMovementVerb];
       if (clRoomNumber !== 0) {
@@ -420,6 +440,7 @@
         classicGameStatus.gameStatus.value += "\nYou can't go that way.";
       }
     }
+*/
 
     if (classicInstruction !== "") {
       classsicProcessInstruction(classicInstruction);

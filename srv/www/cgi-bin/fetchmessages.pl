@@ -15,14 +15,7 @@ my @dtmessage =  split('~', $dtmessage);
 
 my $dbh = DBI->connect('dbi:Pg:dbname=classic;host=localhost','derek','dtDerek',{AutoCommit=>1,RaiseError=>1,PrintError=>0});
 
-#my $sth = $dbh->prepare("SELECT * FROM messages WHERE 1=0");
-#$sth->execute();
-#my $fields = $sth->{NAME};
 
-#my $sth = $dbh->prepare("SELECT * FROM messages");
-#$sth->execute();
-
-#***UNDER CONSTRUCTION*****
 #this will fetch each of the requested messages and create a string ready to use.
 #to be completed once we know the syntax of the list of messages that we will receive
 
@@ -40,11 +33,3 @@ foreach (@dtmessage) {
 }
 
 print "\" }\n\n";
-
-#my %hash;
-
-#@hash{@$fields} = @row;
-
-#my $json = encode_json \%hash;
-
-#print $json,"\n\n";
