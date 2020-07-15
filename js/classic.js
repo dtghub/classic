@@ -238,16 +238,37 @@
     var itemID = -1;
     var classicParsedValue = 0;
     var classicCommandParts = [];
-    //var i;
     var classicCommandPartsArrayLength;
     var classicItemsArrayLength;
     var classicSnippetsArrayLength;
     var classicListsArrayLength;
+    var classicRoomsArrayLength;
+    var classicCurrentRoom;
+    var classicCurrentRoomArrayIndex;
+    var classicPlayerItemsArrayIndex;
 
     console.log(classicInstruction);
     classicCommandParts = classicInstruction.match(/[A-Z][\-]?[0-9]+/g);
     console.log(classicCommandParts);
 
+
+    //make a note of the current room
+    classicRoomsArrayLength = classicGameStatus.classicTablesJson.rooms.length;
+    classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
+
+    //ID 0 in the items table rcords the player properties
+    for (var i = 0; i < classicItemssArrayLength; i += 1) {
+      if (classicGameStatus.classicTablesJson.items[i].ID == 0) {
+        classicPlayerItemsArrayIndex = i;
+      }
+    }
+    classicCurrentRoom = classicGameStatus.classicTablesJson.items[classicPlayerItemsArrayIndex].location;
+
+    for (var i = 0; i < classicRoomsArrayLength; i += 1) {
+      if (classicGameStatus.classicTablesJson.rooms[i].roomNumber == classicCurrentRoom) {
+        clRoomNumberIndex = i;
+      }
+    }
 
 
     classicCommandPartsArrayLength = classicCommandParts.length;
@@ -260,11 +281,26 @@
       classicParsedValue = parseInt(item.slice(1),10);
 
       switch (item.charAt(0)) {
+        //The "B" instruction is the inverse of the "C" Conditional test - if true then we skip the next instruction.
+        case "B":
+          console.log(item);
+          //****UNDER CONSTRUCTION****
+          if (classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicParsedValue] === 1) {
+            //if the flag number is set, skip the next command
+            i += 1;
+          }
+        break;
         //The "C" instruction is a Conditional test - if false then we skip the next instruction.
-        //In practice this means a lot of the time the next instruction will be an 'X'
+        //In practice this means that a lot of the time the next instruction will be an 'X'
+        //At the moment this has only been implemented for the rooms table.
+        //
         case "C":
           console.log(item);
           //****UNDER CONSTRUCTION****
+          if (classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicParsedValue] !== 1) {
+            //if the flag number is not set, skip the next command
+            i += 1;
+          }
         break;
         //The "D" instruction adds a message number for Display to the classicMessageList string
         //The messages are retrieved and displayd after all instructions have been processed
