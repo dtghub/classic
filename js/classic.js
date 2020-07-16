@@ -97,7 +97,7 @@
         classicTurnPart2(); //Complete the classicTurn loop when ready.
       }
     };
-    xobj.send(classicGameStatus.locationID);
+    xobj.send(classicGameStatus.classicMessageList);
   }
 
 
@@ -246,6 +246,7 @@
     var classicCurrentRoom;
     var classicCurrentRoomArrayIndex;
     var classicPlayerItemsArrayIndex;
+    var clRoomNumberIndex;
 
     console.log(classicInstruction);
     classicCommandParts = classicInstruction.match(/[A-Z][\-]?[0-9]+/g);
@@ -257,7 +258,7 @@
     classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
 
     //ID 0 in the items table rcords the player properties
-    for (var i = 0; i < classicItemssArrayLength; i += 1) {
+    for (var i = 0; i < classicItemsArrayLength; i += 1) {
       if (classicGameStatus.classicTablesJson.items[i].ID == 0) {
         classicPlayerItemsArrayIndex = i;
       }
@@ -269,6 +270,9 @@
         clRoomNumberIndex = i;
       }
     }
+
+    console.log(classicCurrentRoom);
+    console.log(clRoomNumberIndex);
 
 
     classicCommandPartsArrayLength = classicCommandParts.length;
@@ -285,19 +289,19 @@
         case "B":
           console.log(item);
           //****UNDER CONSTRUCTION****
-          if (classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicParsedValue] === 1) {
+          if (classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicParsedValue] !== 1) {
             //if the flag number is set, skip the next command
             i += 1;
           }
         break;
-        //The "C" instruction is a Conditional test - if false then we skip the next instruction.
+        //The "C" instruction is a Conditional test - if false then we skip the next instruction. - see related "B" and "S"
         //In practice this means that a lot of the time the next instruction will be an 'X'
         //At the moment this has only been implemented for the rooms table.
         //
         case "C":
           console.log(item);
           //****UNDER CONSTRUCTION****
-          if (classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicParsedValue] !== 1) {
+          if (classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicParsedValue] === 1) {
             //if the flag number is not set, skip the next command
             i += 1;
           }
@@ -324,9 +328,11 @@
         case "L":
           console.log(item);
           if (classicParsedValue === -1) {
-            classicParsedValue = classicGameStatus.locationID;
+            classicParsedValue = classicCurrentRoom;
           }
           classicGameStatus.classicTablesJson.items[classicItemID].location = classicParsedValue;
+          //Temporary kludge - to be removed;
+          classicGameStatus.locationID = classicParsedValue;
         break;
         //The "N" instruction changes the active "number" to which subsequent incstructions refer
         //This may replace the "I" instruction
@@ -335,10 +341,10 @@
           classicGameStatus.classicActiveNumber = classicParsedValue;
         break;
 
-        //The "S" instruction executes Special cases
+        //The "P" instruction executes sPecial cases
         //Probable the goal is to develop the interpreter to the point where S is never needed
         //S1 adds the names of items located at the location matching classicGameStatus.classicActiveNumber to the display queue.
-        case "S":
+        case "P":
           console.log(item);
           if (classicParsedValue === 1) {
             for (var j = 0; j < classicItemsArrayLength; j += 1) {
@@ -349,6 +355,18 @@
             }
             classicGameStatus.classicMessageList += ",";
           }
+        break;
+        //The "R" instruction unsets the flag used for the "C" and "B" conditional tests. ("S" Sets it)
+        case "R":
+          console.log(item);
+          //****UNDER CONSTRUCTION****
+          classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicParsedValue] = 0;
+        break;
+        //The "S" instruction Sets the flag used for the "C" and "B" conditional tests. ("R" unsets it)
+        case "S":
+          console.log(item);
+          //****UNDER CONSTRUCTION****
+          classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicParsedValue] = 1;
         break;
         //The "U" instruction pUshes the active value into the lists table entry if it is not already there.
         case "U":
@@ -496,9 +514,9 @@
 
     classicProcessParsedCommand();
 
-    classicLoadRoomJson(function(classicLoadRoomJson) {
-      classicGameStatus.classicRoomJson = classicLoadRoomJson;
-    }); //When the JSON is loaded the loop resumes in classicTurnPart2()
+    //classicLoadRoomJson(function(classicLoadRoomJson) {
+      //classicGameStatus.classicRoomJson = classicLoadRoomJson;
+    //}); //When the JSON is loaded the loop resumes in classicTurnPart2()
 
 
 
@@ -520,7 +538,7 @@
   function classicTurnPart2() {
     'use strict';
 
-    classicUpdateDescription();
+    //classicUpdateDescription();
     classicGameStatus.gameStatus.value += "\n\nMessages from queue;\n" + classicGameStatus.classicMessageList;
     classicGameStatus.classicMessageList = "";
     classicGameStatus.gameStatus.value += classicGameStatus.classicMessages.messages;
