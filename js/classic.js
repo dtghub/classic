@@ -566,8 +566,8 @@ debugger; //we should never be here now...
     'use strict';
 
     classicUpdateDescription();
-    classicGameStatus.gameStatus.value += "\n\nMessages from queue;\n" + classicGameStatus.classicMessageList;
-    classicGameStatus.classicMessageList = "";
+    //classicGameStatus.gameStatus.value += "\n\nMessages from queue;\n" + classicGameStatus.classicMessageList;
+    //classicGameStatus.classicMessageList = "";
     //classicGameStatus.gameStatus.value += classicGameStatus.classicMessages.messages;
     console.log(classicGameStatus);
 

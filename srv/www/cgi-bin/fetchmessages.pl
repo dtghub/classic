@@ -8,7 +8,11 @@ use JSON;
 use Data::Dumper qw(Dumper);
 
 my $q = new CGI;
-print $q->header();
+print $q->header(
+  -type => 'text/turtle',
+  -content_location => 'mydata.ttl',
+  -access_control_allow_origin => '*',
+);
 my $dtmessage = $q->param("value");
 my @dtmessage =  split('~', $dtmessage);
 

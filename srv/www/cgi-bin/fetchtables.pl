@@ -18,7 +18,11 @@ my $rhash;
 
 
 my $q = new CGI;
-print $q->header();
+print $q->header(
+  -type => 'text/turtle',
+  -content_location => 'mydata.ttl',
+  -access_control_allow_origin => '*',
+);
 
 
 
