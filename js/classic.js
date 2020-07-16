@@ -247,7 +247,7 @@ debugger; //we should never be here now...
 
 
   //UNDER CONSTRUCTION
-  function classsicProcessInstruction(classicInstruction) {
+  function classicProcessInstruction(classicInstruction) {
     'use strict';
 
     //var clExp = "";
@@ -370,7 +370,7 @@ debugger; //we should never be here now...
             for (var j = 0; j < classicItemsArrayLength; j += 1) {
               if ((classicGameStatus.classicTablesJson.items[j].location === classicGameStatus.classicActiveNumber) && (classicGameStatus.classicTablesJson.items[j].ID !== 0)) {
                 console.log("/nMatched " + i);
-                classsicProcessInstruction(classicGameStatus.classicTablesJson.items[j].name);
+                classicProcessInstruction(classicGameStatus.classicTablesJson.items[j].name);
               }
             }
           }
@@ -399,12 +399,12 @@ debugger; //we should never be here now...
             }
           }
         break;
-        //The "X" instruction looks up the instruction code from the snippets table and executes the instructions by calling classsicProcessInstruction recursively.
+        //The "X" instruction looks up the instruction code from the snippets table and executes the instructions by calling classicProcessInstruction recursively.
         case "X":
           console.log(item);
           for (var j = 0; j < classicSnippetsArrayLength; j =+ 1 ) {
             if (classicGameStatus.classicTablesJson.snippets[j].ID === classicParsedValue) {
-              classsicProcessInstruction(classicGameStatus.classicTablesJson.snippets[j]);
+              classicProcessInstruction(classicGameStatus.classicTablesJson.snippets[j]);
             }
           }
         break;
@@ -437,7 +437,7 @@ debugger; //we should never be here now...
     if (classicGameStatus.classicMovementVerb === "" && classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun === "") {
       //classicGameStatus.gameStatus.value += "\nI'm sorry, I didn't understand that!";
       //Temporary kludge
-      classsicProcessInstruction("D3"); //Displays the above message.
+      classicProcessInstruction("D3"); //Displays the above message.
     }
 
     //Needs improvement;
@@ -446,7 +446,7 @@ debugger; //we should never be here now...
     if (classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun !== "") {
       //classicGameStatus.gameStatus.value += "\nHmmm, I don't follow; Please clarify what you would like me to do with the " + classicGameStatus.classicNoun + "?";
       //Temporary kludge
-      classsicProcessInstruction("D3"); //Displays the above message. Message can be expanded
+      classicProcessInstruction("D3"); //Displays the above message. Message can be expanded
     }
 
 
@@ -522,7 +522,7 @@ debugger; //we should never be here now...
 */
 
     if (classicInstruction !== "") {
-      classsicProcessInstruction(classicInstruction);
+      classicProcessInstruction(classicInstruction);
     }
   }
 
