@@ -74,17 +74,17 @@ print "\n],\n\n";
 
 
 
+#Don't need to read in all of massages any more - replaced by fetchmessages.pl
 
-
-$sth = $dbh->prepare("SELECT * FROM messages") or die +DBI->errstr;
-$sth->execute() or die DBI->errstr;
-print "\n\"messages\" : ";
-delete $hash{$_} for (keys %hash);
-while( my( $messageID, $message ) = $sth->fetchrow_array() ) {
-  $hash{ $messageID } = $message;
-}
-$json = encode_json \%hash;
-print $json,",\n\n";
+#$sth = $dbh->prepare("SELECT * FROM messages") or die +DBI->errstr;
+#$sth->execute() or die DBI->errstr;
+#print "\n\"messages\" : ";
+#delete $hash{$_} for (keys %hash);
+#while( my( $messageID, $message ) = $sth->fetchrow_array() ) {
+#  $hash{ $messageID } = $message;
+#}
+#$json = encode_json \%hash;
+#print $json,",\n\n";
 
 
 

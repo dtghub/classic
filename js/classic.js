@@ -49,10 +49,10 @@
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
         callback(JSON.parse(xobj.responseText));
-
-        classicLoadRoomJson(function(classicLoadRoomJson) {
-          classicGameStatus.classicRoomJson = classicLoadRoomJson;
-        });
+//        classicLoadRoomJson(function(classicLoadRoomJson) {
+//          classicGameStatus.classicRoomJson = classicLoadRoomJson;
+//        });
+        classicTurnPart2(); //Complete the classicTurn loop when ready.
       }
     };
     xobj.send(null);
@@ -69,7 +69,7 @@
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("text/application");
     xobj.open('GET', 'http://localhost/cgi-bin/fetchroom.pl?value=' + classicGameStatus.locationID, true);
-
+debugger; //we should never be here now...
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
         callback(JSON.parse(xobj.responseText));
@@ -105,7 +105,7 @@
 
 
 
-  function classicUpdateDescription() {
+  function classicUpdateDescriptionOLD() {
     'use strict';
 
     var classicItemList = "";
@@ -149,7 +149,27 @@
   }
 
 
+  function classicUpdateDescription() {
+    'use strict';
 
+    var classicItemList = "";
+    var classicItemsArrayLength;
+
+
+    classicGameStatus.gameStatus.value += "\n" + classicGameStatus.classicMessages.messages;
+
+
+    classicGameStatus.gameStatus.setAttribute('disabled', false);
+
+      //List the items in the room - this will probably get replaced as the command parsing is implemented as it probably belongs up at that level
+
+
+
+    //This makes sure that the bottom line of text in the gameStatus box is visible after an update.
+    classicGameStatus.gameStatus.scrollTop = classicGameStatus.gameStatus.scrollHeight;
+
+    classicGameStatus.gameStatus.setAttribute('disabled', true);
+  }
 
 
 
@@ -342,18 +362,17 @@
         break;
 
         //The "P" instruction executes sPecial cases
-        //Probable the goal is to develop the interpreter to the point where S is never needed
-        //S1 adds the names of items located at the location matching classicGameStatus.classicActiveNumber to the display queue.
+        //Probably the goal is to develop the interpreter to the point where S is never needed
+        //P1 adds the names of items located at the location matching classicGameStatus.classicActiveNumber to the display queue.
         case "P":
           console.log(item);
           if (classicParsedValue === 1) {
             for (var j = 0; j < classicItemsArrayLength; j += 1) {
-              if ((classicGameStatus.classicTablesJson.items[j].location === classicGameStatus.classicActiveNumber) && classicGameStatus.classicTablesJson.items[j].ID !== 0) {
+              if ((classicGameStatus.classicTablesJson.items[j].location === classicGameStatus.classicActiveNumber) && (classicGameStatus.classicTablesJson.items[j].ID !== 0)) {
                 console.log("/nMatched " + i);
-                classicGameStatus.classicMessageList  += "\n" + classicGameStatus.classicTablesJson.items[i].name;
+                classsicProcessInstruction(classicGameStatus.classicTablesJson.items[j].name);
               }
             }
-            classicGameStatus.classicMessageList += ",";
           }
         break;
         //The "R" instruction unsets the flag used for the "C" and "B" conditional tests. ("S" Sets it)
@@ -369,6 +388,7 @@
           classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicParsedValue] = 1;
         break;
         //The "U" instruction pUshes the active value into the lists table entry if it is not already there.
+        //Not actually needed at the moment
         case "U":
           console.log(item);
           for (var j = 0; j < classicListsArrayLength; j += 1) {
@@ -415,14 +435,18 @@
 
 
     if (classicGameStatus.classicMovementVerb === "" && classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun === "") {
-      classicGameStatus.gameStatus.value += "\nI'm sorry, I didn't understand that!";
+      //classicGameStatus.gameStatus.value += "\nI'm sorry, I didn't understand that!";
+      //Temporary kludge
+      classsicProcessInstruction("D3"); //Displays the above message.
     }
 
     //Needs improvement;
     //As written, this allows the user to confirm the existance of any object name
     //To be re-implemented - this will be done by loking at the nouns  table -the command associated with the noverb entry will be executed.
     if (classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun !== "") {
-      classicGameStatus.gameStatus.value += "\nHmmm, I don't follow; Please clarify what you would like me to do with the " + classicGameStatus.classicNoun + "?";
+      //classicGameStatus.gameStatus.value += "\nHmmm, I don't follow; Please clarify what you would like me to do with the " + classicGameStatus.classicNoun + "?";
+      //Temporary kludge
+      classsicProcessInstruction("D3"); //Displays the above message. Message can be expanded
     }
 
 
@@ -473,10 +497,11 @@
       console.log(clRoomNumberIndex);
       console.log(classicGameStatus.locationID);
 
-      if (classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicGameStatus.classicMovementVerb] !== 0) {
+      if (classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicGameStatus.classicMovementVerb]) {
         classicInstruction = classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicGameStatus.classicMovementVerb];
       } else {
-        classicInstruction = "D4";
+        //Temporary kludge - I'm sorry you can't go that way
+        classicInstruction ="D4"; //Displays the above message.
       }
     }
 
@@ -510,6 +535,8 @@
   function classicTurnPart1() {
     'use strict';
 
+    classicGameStatus.gameStatus.setAttribute('disabled', true);
+
     classicParseEnteredCommand();
 
     classicProcessParsedCommand();
@@ -538,10 +565,10 @@
   function classicTurnPart2() {
     'use strict';
 
-    //classicUpdateDescription();
+    classicUpdateDescription();
     classicGameStatus.gameStatus.value += "\n\nMessages from queue;\n" + classicGameStatus.classicMessageList;
     classicGameStatus.classicMessageList = "";
-    classicGameStatus.gameStatus.value += classicGameStatus.classicMessages.messages;
+    //classicGameStatus.gameStatus.value += classicGameStatus.classicMessages.messages;
     console.log(classicGameStatus);
 
   }
@@ -562,6 +589,8 @@
     //The successful callback for classicLoadCommandsJson calls classicLoadItemsJson
     //The successful callback for classicLoadItemsJson calls a routine to create the item objects (underconstruction)
     //description tbd
+
+    classicGameStatus.gameStatus.setAttribute('disabled', true);
 
     classicLoadTablesJson(function(classicLoadTablesJson) {
       classicGameStatus.classicTablesJson = classicLoadTablesJson;

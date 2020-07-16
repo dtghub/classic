@@ -84,18 +84,19 @@ CREATE TABLE public.rooms (
     "shortDescription" text,
     "longDescription" text,
     dark boolean,
-    south integer,
-    east integer,
-    west integer,
-    northeast integer,
-    northwest integer,
-    southeast integer,
-    southwest integer,
-    up integer,
-    down integer,
-    "in" integer,
-    "out" integer,
-    north text
+    north text,
+    south text,
+    east text,
+    west text,
+    northeast text,
+    northwest text,
+    southeast text,
+    southwest text,
+    up text,
+    down text,
+    "in" text,
+    "out" text,
+    "1" integer
 );
 
 
@@ -164,10 +165,10 @@ COPY public.commands ("ID", command, token) FROM stdin;
 --
 
 COPY public.items ("ID", location, name, look, read, lit, light, get, drop, word) FROM stdin;
-2	2	paper	A grotty looking piece of paper. You can see a faded note written on it.	The note reads; "Light the lamp!"	f	\N	I2L0	I2L-1	note
-3	9999	lit lamp	The oil lamp is lit, providing a dull glow which is just bright enough to let you see you immediate surroundings when it is dark.	\N	f	\N	\N	I3L9999I1L-1	lamp
 0	1	--------	player	\N	f	\N	\N	\N	\N
-1	1	lamp	This is an oil lamp	\N	f	I1L9999:I3L0	I1L0	I1L-1D1	lamp
+1	1	D10100	D10101	\N	f	I1L9999:I3L0D500	I1L0D1	I1L-1D0	lamp
+2	2	D10200	D10201	D10202	f	\N	I2L0	I2L-1	note
+3	9999	D10300	D10301	\N	f	\N	\N	I3L9999I1L-1D0D501	lamp
 \.
 
 
@@ -185,14 +186,27 @@ COPY public.lists ("ID", list) FROM stdin;
 --
 
 COPY public.messages ("ID", "Message") FROM stdin;
-0	OK
-1	I have it
 1001	You are in the starting room.
 1000	For the purposes of this draft, this is the initial starting room. i.e. the default starting room number one.
 2000	This is the second starting room. i.e. the default starting room number two!
 2001	You are in the second starting room.
 3000	You have entered room number three. It has a foreboding look about it. Some would say ominous...
 3001	Room number three looks ominous.
+0	OK\\n
+1	You have it.\\n
+500	The lamp begins to emit a dull glow.\\n
+501	The light from the lamp flickers and dies.\\n
+3	Sorry, I didn't understand that!\\n
+4	You can't go that way.\\n
+5	Hmmm, I don't follow; Please clarify what you would like me to do with the 
+10100	lamp\\n
+10101	This is an oil lamp\\n
+10200	paper\\n
+10201	A grotty looking piece of paper. You can see a faded note written on it.\\n
+10202	The note reads; "Light the lamp!"\\n
+10300	lit lamp\\n
+10301	The oil lamp is lit, providing a dull glow which is just bright enough to let you see you immediate surroundings when it is dark.\\n
+2	\\n\\nYou can see the following;\\n
 \.
 
 
@@ -200,10 +214,10 @@ COPY public.messages ("ID", "Message") FROM stdin;
 -- Data for Name: rooms; Type: TABLE DATA; Schema: public; Owner: derek
 --
 
-COPY public.rooms ("roomNumber", "shortDescription", "longDescription", dark, south, east, west, northeast, northwest, southeast, southwest, up, down, "in", "out", north) FROM stdin;
-3	Room number three looks ominous.	You have entered room number three. It has a foreboding look about it. Some would say ominous...	f	0	0	0	1	0	2	0	0	0	0	0	\N
-2	You are in the second starting room.	This is the second starting room. i.e. the default starting room number two!	f	1	0	0	0	0	0	3	0	0	0	0	\N
-1	You are in the starting room.	For the purposes of this draft, this is the initial starting room. i.e. the default starting room number one.	f	0	0	0	0	3	0	0	0	0	0	0	I0L2D2000
+COPY public.rooms ("roomNumber", "shortDescription", "longDescription", dark, north, south, east, west, northeast, northwest, southeast, southwest, up, down, "in", "out", "1") FROM stdin;
+1	You are in the starting room.	For the purposes of this draft, this is the initial starting room. i.e. the default starting room number one.	f	I0L2C1D2000B1D2001S1N1D2P1	\N	\N	\N	I0L3C1D3000B1D3001S1	\N	\N	\N	\N	\N	\N	\N	\N
+2	You are in the second starting room.	This is the second starting room. i.e. the default starting room number two!	f	\N	I0L1C1D1000B1D1001S1N2D2P1	\N	\N	\N	\N	I0L3C1D3000B1D3001S1	\N	\N	\N	\N	\N	\N
+3	Room number three looks ominous.	You have entered room number three. It has a foreboding look about it. Some would say ominous...	f	\N	\N	\N	\N	\N	I0L2C1D2000B1D2001S1	\N	I0L1C1D1000B1D1001S1	\N	\N	\N	\N	\N
 \.
 
 
