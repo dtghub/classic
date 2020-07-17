@@ -41,11 +41,11 @@ CREATE TABLE public.items (
     name text,
     look text,
     read text,
-    lit boolean,
     light text,
     get text,
     drop text,
-    word text
+    word text,
+    inventoryy text
 );
 
 
@@ -157,6 +157,8 @@ COPY public.commands ("ID", command, token) FROM stdin;
 36	note	Nnote
 37	paper	Nnote
 38	light	Vlight
+39	inventory	Vinventory
+40	inv	Vinventory
 \.
 
 
@@ -164,11 +166,11 @@ COPY public.commands ("ID", command, token) FROM stdin;
 -- Data for Name: items; Type: TABLE DATA; Schema: public; Owner: derek
 --
 
-COPY public.items ("ID", location, name, look, read, lit, light, get, drop, word) FROM stdin;
-0	1	--------	player	\N	f	\N	\N	\N	\N
-1	1	D10100	D10101	\N	f	I1L9999:I3L0D500	I1L0D1	I1L-1D0	lamp
-2	2	D10200	D10201	D10202	f	\N	I2L0	I2L-1	note
-3	9999	D10300	D10301	\N	f	\N	\N	I3L9999I1L-1D0D501	lamp
+COPY public.items ("ID", location, name, look, read, light, get, drop, word, inventoryy) FROM stdin;
+1	1	D10100	D10101	\N	I1L9999:I3L0D500	I1L0D1	I1L-1D0	lamp	\N
+2	2	D10200	D10201	D10202	\N	I2L0	I2L-1	note	\N
+3	9999	D10300	D10301	\N	\N	\N	I3L9999I1L-1D0D501	lamp	\N
+0	1	--------	player	\N	\N	\N	\N	\N	D0P1
 \.
 
 

@@ -49,9 +49,6 @@
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
         callback(JSON.parse(xobj.responseText));
-//        classicLoadRoomJson(function(classicLoadRoomJson) {
-//          classicGameStatus.classicRoomJson = classicLoadRoomJson;
-//        });
         classicTurnPart2(); //Complete the classicTurn loop when ready.
       }
     };
@@ -277,7 +274,7 @@ debugger; //we should never be here now...
     classicRoomsArrayLength = classicGameStatus.classicTablesJson.rooms.length;
     classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
 
-    //ID 0 in the items table rcords the player properties
+    //ID 0 in the items table records the player properties
     for (var i = 0; i < classicItemsArrayLength; i += 1) {
       if (classicGameStatus.classicTablesJson.items[i].ID == 0) {
         classicPlayerItemsArrayIndex = i;
@@ -437,7 +434,7 @@ debugger; //we should never be here now...
     if (classicGameStatus.classicMovementVerb === "" && classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun === "") {
       //classicGameStatus.gameStatus.value += "\nI'm sorry, I didn't understand that!";
       //Temporary kludge
-      classicProcessInstruction("D3"); //Displays the above message.
+      classicProcessInstruction("D3"); //Adds the above message to the message queue.
     }
 
     //Needs improvement;
@@ -446,7 +443,7 @@ debugger; //we should never be here now...
     if (classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun !== "") {
       //classicGameStatus.gameStatus.value += "\nHmmm, I don't follow; Please clarify what you would like me to do with the " + classicGameStatus.classicNoun + "?";
       //Temporary kludge
-      classicProcessInstruction("D3"); //Displays the above message. Message can be expanded
+      classicProcessInstruction("D3"); //Adds a message to the message queue. Message can be expanded
     }
 
 
@@ -501,25 +498,10 @@ debugger; //we should never be here now...
         classicInstruction = classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicGameStatus.classicMovementVerb];
       } else {
         //Temporary kludge - I'm sorry you can't go that way
-        classicInstruction ="D4"; //Displays the above message.
+        classicInstruction ="D4"; //Adds the above message to the message queue.
       }
     }
 
-/*
-    if (classicGameStatus.classicMovementVerb !== "") {
-      var clRoomNumber = classicGameStatus.classicRoomJson[classicGameStatus.classicMovementVerb];
-      if (clRoomNumber !== 0) {
-        classicGameStatus.locationID = clRoomNumber;
-        classicGameStatus.roomDescriptionRequired = true;
-        if (!classicGameStatus.roomPreviouslyVisited.includes(clRoomNumber)) {
-          classicGameStatus.roomPreviouslyVisited.push(clRoomNumber);
-          classicGameStatus.roomLongDescriptionRequired = true;
-        }
-      } else {
-        classicGameStatus.gameStatus.value += "\nYou can't go that way.";
-      }
-    }
-*/
 
     if (classicInstruction !== "") {
       classicProcessInstruction(classicInstruction);
@@ -541,18 +523,12 @@ debugger; //we should never be here now...
 
     classicProcessParsedCommand();
 
-    //classicLoadRoomJson(function(classicLoadRoomJson) {
-      //classicGameStatus.classicRoomJson = classicLoadRoomJson;
-    //}); //When the JSON is loaded the loop resumes in classicTurnPart2()
-
-
-
     classicGetMessages(function(classicGetMessages) {
       classicGameStatus.classicMessages = classicGetMessages;
     });
+    //When the messages have been displayed the flow continues in classicTurnPart2()
 
-
-    // return false to prevent submission for now:
+    // return false to prevent form submission
     return false;
   }
 
@@ -566,9 +542,7 @@ debugger; //we should never be here now...
     'use strict';
 
     classicUpdateDescription();
-    //classicGameStatus.gameStatus.value += "\n\nMessages from queue;\n" + classicGameStatus.classicMessageList;
-    //classicGameStatus.classicMessageList = "";
-    //classicGameStatus.gameStatus.value += classicGameStatus.classicMessages.messages;
+
     console.log(classicGameStatus);
 
   }
@@ -582,12 +556,8 @@ debugger; //we should never be here now...
     'use strict';
     // We will call an init funtion here to set the initial parameters, and either load a saved game or initialise new game
 
-    //fetch list of game commands from the server
-    //Since this needs callbacks to fetch the data,
-    //I've implemented this as a chain of callbacks to ensure that we can't start the game until the data is ready
-    //We start by calling classicLoadCommandsJson which calls the next function  when it's ready
-    //The successful callback for classicLoadCommandsJson calls classicLoadItemsJson
-    //The successful callback for classicLoadItemsJson calls a routine to create the item objects (underconstruction)
+    //fetch the data tables from the server
+    //as the messages table could become large, it is queried from the database at the end and only the required messages are retrieved and displayed
     //description tbd
 
     classicGameStatus.gameStatus.setAttribute('disabled', true);
