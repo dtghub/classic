@@ -86,18 +86,18 @@
 
 
     classicGameStatus.gameStatus.value += "\n" + classicGameStatus.classicMessages.messages;
+    classicGameStatus.classicMessages.messages = "";
 
 
     classicGameStatus.gameStatus.setAttribute('disabled', false);
 
-      //List the items in the room - this will probably get replaced as the command parsing is implemented as it probably belongs up at that level
 
 
 
     //This makes sure that the bottom line of text in the gameStatus box is visible after an update.
     classicGameStatus.gameStatus.scrollTop = classicGameStatus.gameStatus.scrollHeight;
 
-    classicGameStatus.gameStatus.setAttribute('disabled', true);
+  
   }
 
 
@@ -291,11 +291,15 @@
         //This may replace the "I" instruction
         case "N":
           console.log(item);
-          classicGameStatus.classicActiveNumber = classicParsedValue;
+          if (classicParsedValue === -1) {
+            classicGameStatus.classicActiveNumber = classicCurrentRoom;
+          } else {
+            classicGameStatus.classicActiveNumber = classicParsedValue;
+          }
         break;
 
         //The "P" instruction executes sPecial cases
-        //Probably the goal is to develop the interpreter to the point where S is never needed
+        //Probably the goal is to develop the interpreter to the point where P is never needed
         //P1 adds the names of items located at the location matching classicGameStatus.classicActiveNumber to the display queue.
         case "P":
           console.log(item);
@@ -396,12 +400,10 @@
       classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
 
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
-        debugger;
         if (classicGameStatus.classicTablesJson.items[i].word === classicGameStatus.classicNoun) {
           if (classicGameStatus.classicTablesJson.items[i].location === 0) {
             classicInstruction = classicGameStatus.classicTablesJson.items[i][classicGameStatus.classicVerb] || "";
             console.log(classicInstruction + " inventory");
-            debugger;
           } else if (classicGameStatus.classicTablesJson.items[i].location === classicGameStatus.locationID) {
             classicInstruction = classicGameStatus.classicTablesJson.items[i][classicGameStatus.classicVerb] || "";
             console.log(classicInstruction + " location");
