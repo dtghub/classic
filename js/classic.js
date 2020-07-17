@@ -70,7 +70,8 @@
         classicTurnPart2(); //Complete the classicTurn loop when ready.
       }
     };
-    xobj.send(classicGameStatus.classicMessageList);
+    //xobj.send(classicGameStatus.classicMessageList);
+    xobj.send(null);
   }
 
 
@@ -81,13 +82,10 @@
   function classicUpdateDescription() {
     'use strict';
 
-    var classicItemList = "";
-    var classicItemsArrayLength;
 
-
-    classicGameStatus.gameStatus.value += "\n" + classicGameStatus.classicMessages.messages;
-    classicGameStatus.classicMessages.messages = "";
-
+    classicGameStatus.gameStatus.value += "\n\n> " + classicGameStatus.classicTurnCommand + "\n" + classicGameStatus.classicMessages.messages;
+    //classicGameStatus.classicMessages.messages = "";
+    classicGameStatus.classicMessageList = "";
 
     classicGameStatus.gameStatus.setAttribute('disabled', false);
 
@@ -97,7 +95,7 @@
     //This makes sure that the bottom line of text in the gameStatus box is visible after an update.
     classicGameStatus.gameStatus.scrollTop = classicGameStatus.gameStatus.scrollHeight;
 
-  
+
   }
 
 
@@ -210,7 +208,7 @@
 
     //ID 0 in the items table records the player properties
     for (var i = 0; i < classicItemsArrayLength; i += 1) {
-      if (classicGameStatus.classicTablesJson.items[i].ID == 0) {
+      if (classicGameStatus.classicTablesJson.items[i].ID === 0) {
         classicPlayerItemsArrayIndex = i;
       }
     }
@@ -363,15 +361,25 @@
     var classicItemsArrayLength;
     var classicRoomsArrayLength;
     var clRoomNumberIndex;
-
+    var classicPlayerItemsArrayIndex;
 
     classicGameStatus.classicCommandNotRecognised = false;
     classicGameStatus.roomDescriptionRequired = false;
     classicGameStatus.roomLongDescriptionRequired = false;
 
-    //echo the entered command to the main window
-    classicGameStatus.gameStatus.value += '\n\n> ' + classicGameStatus.classicTurnCommand;
+    classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
 
+    //echo the entered command to the main window
+    //classicGameStatus.gameStatus.value += '\n\n> ' + classicGameStatus.classicTurnCommand;
+
+    //ID 0 in the items table records the player properties
+    for (var i = 0; i < classicItemsArrayLength; i += 1) {
+      if (classicGameStatus.classicTablesJson.items[i].ID === 0) {
+        classicPlayerItemsArrayIndex = i;
+        console.log(classicPlayerItemsArrayIndex);
+      }
+    }
+console.log(classicPlayerItemsArrayIndex);
 
     if (classicGameStatus.classicMovementVerb === "" && classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun === "") {
       //classicGameStatus.gameStatus.value += "\nI'm sorry, I didn't understand that!";
@@ -414,12 +422,11 @@
 
 
 
-    } else {
-      //verb only processing - to be re-implemented - this will be done by loking at the current room's table - if the verb exists there, then the command is executed.
-      if (classicGameStatus.classicVerb === "look") {
-        classicGameStatus.roomDescriptionRequired = true;
-        classicGameStatus.roomLongDescriptionRequired = true;
-      }
+    } else if (classicGameStatus.classicVerb !== "") {
+      //verb only processing -
+      //Look for the verb in the items entry for the player
+      debugger;
+      classicInstruction = classicGameStatus.classicTablesJson.items[classicPlayerItemsArrayIndex][classicGameStatus.classicVerb] || "";
     }
 
     if (classicGameStatus.classicMovementVerb !== "") {
@@ -427,7 +434,7 @@
       classicRoomsArrayLength = classicGameStatus.classicTablesJson.rooms.length;
 
       for (var i = 0; i < classicRoomsArrayLength; i += 1) {
-        if (classicGameStatus.classicTablesJson.rooms[i].roomNumber == classicGameStatus.locationID) {
+        if (classicGameStatus.classicTablesJson.rooms[i].roomNumber === classicGameStatus.locationID) {
           clRoomNumberIndex = i;
         }
       }
