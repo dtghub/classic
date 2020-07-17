@@ -8,9 +8,6 @@
     gameStatus: document.getElementById('game'),
     commandBox: document.getElementById('commandBox'),
 
-    //These are places to load the game data to - the 'rooms' 'commands' 'objects' etc
-    classicRoomJson: {uninitialised: true},
-
     //generic place to put tables imported from the database
     classicTablesJson: {uninitialised: true},
 
@@ -61,27 +58,6 @@
 
 
 
-  function classicLoadRoomJson(callback) {
-    'use strict';
-    var xobj = new XMLHttpRequest();
-    xobj.overrideMimeType("text/application");
-    xobj.open('GET', 'http://localhost/cgi-bin/fetchroom.pl?value=' + classicGameStatus.locationID, true);
-debugger; //we should never be here now...
-    xobj.onreadystatechange = function () {
-      if (xobj.readyState == 4 && xobj.status == "200") {
-        callback(JSON.parse(xobj.responseText));
-        classicTurnPart2(); //Complete the classicTurn loop when ready.
-      }
-    };
-    xobj.send(classicGameStatus.locationID);
-  }
-
-
-
-
-
-
-
   function classicGetMessages(callback) {
     'use strict';
     var xobj = new XMLHttpRequest();
@@ -100,50 +76,6 @@ debugger; //we should never be here now...
 
 
 
-
-
-  function classicUpdateDescriptionOLD() {
-    'use strict';
-
-    var classicItemList = "";
-    var classicItemsArrayLength;
-
-
-    if (classicGameStatus.classicCommandNotRecognised) {
-      classicGameStatus.gameStatus.value += "\nSorry, I didn't understand that!";
-    }
-
-
-    //gameStatus.setAttribute('disabled', false);
-    if (classicGameStatus.roomDescriptionRequired) {
-      if (classicGameStatus.roomLongDescriptionRequired)  {
-        classicGameStatus.gameStatus.value += "\n" + classicGameStatus.classicRoomJson.longDescription;
-      } else {
-        classicGameStatus.gameStatus.value += "\n" + classicGameStatus.classicRoomJson.shortDescription;
-      }
-
-      //List the items in the room - this will probably get replaced as the command parsing is implemented as it probably belongs up at that level
-
-      classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
-
-      for (var i = 0; i < classicItemsArrayLength; i += 1) {
-        if ((classicGameStatus.classicTablesJson.items[i].location === classicGameStatus.locationID) && classicGameStatus.classicTablesJson.items[i].ID !== 0) {
-          console.log("/nMatched " + i);
-          classicItemList += "\n" + classicGameStatus.classicTablesJson.items[i].name;
-        }
-      }
-
-      if (classicItemList !== "") {
-        classicGameStatus.gameStatus.value += "\nYou can see the following;" + classicItemList;
-      }
-    }
-
-
-    //This makes sure that the bottom line of text in the gameStatus box is visible after an update.
-    classicGameStatus.gameStatus.scrollTop = classicGameStatus.gameStatus.scrollHeight;
-
-    classicGameStatus.gameStatus.setAttribute('disabled', true);
-  }
 
 
   function classicUpdateDescription() {
@@ -167,6 +99,8 @@ debugger; //we should never be here now...
 
     classicGameStatus.gameStatus.setAttribute('disabled', true);
   }
+
+
 
 
 
@@ -281,6 +215,7 @@ debugger; //we should never be here now...
       }
     }
     classicCurrentRoom = classicGameStatus.classicTablesJson.items[classicPlayerItemsArrayIndex].location;
+    classicGameStatus.locationID = classicCurrentRoom;
 
     for (var i = 0; i < classicRoomsArrayLength; i += 1) {
       if (classicGameStatus.classicTablesJson.rooms[i].roomNumber == classicCurrentRoom) {
@@ -348,8 +283,9 @@ debugger; //we should never be here now...
             classicParsedValue = classicCurrentRoom;
           }
           classicGameStatus.classicTablesJson.items[classicItemID].location = classicParsedValue;
-          //Temporary kludge - to be removed;
-          classicGameStatus.locationID = classicParsedValue;
+          if (classicGameStatus.classicTablesJson.items[classicItemID].ID === 0) {
+            classicGameStatus.locationID = classicCurrentRoom;
+          }
         break;
         //The "N" instruction changes the active "number" to which subsequent incstructions refer
         //This may replace the "I" instruction
@@ -413,6 +349,8 @@ debugger; //we should never be here now...
 
 
 
+
+
   function classicProcessParsedCommand() {
     'use strict';
 
@@ -458,11 +396,12 @@ debugger; //we should never be here now...
       classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
 
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
-
+        debugger;
         if (classicGameStatus.classicTablesJson.items[i].word === classicGameStatus.classicNoun) {
           if (classicGameStatus.classicTablesJson.items[i].location === 0) {
             classicInstruction = classicGameStatus.classicTablesJson.items[i][classicGameStatus.classicVerb] || "";
             console.log(classicInstruction + " inventory");
+            debugger;
           } else if (classicGameStatus.classicTablesJson.items[i].location === classicGameStatus.locationID) {
             classicInstruction = classicGameStatus.classicTablesJson.items[i][classicGameStatus.classicVerb] || "";
             console.log(classicInstruction + " location");
