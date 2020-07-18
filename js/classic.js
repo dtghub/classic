@@ -216,7 +216,7 @@
     classicGameStatus.locationID = classicCurrentRoom;
 
     for (var i = 0; i < classicRoomsArrayLength; i += 1) {
-      if (classicGameStatus.classicTablesJson.rooms[i].roomNumber == classicCurrentRoom) {
+      if (classicGameStatus.classicTablesJson.rooms[i].roomNumber === classicCurrentRoom) {
         clRoomNumberIndex = i;
       }
     }
@@ -432,6 +432,8 @@ console.log(classicPlayerItemsArrayIndex);
           } else if (classicGameStatus.classicTablesJson.items[i].location === classicGameStatus.locationID) {
             classicInstruction = classicGameStatus.classicTablesJson.items[i][classicGameStatus.classicVerb] || "";
             console.log(classicInstruction + " location");
+          } else {
+            classicInstruction = "D9";
           }
         }
       }
@@ -462,7 +464,7 @@ console.log(classicPlayerItemsArrayIndex);
         classicInstruction = classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicGameStatus.classicMovementVerb];
       } else {
         //Temporary kludge - I'm sorry you can't go that way
-        classicInstruction ="D4"; //Adds the above message to the message queue.
+        classicInstruction = "D4"; //Adds the above message to the message queue.
       }
     }
 

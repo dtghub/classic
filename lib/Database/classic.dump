@@ -83,7 +83,6 @@ CREATE TABLE public.rooms (
     "roomNumber" integer NOT NULL,
     "shortDescription" text,
     "longDescription" text,
-    dark boolean,
     north text,
     south text,
     east text,
@@ -97,7 +96,8 @@ CREATE TABLE public.rooms (
     "in" text,
     "out" text,
     "1" integer,
-    "where" text
+    "where" text,
+    "2" integer
 );
 
 
@@ -170,9 +170,9 @@ COPY public.commands ("ID", command, token) FROM stdin;
 
 COPY public.items ("ID", location, name, look, read, light, get, drop, word, inventory) FROM stdin;
 3	9999	D10300	D10301	\N	\N	\N	I3L9999I1L-1D0D501	lamp	\N
-1	1	D10100	D10101	\N	I1L9999:I3L0D500	I1B100D7C100X1000	I1L-1D0	lamp	\N
 0	1	--------	player	\N	\N	\N	\N	\N	D6N0P1
-2	2	D10200	D10201	D10202	\N	I2L0D1	I2L-1D0	note	\N
+1	1	D10100	D10101	\N	I1L9999:I3L0D500	I1X5	I1X6	lamp	\N
+2	2	D10200	D10201	D10202	\N	I2X5	I2X6	note	\N
 \.
 
 
@@ -211,8 +211,10 @@ COPY public.messages ("ID", "Message") FROM stdin;
 10300	lit lamp\\n
 10301	The oil lamp is lit, providing a dull glow which is just bright enough to let you see you immediate surroundings when it is dark.\\n
 2	\\n\\nYou can see the following;\\n
-6	/n/nYou are carrying the following;\\n
 7	You already have it.\\n
+6	\\n\\nYou are carrying the following;\\n
+8	You don't have it.\\n
+9	I don't see it.\\n
 \.
 
 
@@ -220,10 +222,10 @@ COPY public.messages ("ID", "Message") FROM stdin;
 -- Data for Name: rooms; Type: TABLE DATA; Schema: public; Owner: derek
 --
 
-COPY public.rooms ("roomNumber", "shortDescription", "longDescription", dark, north, south, east, west, northeast, northwest, southeast, southwest, up, down, "in", "out", "1", "where") FROM stdin;
-2	You are in the second starting room.	This is the second starting room. i.e. the default starting room number two!	f	\N	I0L1C1D1000B1D1001S1N1D2P1	\N	\N	\N	\N	I0L3C1D3000B1D3001S1	\N	\N	\N	\N	\N	\N	D2000N2D2P1
-1	You are in the starting room.	For the purposes of this draft, this is the initial starting room. i.e. the default starting room number one.	f	I0L2C1D2000B1D2001S1N2D2P1	\N	\N	\N	I0L3C1D3000B1D3001S1	\N	\N	\N	\N	\N	\N	\N	\N	D1000N1D2P1
-3	Room number three looks ominous.	You have entered room number three. It has a foreboding look about it. Some would say ominous...	f	\N	\N	\N	\N	\N	I0L2C1D2000B1D2001S1	\N	I0L1C1D1000B1D1001S1	\N	\N	\N	\N	\N	D3000N3D2P1
+COPY public.rooms ("roomNumber", "shortDescription", "longDescription", north, south, east, west, northeast, northwest, southeast, southwest, up, down, "in", "out", "1", "where", "2") FROM stdin;
+1	You are in the starting room.	For the purposes of this draft, this is the initial starting room. i.e. the default starting room number one.	I0L2C1D2000B1D2001S1N2D2P1	\N	\N	\N	I0L3C1D3000B1D3001S1N3D2P1	\N	\N	\N	\N	\N	\N	\N	\N	D1000N1D2P1	\N
+2	You are in the second starting room.	This is the second starting room. i.e. the default starting room number two!	\N	I0L1C1D1000B1D1001S1N1D2P1	\N	\N	\N	\N	I0L3C1D3000B1D3001S1N3D2P1	\N	\N	\N	\N	\N	\N	D2000N2D2P1	\N
+3	Room number three looks ominous.	You have entered room number three. It has a foreboding look about it. Some would say ominous...	\N	\N	\N	\N	\N	I0L2C1D2000B1D2001S1N2D2P1	\N	I0L1C1D1000B1D1001S1N1D2P1	\N	\N	\N	\N	\N	D3000N3D2P1	\N
 \.
 
 
@@ -237,6 +239,10 @@ COPY public.snippets ("ID", code) FROM stdin;
 1001	I1L-1D0
 1002	I1L9999:I3L0D500
 1000	L0D1
+3	L0D1
+4	L-1D0
+5	B100D7C100X3
+6	C100D8B100X4
 \.
 
 
