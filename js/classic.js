@@ -227,8 +227,8 @@
 
     classicCommandPartsArrayLength = classicCommandParts.length;
     classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
-    classicSnippetsArrayLength = classicGameStatus.classicTablesJson.snippets.length;
-    classicListsArrayLength = classicGameStatus.classicTablesJson.lists.length;
+    //classicSnippetsArrayLength = classicGameStatus.classicTablesJson.snippets.length;
+    //classicListsArrayLength = classicGameStatus.classicTablesJson.lists.length;
 
     for (var i = 0; i < classicCommandPartsArrayLength; i += 1) {
       var item = classicCommandParts[i];
@@ -442,7 +442,6 @@ console.log(classicPlayerItemsArrayIndex);
     } else if (classicGameStatus.classicVerb !== "") {
       //verb only processing -
       //Look for the verb in the items entry for the player
-      debugger;
       classicInstruction = classicGameStatus.classicTablesJson.items[classicPlayerItemsArrayIndex][classicGameStatus.classicVerb] || "";
     }
 
