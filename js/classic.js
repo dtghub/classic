@@ -28,6 +28,7 @@
     classicMessageList: "",
     classicMessages: {messages: ""},
     classicActiveNumber: 0,
+    classicItemID: -1,
     //an array to store room statuses
     //an array to store object status elements
   };
@@ -70,7 +71,6 @@
         classicTurnPart2(); //Complete the classicTurn loop when ready.
       }
     };
-    //xobj.send(classicGameStatus.classicMessageList);
     xobj.send(null);
   }
 
@@ -183,7 +183,7 @@
 
     //A very clumsy initial implementation - definitely needs a better solution
 
-    var classicItemID = -1; //Initialise with -1 as 0 is used to address the player
+    var classicItemID = classicGameStatus.classicItemID; //Initialise with -1 as 0 is used to address the player
     var itemID = -1;
     var classicParsedValue = 0;
     var classicCommandParts = [];
@@ -236,24 +236,38 @@
 
       switch (item.charAt(0)) {
         //The "B" instruction is the inverse of the "C" Conditional test - if true then we skip the next instruction.
+        //B100 - is the item in the players inventory
         case "B":
           console.log(item);
           //****UNDER CONSTRUCTION****
-          if (classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicParsedValue] !== 1) {
-            //if the flag number is set, skip the next command
-            i += 1;
+          if (classicParsedValue < 100) {
+            if (classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicParsedValue] !== 1) {
+              //if the flag number is not set, skip the next command
+              i += 1;
+            }
+          } else {
+            if (classicParsedValue = 100 && classicGameStatus.classicTablesJson.items[classicItemID].location !== 0) {
+               i += 1;
+            }
           }
         break;
         //The "C" instruction is a Conditional test - if false then we skip the next instruction. - see related "B" and "S"
         //In practice this means that a lot of the time the next instruction will be an 'X'
         //At the moment this has only been implemented for the rooms table.
-        //
+        //classicParsedValue range of 1 to 99 is reserved for flags attached to the item objects
+        //C100 - is the item in the players inventory
         case "C":
           console.log(item);
           //****UNDER CONSTRUCTION****
-          if (classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicParsedValue] === 1) {
-            //if the flag number is not set, skip the next command
-            i += 1;
+          if (classicParsedValue < 100) {
+            if (classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicParsedValue] === 1) {
+              //if the flag number is not set, skip the next command
+              i += 1;
+            }
+          } else {
+            if (classicParsedValue = 100 && classicGameStatus.classicTablesJson.items[classicItemID].location === 0) {
+               i += 1;
+            }
           }
         break;
         //The "D" instruction adds a message number for Display to the classicMessageList string
@@ -269,6 +283,8 @@
           for (var j = 0; j < classicItemsArrayLength; j += 1) {
             if (classicGameStatus.classicTablesJson.items[j].ID === classicParsedValue) {
               classicItemID = j;
+              classicGameStatus.classicItemID = j;
+              console.log("classicItemID" + classicItemID);
             }
           }
         break;
@@ -337,11 +353,12 @@
         //The "X" instruction looks up the instruction code from the snippets table and executes the instructions by calling classicProcessInstruction recursively.
         case "X":
           console.log(item);
-          for (var j = 0; j < classicSnippetsArrayLength; j =+ 1 ) {
-            if (classicGameStatus.classicTablesJson.snippets[j].ID === classicParsedValue) {
-              classicProcessInstruction(classicGameStatus.classicTablesJson.snippets[j]);
-            }
-          }
+          classicProcessInstruction(classicGameStatus.classicTablesJson.snippets[classicParsedValue]);
+//          for (var j = 0; j < classicSnippetsArrayLength; j =+ 1 ) {
+//            if (classicGameStatus.classicTablesJson.snippets[j].ID === classicParsedValue) {
+//              classicProcessInstruction(classicGameStatus.classicTablesJson.snippets[j]);
+//            }
+//          }
         break;
         default:
           console.log("\nUnrecognised command; " + item);

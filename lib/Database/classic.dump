@@ -167,10 +167,10 @@ COPY public.commands ("ID", command, token) FROM stdin;
 --
 
 COPY public.items ("ID", location, name, look, read, light, get, drop, word, inventory) FROM stdin;
-1	1	D10100	D10101	\N	I1L9999:I3L0D500	I1L0D1	I1L-1D0	lamp	\N
 3	9999	D10300	D10301	\N	\N	\N	I3L9999I1L-1D0D501	lamp	\N
 2	2	D10200	D10201	D10202	\N	I2L0D1	I2L-1	note	\N
 0	1	--------	player	\N	\N	\N	\N	\N	D6I0P1
+1	1	D10100	D10101	\N	I1L9999:I3L0D500	I1B100D7C100X1000	I1L-1D0	lamp	\N
 \.
 
 
@@ -210,6 +210,7 @@ COPY public.messages ("ID", "Message") FROM stdin;
 10301	The oil lamp is lit, providing a dull glow which is just bright enough to let you see you immediate surroundings when it is dark.\\n
 2	\\n\\nYou can see the following;\\n
 6	/n/nYou are carrying the following;\\n
+7	You already have it.\\n
 \.
 
 
@@ -231,6 +232,9 @@ COPY public.rooms ("roomNumber", "shortDescription", "longDescription", dark, no
 COPY public.snippets ("ID", code) FROM stdin;
 1	M1
 2	M1M2
+1001	I1L-1D0
+1002	I1L9999:I3L0D500
+1000	L0D1
 \.
 
 
