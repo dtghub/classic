@@ -29,6 +29,7 @@
     classicMessages: {messages: ""},
     classicActiveNumber: 0,
     classicItemID: -1,
+    clRoomNumberIndex: -1,
     //an array to store room statuses
     //an array to store object status elements
   };
@@ -195,7 +196,7 @@
     var classicCurrentRoom;
     var classicCurrentRoomArrayIndex;
     var classicPlayerItemsArrayIndex;
-    var clRoomNumberIndex;
+//    var clRoomNumberIndex;
 
     console.log(classicInstruction);
     classicCommandParts = classicInstruction.match(/[A-Z][\-]?[0-9]+/g);
@@ -217,12 +218,12 @@
 
     for (var i = 0; i < classicRoomsArrayLength; i += 1) {
       if (classicGameStatus.classicTablesJson.rooms[i].roomNumber === classicCurrentRoom) {
-        clRoomNumberIndex = i;
+        classicGameStatus.clRoomNumberIndex = i;
       }
     }
 
     console.log(classicCurrentRoom);
-    console.log(clRoomNumberIndex);
+    console.log(classicGameStatus.clRoomNumberIndex);
 
 
     classicCommandPartsArrayLength = classicCommandParts.length;
@@ -241,7 +242,7 @@
           console.log(item);
           //****UNDER CONSTRUCTION****
           if (classicParsedValue < 100) {
-            if (classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicParsedValue] !== 1) {
+            if (classicGameStatus.classicTablesJson.rooms[classicGameStatus.clRoomNumberIndex][classicParsedValue] !== 1) {
               //if the flag number is not set, skip the next command
               i += 1;
             }
@@ -260,7 +261,7 @@
           console.log(item);
           //****UNDER CONSTRUCTION****
           if (classicParsedValue < 100) {
-            if (classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicParsedValue] === 1) {
+            if (classicGameStatus.classicTablesJson.rooms[classicGameStatus.clRoomNumberIndex][classicParsedValue] === 1) {
               //if the flag number is not set, skip the next command
               i += 1;
             }
@@ -293,12 +294,20 @@
         //location -1 is the current location
         case "L":
           console.log(item);
+          debugger;
           if (classicParsedValue === -1) {
             classicParsedValue = classicCurrentRoom;
           }
           classicGameStatus.classicTablesJson.items[classicItemID].location = classicParsedValue;
           if (classicGameStatus.classicTablesJson.items[classicItemID].ID === 0) {
-            classicGameStatus.locationID = classicCurrentRoom;
+            classicGameStatus.classicTablesJson.items[classicItemID].location = classicParsedValue;
+            classicGameStatus.locationID = classicParsedValue;
+            classicCurrentRoom = classicParsedValue;
+            for (var j = 0; j < classicRoomsArrayLength; j += 1) {
+              if (classicGameStatus.classicTablesJson.rooms[j].roomNumber === classicCurrentRoom) {
+                classicGameStatus.clRoomNumberIndex = j;
+              }
+            }
           }
         break;
         //The "N" instruction changes the active "number" to which subsequent incstructions refer
@@ -330,13 +339,14 @@
         case "R":
           console.log(item);
           //****UNDER CONSTRUCTION****
-          classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicParsedValue] = 0;
+          classicGameStatus.classicTablesJson.rooms[classicGameStatus.clRoomNumberIndex][classicParsedValue] = 0;
         break;
         //The "S" instruction Sets the flag used for the "C" and "B" conditional tests. ("R" unsets it)
         case "S":
           console.log(item);
           //****UNDER CONSTRUCTION****
-          classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicParsedValue] = 1;
+          debugger;
+          classicGameStatus.classicTablesJson.rooms[classicGameStatus.clRoomNumberIndex][classicParsedValue] = 1;
         break;
         //The "U" instruction pUshes the active value into the lists table entry if it is not already there.
         //Not actually needed at the moment

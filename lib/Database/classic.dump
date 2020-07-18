@@ -234,8 +234,6 @@ COPY public.rooms ("roomNumber", "shortDescription", "longDescription", north, s
 --
 
 COPY public.snippets ("ID", code) FROM stdin;
-1	M1
-2	M1M2
 1001	I1L-1D0
 1002	I1L9999:I3L0D500
 1000	L0D1
@@ -243,6 +241,8 @@ COPY public.snippets ("ID", code) FROM stdin;
 4	L-1D0
 5	B100D7C100X3
 6	C100D8B100X4
+1	\N
+2	\N
 \.
 
 
