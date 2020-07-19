@@ -207,7 +207,6 @@ COPY public.messages ("ID", "Message") FROM stdin;
 10101	This is an oil lamp\\n
 10200	paper\\n
 10201	A grotty looking piece of paper. You can see a faded note written on it.\\n
-10202	The note reads; "Light the lamp!"\\n
 10300	lit lamp\\n
 10301	The oil lamp is lit, providing a dull glow which is just bright enough to let you see you immediate surroundings when it is dark.\\n
 2	\\n\\nYou can see the following;\\n
@@ -217,6 +216,7 @@ COPY public.messages ("ID", "Message") FROM stdin;
 9	I don't see it.\\n
 10	You aren't carrying anything.\\n
 999	Welcome!\\n\\nThis is the introductory message for the game, with some basic instructions.\\n\\nYou are now taken to he first room...\\n\\n\\n
+10202	The note reads; \\"Light the lamp!\\"\\n
 \.
 
 
