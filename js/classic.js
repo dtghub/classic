@@ -30,6 +30,7 @@
     classicActiveNumber: 0,
     classicItemID: -1,
     clRoomNumberIndex: -1,
+    classicFlag: false,
     //an array to store room statuses
     //an array to store object status elements
   };
@@ -48,7 +49,11 @@
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
         callback(JSON.parse(xobj.responseText));
-        classicTurnPart2(); //Complete the classicTurn loop when ready.
+        classicProcessInstruction("X1");
+        classicGetMessages(function(classicGetMessages) {
+          classicGameStatus.classicMessages = classicGetMessages;
+        });
+        //When the messages have been displayed the flow continues in classicTurnPart2()
       }
     };
     xobj.send(null);
@@ -238,6 +243,7 @@
       switch (item.charAt(0)) {
         //The "B" instruction is the inverse of the "C" Conditional test - if true then we skip the next instruction.
         //B100 - is the item in the players inventory
+        //B101 - are any items in the location number defined in classicGameStatus.classicActiveNumber
         case "B":
           console.log(item);
           //****UNDER CONSTRUCTION****
@@ -247,8 +253,20 @@
               i += 1;
             }
           } else {
-            if (classicParsedValue = 100 && classicGameStatus.classicTablesJson.items[classicItemID].location !== 0) {
+            if (classicParsedValue === 100 && classicGameStatus.classicTablesJson.items[classicItemID].location !== 0) {
                i += 1;
+            }
+            if (classicParsedValue === 101) {
+              classicGameStatus.classicflag = false;
+              for (var j = 0; j < classicItemsArrayLength; j += 1) {
+                if (classicGameStatus.classicTablesJson.items[j].location === classicGameStatus.classicActiveNumber && (classicGameStatus.classicTablesJson.items[j].ID !== 0)) {
+                  classicGameStatus.classicflag = true;
+                  console.log("classicItemID" + classicItemID);
+                }
+              }
+              if (classicGameStatus.classicflag) {
+                i += 1;
+              }
             }
           }
         break;
@@ -257,6 +275,7 @@
         //At the moment this has only been implemented for the rooms table.
         //classicParsedValue range of 1 to 99 is reserved for flags attached to the item objects
         //C100 - is the item in the players inventory
+        //C101 - are any items in the location number defined in classicGameStatus.classicActiveNumber
         case "C":
           console.log(item);
           //****UNDER CONSTRUCTION****
@@ -266,8 +285,20 @@
               i += 1;
             }
           } else {
-            if (classicParsedValue = 100 && classicGameStatus.classicTablesJson.items[classicItemID].location === 0) {
-               i += 1;
+            if (classicParsedValue === 100 && classicGameStatus.classicTablesJson.items[classicItemID].location === 0) {
+             i += 1;
+            }
+            if (classicParsedValue === 101) {
+              classicGameStatus.classicflag = false;
+              for (var j = 0; j < classicItemsArrayLength; j += 1) {
+                if (classicGameStatus.classicTablesJson.items[j].location === classicGameStatus.classicActiveNumber && (classicGameStatus.classicTablesJson.items[j].ID !== 0)) {
+                  classicGameStatus.classicflag = true;
+                  console.log("classicItemID" + classicItemID);
+                }
+              }
+            if (classicGameStatus.classicflag === false) {
+                i += 1;
+              }
             }
           }
         break;
@@ -294,7 +325,6 @@
         //location -1 is the current location
         case "L":
           console.log(item);
-          debugger;
           if (classicParsedValue === -1) {
             classicParsedValue = classicCurrentRoom;
           }
@@ -345,7 +375,6 @@
         case "S":
           console.log(item);
           //****UNDER CONSTRUCTION****
-          debugger;
           classicGameStatus.classicTablesJson.rooms[classicGameStatus.clRoomNumberIndex][classicParsedValue] = 1;
         break;
         //The "U" instruction pUshes the active value into the lists table entry if it is not already there.
@@ -442,7 +471,7 @@ console.log(classicPlayerItemsArrayIndex);
           } else if (classicGameStatus.classicTablesJson.items[i].location === classicGameStatus.locationID) {
             classicInstruction = classicGameStatus.classicTablesJson.items[i][classicGameStatus.classicVerb] || "";
             console.log(classicInstruction + " location");
-          } else {
+          } else if (classicInstruction === "") {
             classicInstruction = "D9";
           }
         }
