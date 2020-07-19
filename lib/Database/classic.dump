@@ -172,7 +172,7 @@ COPY public.items ("ID", location, name, look, read, light, get, drop, word, inv
 3	9999	D10300	D10301	\N	\N	\N	I3L9999I1L-1D0D501	lamp	\N
 1	1	D10100	D10101	\N	I1L9999:I3L0D500	I1X5	I1X6	lamp	\N
 2	2	D10200	D10201	D10202	\N	I2X5	I2X6	note	\N
-0	1	--------	player	\N	\N	\N	\N	\N	N0C101D6P1B101D10
+0	1	--------	N-1X7	\N	\N	\N	\N	\N	N0C101D6P1B101D10
 \.
 
 
