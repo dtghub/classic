@@ -217,6 +217,7 @@ COPY public.messages ("ID", "Message") FROM stdin;
 10	You aren't carrying anything.\\n
 999	Welcome!\\n\\nThis is the introductory message for the game, with some basic instructions.\\n\\nYou are now taken to he first room...\\n\\n\\n
 10202	The note reads; \\"Light the lamp!\\"\\n
+11	There are no nearby objects\\n
 \.
 
 
@@ -244,8 +245,8 @@ COPY public.snippets ("ID", code) FROM stdin;
 5	B100D7C100X3
 6	C100D8B100X4
 2	\N
-7	S1C101D2P1
 1	D999I0L1C1D1000B1D1001N1X7
+7	S1C101D2B101D11P1
 \.
 
 

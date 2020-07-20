@@ -49,6 +49,7 @@
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
         callback(JSON.parse(xobj.responseText));
+        classicSetupTables();
         classicProcessInstruction("X1");
         classicGetMessages(function(classicGetMessages) {
           classicGameStatus.classicMessages = classicGetMessages;
@@ -79,6 +80,78 @@
     };
     xobj.send(null);
   }
+
+
+//more generic approach?
+  function classicGetIndexFromReference(indexName,indexValue) {
+
+  }
+
+
+
+
+
+
+
+
+
+
+
+  function classicSetupTables() {
+    'use strict';
+
+    //Add some services to the tables, such as returning the index number of an array element using the ID number
+
+
+    var o = classicGameStatus.classicTablesJson;
+
+
+    o.items.playerArrayIndex = function () {
+      var classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
+      for (var i = 0; i < classicItemsArrayLength; i += 1) {
+        if (classicGameStatus.classicTablesJson.items[i].ID === 0) {
+          return i;
+        }
+      }
+    }
+
+
+    o.items.currentRoomNumber = function () {
+      var playerArrayIndex = classicGameStatus.classicTablesJson.items.playerArrayIndex();
+      return classicGameStatus.classicTablesJson.items[playerArrayIndex].location;
+    }
+
+    o.items.setCurrentRoomNumber = function (roomNumber) {
+      var playerArrayIndex = classicGameStatus.classicTablesJson.items.playerArrayIndex();
+      classicGameStatus.classicTablesJson.items[playerArrayIndex].location = roomNumber;
+    }
+
+    o.rooms.currentRoomIndex = function() {
+      var classicRoomsArrayLength = classicGameStatus.classicTablesJson.rooms.length;
+      for (var i = 0; i < classicRoomsArrayLength; i += 1) {
+        if (classicGameStatus.classicTablesJson.rooms[i].roomNumber === classicGameStatus.locationID) {
+          return i;
+        }
+      }
+    }
+
+
+
+
+
+debugger;
+
+  }
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -228,6 +301,7 @@
     }
 
     console.log(classicCurrentRoom);
+    console.log(classicGameStatus.classicTablesJson.items.currentRoomNumber());
     console.log(classicGameStatus.clRoomNumberIndex);
 
 
