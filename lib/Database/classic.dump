@@ -161,6 +161,7 @@ COPY public.commands ("ID", command, token) FROM stdin;
 39	inventory	Vinventory
 40	inv	Vinventory
 41	read	Vread
+42	where	Mwhere
 \.
 
 

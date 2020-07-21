@@ -39,6 +39,7 @@
   var clTabs = {};
   var clItems = {};
   var clRooms = {};
+  var clCommands = {};
 
 
 
@@ -110,13 +111,13 @@
     clTabs = classicGameStatus.classicTablesJson;
     clItems = classicGameStatus.classicTablesJson.items;
     clRooms = classicGameStatus.classicTablesJson.rooms;
-
+    clCommands = classicGameStatus.classicTablesJson.commands;
 
 
     clItems.itemsArrayIndex = function (itemsID) {
-      var classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
+      var classicItemsArrayLength = clItems.length;
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
-        if (classicGameStatus.classicTablesJson.items[i].ID === itemsID) {
+        if (clItems[i].ID === itemsID) {
           return i;
         }
       }
@@ -125,26 +126,26 @@
 
     clItems.playerArrayIndex = function () {
     //0 is the player ID in the items array
-    return classicGameStatus.classicTablesJson.items.itemsArrayIndex(0);
+    return clItems.itemsArrayIndex(0);
     }
 
 
     clItems.currentRoomNumber = function () {
-      var playerArrayIndex = classicGameStatus.classicTablesJson.items.playerArrayIndex();
-      return classicGameStatus.classicTablesJson.items[playerArrayIndex].location;
+      var playerArrayIndex = clItems.playerArrayIndex();
+      return clItems[playerArrayIndex].location;
     }
 
 
     clItems.setCurrentRoomNumber = function (roomNumber) {
-      var playerArrayIndex = classicGameStatus.classicTablesJson.items.playerArrayIndex();
-      classicGameStatus.classicTablesJson.items[playerArrayIndex].location = roomNumber;
+      var playerArrayIndex = clItems.playerArrayIndex();
+      clItems[playerArrayIndex].location = roomNumber;
     }
 
 
     clRooms.roomsArrayIndex = function(roomsID) {
-      var classicRoomsArrayLength = classicGameStatus.classicTablesJson.rooms.length;
+      var classicRoomsArrayLength = clRooms.length;
       for (var i = 0; i < classicRoomsArrayLength; i += 1) {
-        if (classicGameStatus.classicTablesJson.rooms[i].roomNumber === roomsID) {
+        if (clRooms[i].roomNumber === roomsID) {
           return i;
         }
       }
@@ -152,8 +153,8 @@
 
 
     clRooms.currentRoomIndex = function() {
-      var currentRoomNumber = classicGameStatus.classicTablesJson.items.currentRoomNumber();
-      return classicGameStatus.classicTablesJson.rooms.roomsArrayIndex(currentRoomNumber);
+      var currentRoomNumber = clItems.currentRoomNumber();
+      return clRooms.roomsArrayIndex(currentRoomNumber);
     }
 
 
@@ -221,7 +222,7 @@
     //Locate the first two words from our syntax list that the user has entered into the commandBox.
     //This is done by stepping through the list of recognised words ('commands').
 
-    for (var index in classicGameStatus.classicTablesJson.commands) {
+    for (var index in clCommands) {
       clExp = new RegExp('\\b' + index + '\\b', 'i');
       wordMatch = classicGameStatus.classicTurnCommand.search(clExp);
       if ((wordMatch > -1) && (wordMatch < secondStartPosition)) {
@@ -249,15 +250,15 @@
 
 
     if (firstStartPosition < classicGameStatus.classicTurnCommand.length) {
-      if (classicGameStatus.classicTablesJson.commands[firstCommand].charAt(0) === 'M') {
-        classicGameStatus.classicMovementVerb = classicGameStatus.classicTablesJson.commands[firstCommand].slice(1);
-      } else if (classicGameStatus.classicTablesJson.commands[firstCommand].charAt(0) === 'N') {
-        classicGameStatus.classicNoun = classicGameStatus.classicTablesJson.commands[firstCommand].slice(1);
-      } else if (classicGameStatus.classicTablesJson.commands[firstCommand].charAt(0) === 'V') {
-        classicGameStatus.classicVerb = classicGameStatus.classicTablesJson.commands[firstCommand].slice(1);
+      if (clCommands[firstCommand].charAt(0) === 'M') {
+        classicGameStatus.classicMovementVerb = clCommands[firstCommand].slice(1);
+      } else if (clCommands[firstCommand].charAt(0) === 'N') {
+        classicGameStatus.classicNoun = clCommands[firstCommand].slice(1);
+      } else if (clCommands[firstCommand].charAt(0) === 'V') {
+        classicGameStatus.classicVerb = clCommands[firstCommand].slice(1);
         if (secondStartPosition < classicGameStatus.classicTurnCommand.length) {
-          if (classicGameStatus.classicTablesJson.commands[secondCommand].charAt(0) === 'N') {
-            classicGameStatus.classicNoun = classicGameStatus.classicTablesJson.commands[secondCommand].slice(1);
+          if (clCommands[secondCommand].charAt(0) === 'N') {
+            classicGameStatus.classicNoun = clCommands[secondCommand].slice(1);
           }
         }
       }
@@ -285,12 +286,8 @@
     var classicCommandParts = [];
     var classicCommandPartsArrayLength;
     var classicItemsArrayLength;
-    var classicSnippetsArrayLength;
-    var classicListsArrayLength;
     var classicRoomsArrayLength;
-//    var classicCurrentRoom;
     var classicCurrentRoomArrayIndex;
-//    var clRoomNumberIndex;
 
     console.log(classicInstruction);
     classicCommandParts = classicInstruction.match(/[A-Z][\-]?[0-9]+/g);
@@ -299,9 +296,7 @@
 
 
     classicCommandPartsArrayLength = classicCommandParts.length;
-    classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
-    //classicSnippetsArrayLength = classicGameStatus.classicTablesJson.snippets.length;
-    //classicListsArrayLength = classicGameStatus.classicTablesJson.lists.length;
+    classicItemsArrayLength = clItems.length;
 
     for (var i = 0; i < classicCommandPartsArrayLength; i += 1) {
       var item = classicCommandParts[i];
@@ -379,7 +374,7 @@
         case "I":
           console.log(item);
           for (var j = 0; j < classicItemsArrayLength; j += 1) {
-            if (classicGameStatus.classicTablesJson.items[j].ID === classicParsedValue) {
+            if (clItems[j].ID === classicParsedValue) {
               classicGameStatus.classicItemID = j;
             }
           }
@@ -393,7 +388,7 @@
             classicParsedValue = clItems.currentRoomNumber();
           }
           clItems[classicGameStatus.classicItemID].location = classicParsedValue;
-          if (classicGameStatus.classicTablesJson.items[classicGameStatus.classicItemID].ID === 0) {
+          if (clItems[classicGameStatus.classicItemID].ID === 0) {
             clItems.setCurrentRoomNumber(classicParsedValue);
             classicGameStatus.clRoomNumberIndex = clRooms.currentRoomIndex();
           }
@@ -416,9 +411,9 @@
           console.log(item);
           if (classicParsedValue === 1) {
             for (var j = 0; j < classicItemsArrayLength; j += 1) {
-              if ((classicGameStatus.classicTablesJson.items[j].location === classicGameStatus.classicActiveNumber) && (classicGameStatus.classicTablesJson.items[j].ID !== 0)) {
+              if ((clItems[j].location === classicGameStatus.classicActiveNumber) && (clItems[j].ID !== 0)) {
                 console.log("/nMatched " + i);
-                classicProcessInstruction(classicGameStatus.classicTablesJson.items[j].name);
+                classicProcessInstruction(clItems[j].name);
               }
             }
           }
@@ -427,35 +422,18 @@
         case "R":
           console.log(item);
           //****UNDER CONSTRUCTION****
-          classicGameStatus.classicTablesJson.rooms[classicGameStatus.clRoomNumberIndex][classicParsedValue] = 0;
+          clRooms[classicGameStatus.clRoomNumberIndex][classicParsedValue] = 0;
         break;
         //The "S" instruction Sets the flag used for the "C" and "B" conditional tests. ("R" unsets it)
         case "S":
           console.log(item);
           //****UNDER CONSTRUCTION****
-          classicGameStatus.classicTablesJson.rooms[classicGameStatus.clRoomNumberIndex][classicParsedValue] = 1;
-        break;
-        //The "U" instruction pUshes the active value into the lists table entry if it is not already there.
-        //Not actually needed at the moment
-        case "U":
-          console.log(item);
-          for (var j = 0; j < classicListsArrayLength; j += 1) {
-            if (classicGameStatus.classicTablesJson.lists[j].ID === classicParsedValue) {
-              if (!classicGameStatus.classicTablesJson.lists[j].list.includes(classicGameStatus.classicActiveNumber)) {
-                classicGameStatus.classicTablesJson.lists[j].list.push(classicGameStatus.classicActiveNumber);
-              }
-            }
-          }
+          clRooms[classicGameStatus.clRoomNumberIndex][classicParsedValue] = 1;
         break;
         //The "X" instruction looks up the instruction code from the snippets table and executes the instructions by calling classicProcessInstruction recursively.
         case "X":
           console.log(item);
           classicProcessInstruction(classicGameStatus.classicTablesJson.snippets[classicParsedValue]);
-//          for (var j = 0; j < classicSnippetsArrayLength; j =+ 1 ) {
-//            if (classicGameStatus.classicTablesJson.snippets[j].ID === classicParsedValue) {
-//              classicProcessInstruction(classicGameStatus.classicTablesJson.snippets[j]);
-//            }
-//          }
         break;
         default:
           console.log("\nUnrecognised command; " + item);
@@ -480,7 +458,7 @@
     classicGameStatus.roomDescriptionRequired = false;
     classicGameStatus.roomLongDescriptionRequired = false;
 
-    classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
+    classicItemsArrayLength = clItems.length;
 
     //echo the entered command to the main window
     //classicGameStatus.gameStatus.value += '\n\n> ' + classicGameStatus.classicTurnCommand;
@@ -510,15 +488,15 @@
 
       //First identify the item matching the noun - scope is to check those in the inventory first then in the current room - frst to match wins
       //Then, from that item, extract the instruction string associated with the verb
-      classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
+      classicItemsArrayLength = clItems.length;
 
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
-        if (classicGameStatus.classicTablesJson.items[i].word === classicGameStatus.classicNoun) {
-          if (classicGameStatus.classicTablesJson.items[i].location === 0) {
-            classicInstruction = classicGameStatus.classicTablesJson.items[i][classicGameStatus.classicVerb] || "";
+        if (clItems[i].word === classicGameStatus.classicNoun) {
+          if (clItems[i].location === 0) {
+            classicInstruction = clItems[i][classicGameStatus.classicVerb] || "";
             console.log(classicInstruction + " inventory");
-          } else if (classicGameStatus.classicTablesJson.items[i].location === clItems.currentRoomNumber()) {
-            classicInstruction = classicGameStatus.classicTablesJson.items[i][classicGameStatus.classicVerb] || "";
+          } else if (clItems[i].location === clItems.currentRoomNumber()) {
+            classicInstruction = clItems[i][classicGameStatus.classicVerb] || "";
             console.log(classicInstruction + " location");
           } else if (classicInstruction === "") {
             classicInstruction = "D9";
@@ -532,23 +510,23 @@
     } else if (classicGameStatus.classicVerb !== "") {
       //verb only processing -
       //Look for the verb in the items entry for the player
-        classicInstruction = classicGameStatus.classicTablesJson.items[classicGameStatus.classicTablesJson.items.playerArrayIndex()][classicGameStatus.classicVerb] || "";
+        classicInstruction = clItems[clItems.playerArrayIndex()][classicGameStatus.classicVerb] || "";
     }
 
     if (classicGameStatus.classicMovementVerb !== "") {
 
-      classicRoomsArrayLength = classicGameStatus.classicTablesJson.rooms.length;
+      classicRoomsArrayLength = clRooms.length;
 
       for (var i = 0; i < classicRoomsArrayLength; i += 1) {
-        if (classicGameStatus.classicTablesJson.rooms[i].roomNumber === clItems.currentRoomNumber()) {
+        if (clRooms[i].roomNumber === clItems.currentRoomNumber()) {
           clRoomNumberIndex = i;
         }
       }
 
 
 
-      if (classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicGameStatus.classicMovementVerb]) {
-        classicInstruction = classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicGameStatus.classicMovementVerb];
+      if (clRooms[clRoomNumberIndex][classicGameStatus.classicMovementVerb]) {
+        classicInstruction = clRooms[clRoomNumberIndex][classicGameStatus.classicMovementVerb];
       } else {
         //Temporary kludge - I'm sorry you can't go that way
         classicInstruction = "D4"; //Adds the above message to the message queue.
