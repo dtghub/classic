@@ -35,7 +35,7 @@
     //an array to store object status elements
   };
 
-
+  var clTabs = {};
 
 
 
@@ -49,6 +49,7 @@
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
         callback(JSON.parse(xobj.responseText));
+
         classicSetupTables();
         classicProcessInstruction("X1");
         classicGetMessages(function(classicGetMessages) {
@@ -100,46 +101,58 @@
   function classicSetupTables() {
     'use strict';
 
-    //Add some services to the tables, such as returning the index number of an array element using the ID number
+    //Add some common functions to the tables, such as returning the index number of an array element using the ID number
 
 
-    var o = classicGameStatus.classicTablesJson;
+    clTabs = classicGameStatus.classicTablesJson;
 
 
-    o.items.playerArrayIndex = function () {
+
+    clTabs.items.itemsArrayIndex = function (itemsID) {
       var classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
-        if (classicGameStatus.classicTablesJson.items[i].ID === 0) {
+        if (classicGameStatus.classicTablesJson.items[i].ID === itemsID) {
           return i;
         }
       }
     }
 
 
-    o.items.currentRoomNumber = function () {
+    clTabs.items.playerArrayIndex = function () {
+    //0 is the player ID in the items array
+    return classicGameStatus.classicTablesJson.items.itemsArrayIndex(0);
+    }
+
+
+    clTabs.items.currentRoomNumber = function () {
       var playerArrayIndex = classicGameStatus.classicTablesJson.items.playerArrayIndex();
       return classicGameStatus.classicTablesJson.items[playerArrayIndex].location;
     }
 
-    o.items.setCurrentRoomNumber = function (roomNumber) {
+
+    clTabs.items.setCurrentRoomNumber = function (roomNumber) {
       var playerArrayIndex = classicGameStatus.classicTablesJson.items.playerArrayIndex();
       classicGameStatus.classicTablesJson.items[playerArrayIndex].location = roomNumber;
     }
 
-    o.rooms.currentRoomIndex = function() {
+
+    clTabs.rooms.roomsArrayIndex = function(roomsID) {
       var classicRoomsArrayLength = classicGameStatus.classicTablesJson.rooms.length;
       for (var i = 0; i < classicRoomsArrayLength; i += 1) {
-        if (classicGameStatus.classicTablesJson.rooms[i].roomNumber === classicGameStatus.locationID) {
+        if (classicGameStatus.classicTablesJson.rooms[i].roomNumber === roomsID) {
           return i;
         }
       }
     }
 
 
+    clTabs.rooms.currentRoomIndex = function() {
+      var currentRoomNumber = classicGameStatus.classicTablesJson.items.currentRoomNumber();
+      return classicGameStatus.classicTablesJson.rooms.roomsArrayIndex(currentRoomNumber);
+    }
 
 
 
-debugger;
 
   }
 
@@ -273,7 +286,6 @@ debugger;
     var classicRoomsArrayLength;
     var classicCurrentRoom;
     var classicCurrentRoomArrayIndex;
-    var classicPlayerItemsArrayIndex;
 //    var clRoomNumberIndex;
 
     console.log(classicInstruction);
@@ -285,14 +297,6 @@ debugger;
     classicRoomsArrayLength = classicGameStatus.classicTablesJson.rooms.length;
     classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
 
-    //ID 0 in the items table records the player properties
-    for (var i = 0; i < classicItemsArrayLength; i += 1) {
-      if (classicGameStatus.classicTablesJson.items[i].ID === 0) {
-        classicPlayerItemsArrayIndex = i;
-      }
-    }
-    classicCurrentRoom = classicGameStatus.classicTablesJson.items[classicPlayerItemsArrayIndex].location;
-    classicGameStatus.locationID = classicCurrentRoom;
 
     for (var i = 0; i < classicRoomsArrayLength; i += 1) {
       if (classicGameStatus.classicTablesJson.rooms[i].roomNumber === classicCurrentRoom) {
@@ -491,7 +495,6 @@ debugger;
     var classicItemsArrayLength;
     var classicRoomsArrayLength;
     var clRoomNumberIndex;
-    var classicPlayerItemsArrayIndex;
 
     classicGameStatus.classicCommandNotRecognised = false;
     classicGameStatus.roomDescriptionRequired = false;
@@ -502,14 +505,6 @@ debugger;
     //echo the entered command to the main window
     //classicGameStatus.gameStatus.value += '\n\n> ' + classicGameStatus.classicTurnCommand;
 
-    //ID 0 in the items table records the player properties
-    for (var i = 0; i < classicItemsArrayLength; i += 1) {
-      if (classicGameStatus.classicTablesJson.items[i].ID === 0) {
-        classicPlayerItemsArrayIndex = i;
-        console.log(classicPlayerItemsArrayIndex);
-      }
-    }
-console.log(classicPlayerItemsArrayIndex);
 
     if (classicGameStatus.classicMovementVerb === "" && classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun === "") {
       //classicGameStatus.gameStatus.value += "\nI'm sorry, I didn't understand that!";
@@ -557,7 +552,7 @@ console.log(classicPlayerItemsArrayIndex);
     } else if (classicGameStatus.classicVerb !== "") {
       //verb only processing -
       //Look for the verb in the items entry for the player
-      classicInstruction = classicGameStatus.classicTablesJson.items[classicPlayerItemsArrayIndex][classicGameStatus.classicVerb] || "";
+        classicInstruction = classicGameStatus.classicTablesJson.items[classicGameStatus.classicTablesJson.items.playerArrayIndex()][classicGameStatus.classicVerb] || "";
     }
 
     if (classicGameStatus.classicMovementVerb !== "") {
@@ -569,6 +564,8 @@ console.log(classicPlayerItemsArrayIndex);
           clRoomNumberIndex = i;
         }
       }
+
+
 
       console.log(clRoomNumberIndex);
       console.log(classicGameStatus.locationID);
