@@ -191,12 +191,6 @@ COPY public.lists ("ID", list) FROM stdin;
 --
 
 COPY public.messages ("ID", "Message") FROM stdin;
-1001	You are in the starting room.
-1000	For the purposes of this draft, this is the initial starting room. i.e. the default starting room number one.
-2000	This is the second starting room. i.e. the default starting room number two!
-2001	You are in the second starting room.
-3000	You have entered room number three. It has a foreboding look about it. Some would say ominous...
-3001	Room number three looks ominous.
 0	OK\\n
 1	You have it.\\n
 500	The lamp begins to emit a dull glow.\\n
@@ -219,6 +213,12 @@ COPY public.messages ("ID", "Message") FROM stdin;
 999	Welcome!\\n\\nThis is the introductory message for the game, with some basic instructions.\\n\\nYou are now taken to he first room...\\n\\n\\n
 10202	The note reads; \\"Light the lamp!\\"\\n
 11	There are no nearby objects\\n
+1000	For the purposes of this draft, this is the initial starting room. i.e. the default starting room number one.\\n
+1001	You are in the starting room.\\n
+2000	This is the second starting room. i.e. the default starting room number two!\\n
+2001	You are in the second starting room.\\n
+3000	You have entered room number three. It has a foreboding look about it. Some would say ominous...\\n
+3001	Room number three looks ominous.\\n
 \.
 
 

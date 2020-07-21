@@ -30,7 +30,7 @@
     classicActiveNumber: 0,
     classicItemID: -1,
     clRoomNumberIndex: -1,
-    classicFlag: false,
+    //classicFlag: false,
     //an array to store room statuses
     //an array to store object status elements
   };
@@ -87,14 +87,6 @@
   }
 
 
-//more generic approach?
-  function classicGetIndexFromReference(indexName,indexValue) {
-
-  }
-
-
-
-
 
 
 
@@ -142,6 +134,34 @@
     }
 
 
+
+    clItems.testForItemsAtLocation = function (currLocation) {
+      var classicItemsArrayLength = clItems.length;
+      for (var i = 0; i < classicItemsArrayLength; i += 1) {
+        if (clItems[i].location === currLocation && (clItems[i].ID !== 0)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+
+
+    clItems.printListOfItemsAtLocation = function (roomNumber) {
+      var classicItemsArrayLength = clItems.length;
+      for (var i = 0; i < classicItemsArrayLength; i += 1) {
+        if ((clItems[i].location === roomNumber) && (clItems[i].ID !== 0)) {
+          classicProcessInstruction(clItems[i].name);
+        }
+      }
+    }
+
+
+
+
+
+
+
     clRooms.roomsArrayIndex = function(roomsID) {
       var classicRoomsArrayLength = clRooms.length;
       for (var i = 0; i < classicRoomsArrayLength; i += 1) {
@@ -156,10 +176,6 @@
       var currentRoomNumber = clItems.currentRoomNumber();
       return clRooms.roomsArrayIndex(currentRoomNumber);
     }
-
-
-
-
   }
 
 
@@ -307,27 +323,17 @@
         //B100 - is the item in the players inventory
         //B101 - are any items in the location number defined in classicGameStatus.classicActiveNumber
         case "B":
-          console.log(item);
-          //****UNDER CONSTRUCTION****
           if (classicParsedValue < 100) {
-            if (clRooms[classicGameStatus.clRoomNumberIndex][classicParsedValue] !== 1) {
+            if (clRooms[clRooms.currentRoomIndex()][classicParsedValue] !== 1) {
               //if the flag number is not set, skip the next command
               i += 1;
             }
           } else {
             if (classicParsedValue === 100 && clItems[classicGameStatus.classicItemID].location !== 0) {
-               i += 1;
+              i += 1;
             }
-            if (classicParsedValue === 101) {
-              classicGameStatus.classicflag = false;
-              for (var j = 0; j < classicItemsArrayLength; j += 1) {
-                if (clItems[j].location === classicGameStatus.classicActiveNumber && (clItems[j].ID !== 0)) {
-                  classicGameStatus.classicflag = true;
-                }
-              }
-              if (classicGameStatus.classicflag) {
-                i += 1;
-              }
+            if (classicParsedValue === 101 && clItems.testForItemsAtLocation(classicGameStatus.classicActiveNumber)) {
+              i += 1;
             }
           }
         break;
@@ -338,28 +344,17 @@
         //C100 - is the item in the players inventory
         //C101 - are any items in the location number defined in classicGameStatus.classicActiveNumber
         case "C":
-          console.log(item);
-          //****UNDER CONSTRUCTION****
           if (classicParsedValue < 100) {
-            console.log(classicGameStatus.clRoomNumberIndex);
-            if (clRooms[classicGameStatus.clRoomNumberIndex][classicParsedValue] === 1) {
+            if (clRooms[clRooms.currentRoomIndex()][classicParsedValue] === 1) {
               //if the flag number is not set, skip the next command
               i += 1;
             }
           } else {
             if (classicParsedValue === 100 && clItems[classicGameStatus.classicItemID].location === 0) {
-             i += 1;
+              i += 1;
             }
-            if (classicParsedValue === 101) {
-              classicGameStatus.classicflag = false;
-              for (var j = 0; j < classicItemsArrayLength; j += 1) {
-                if (clItems[j].location === classicGameStatus.classicActiveNumber && (clItems[j].ID !== 0)) {
-                  classicGameStatus.classicflag = true;
-                }
-              }
-            if (classicGameStatus.classicflag === false) {
-                i += 1;
-              }
+            if (classicParsedValue === 101 && !clItems.testForItemsAtLocation(classicGameStatus.classicActiveNumber)) {
+              i += 1;
             }
           }
         break;
@@ -372,12 +367,7 @@
         //The "I" instruction changes the active "item" to which subsequent incstructions refer
         //This may be replaced by the "N" instruction
         case "I":
-          console.log(item);
-          for (var j = 0; j < classicItemsArrayLength; j += 1) {
-            if (clItems[j].ID === classicParsedValue) {
-              classicGameStatus.classicItemID = j;
-            }
-          }
+          classicGameStatus.classicItemID = clItems.itemsArrayIndex(classicParsedValue);
         break;
         //The "L" instruction sets the location of the acitive item
         //location 0 is your own inventory
@@ -390,7 +380,6 @@
           clItems[classicGameStatus.classicItemID].location = classicParsedValue;
           if (clItems[classicGameStatus.classicItemID].ID === 0) {
             clItems.setCurrentRoomNumber(classicParsedValue);
-            classicGameStatus.clRoomNumberIndex = clRooms.currentRoomIndex();
           }
         break;
         //The "N" instruction changes the active "number" to which subsequent incstructions refer
@@ -410,25 +399,20 @@
         case "P":
           console.log(item);
           if (classicParsedValue === 1) {
-            for (var j = 0; j < classicItemsArrayLength; j += 1) {
-              if ((clItems[j].location === classicGameStatus.classicActiveNumber) && (clItems[j].ID !== 0)) {
-                console.log("/nMatched " + i);
-                classicProcessInstruction(clItems[j].name);
-              }
-            }
+            clItems.printListOfItemsAtLocation(classicGameStatus.classicActiveNumber);
           }
         break;
         //The "R" instruction unsets the flag used for the "C" and "B" conditional tests. ("S" Sets it)
         case "R":
           console.log(item);
           //****UNDER CONSTRUCTION****
-          clRooms[classicGameStatus.clRoomNumberIndex][classicParsedValue] = 0;
+          clRooms[clRooms.currentRoomIndex()][classicParsedValue] = 0;
         break;
         //The "S" instruction Sets the flag used for the "C" and "B" conditional tests. ("R" unsets it)
         case "S":
           console.log(item);
           //****UNDER CONSTRUCTION****
-          clRooms[classicGameStatus.clRoomNumberIndex][classicParsedValue] = 1;
+          clRooms[clRooms.currentRoomIndex()][classicParsedValue] = 1;
         break;
         //The "X" instruction looks up the instruction code from the snippets table and executes the instructions by calling classicProcessInstruction recursively.
         case "X":
@@ -494,10 +478,8 @@
         if (clItems[i].word === classicGameStatus.classicNoun) {
           if (clItems[i].location === 0) {
             classicInstruction = clItems[i][classicGameStatus.classicVerb] || "";
-            console.log(classicInstruction + " inventory");
           } else if (clItems[i].location === clItems.currentRoomNumber()) {
             classicInstruction = clItems[i][classicGameStatus.classicVerb] || "";
-            console.log(classicInstruction + " location");
           } else if (classicInstruction === "") {
             classicInstruction = "D9";
           }
@@ -514,19 +496,8 @@
     }
 
     if (classicGameStatus.classicMovementVerb !== "") {
-
-      classicRoomsArrayLength = clRooms.length;
-
-      for (var i = 0; i < classicRoomsArrayLength; i += 1) {
-        if (clRooms[i].roomNumber === clItems.currentRoomNumber()) {
-          clRoomNumberIndex = i;
-        }
-      }
-
-
-
-      if (clRooms[clRoomNumberIndex][classicGameStatus.classicMovementVerb]) {
-        classicInstruction = clRooms[clRoomNumberIndex][classicGameStatus.classicMovementVerb];
+      if (clRooms[clRooms.currentRoomIndex()][classicGameStatus.classicMovementVerb]) {
+        classicInstruction = clRooms[clRooms.currentRoomIndex()][classicGameStatus.classicMovementVerb];
       } else {
         //Temporary kludge - I'm sorry you can't go that way
         classicInstruction = "D4"; //Adds the above message to the message queue.
@@ -547,11 +518,9 @@
   // Functioning as 'Main loop' for now...
   function classicTurnPart1() {
     'use strict';
-
     classicGameStatus.gameStatus.setAttribute('disabled', true);
 
     classicParseEnteredCommand();
-
     classicProcessParsedCommand();
 
     classicGetMessages(function(classicGetMessages) {
@@ -571,11 +540,8 @@
 
   function classicTurnPart2() {
     'use strict';
-
     classicUpdateDescription();
-
     console.log(classicGameStatus);
-
   }
 
 
