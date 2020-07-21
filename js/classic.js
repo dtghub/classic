@@ -36,6 +36,7 @@
   };
 
   //these references can only be properly assigned once their targets exist!
+  //So the references are set up in function classicSetupTables()
   var clTabs = {};
   var clItems = {};
   var clRooms = {};
@@ -361,7 +362,6 @@
         //The "D" instruction adds a message number for Display to the classicMessageList string
         //The messages are retrieved and displayd after all instructions have been processed
         case "D":
-          console.log(item);
           classicGameStatus.classicMessageList += classicParsedValue.toString() + "~";
         break;
         //The "I" instruction changes the active "item" to which subsequent incstructions refer
@@ -373,7 +373,6 @@
         //location 0 is your own inventory
         //location -1 is the current location
         case "L":
-          console.log(item);
           if (classicParsedValue === -1) {
             classicParsedValue = clItems.currentRoomNumber();
           }
@@ -385,7 +384,6 @@
         //The "N" instruction changes the active "number" to which subsequent incstructions refer
         //This may replace the "I" instruction
         case "N":
-          console.log(item);
           if (classicParsedValue === -1) {
             classicGameStatus.classicActiveNumber = clItems.currentRoomNumber();
           } else {
@@ -397,26 +395,20 @@
         //Probably the goal is to develop the interpreter to the point where P is never needed
         //P1 adds the names of items located at the location matching classicGameStatus.classicActiveNumber to the display queue.
         case "P":
-          console.log(item);
           if (classicParsedValue === 1) {
             clItems.printListOfItemsAtLocation(classicGameStatus.classicActiveNumber);
           }
         break;
         //The "R" instruction unsets the flag used for the "C" and "B" conditional tests. ("S" Sets it)
         case "R":
-          console.log(item);
-          //****UNDER CONSTRUCTION****
           clRooms[clRooms.currentRoomIndex()][classicParsedValue] = 0;
         break;
         //The "S" instruction Sets the flag used for the "C" and "B" conditional tests. ("R" unsets it)
         case "S":
-          console.log(item);
-          //****UNDER CONSTRUCTION****
           clRooms[clRooms.currentRoomIndex()][classicParsedValue] = 1;
         break;
         //The "X" instruction looks up the instruction code from the snippets table and executes the instructions by calling classicProcessInstruction recursively.
         case "X":
-          console.log(item);
           classicProcessInstruction(classicGameStatus.classicTablesJson.snippets[classicParsedValue]);
         break;
         default:
