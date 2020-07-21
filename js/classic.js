@@ -2,7 +2,7 @@
   'use strict';
 
   var classicGameStatus = {
-    locationID: 1, //the current room Initialised to room 1 just now - this needs to be looked at to allow for saved games - I don't think this is needed - just do the initialisation from the init function!
+    //locationID: 1, //the current room Initialised to room 1 just now - this needs to be looked at to allow for saved games - I don't think this is needed - just do the initialisation from the init function!
 
     //Form references
     gameStatus: document.getElementById('game'),
@@ -35,7 +35,10 @@
     //an array to store object status elements
   };
 
+  //these references can only be properly assigned once their targets exist!
   var clTabs = {};
+  var clItems = {};
+  var clRooms = {};
 
 
 
@@ -105,10 +108,12 @@
 
 
     clTabs = classicGameStatus.classicTablesJson;
+    clItems = classicGameStatus.classicTablesJson.items;
+    clRooms = classicGameStatus.classicTablesJson.rooms;
 
 
 
-    clTabs.items.itemsArrayIndex = function (itemsID) {
+    clItems.itemsArrayIndex = function (itemsID) {
       var classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
         if (classicGameStatus.classicTablesJson.items[i].ID === itemsID) {
@@ -118,25 +123,25 @@
     }
 
 
-    clTabs.items.playerArrayIndex = function () {
+    clItems.playerArrayIndex = function () {
     //0 is the player ID in the items array
     return classicGameStatus.classicTablesJson.items.itemsArrayIndex(0);
     }
 
 
-    clTabs.items.currentRoomNumber = function () {
+    clItems.currentRoomNumber = function () {
       var playerArrayIndex = classicGameStatus.classicTablesJson.items.playerArrayIndex();
       return classicGameStatus.classicTablesJson.items[playerArrayIndex].location;
     }
 
 
-    clTabs.items.setCurrentRoomNumber = function (roomNumber) {
+    clItems.setCurrentRoomNumber = function (roomNumber) {
       var playerArrayIndex = classicGameStatus.classicTablesJson.items.playerArrayIndex();
       classicGameStatus.classicTablesJson.items[playerArrayIndex].location = roomNumber;
     }
 
 
-    clTabs.rooms.roomsArrayIndex = function(roomsID) {
+    clRooms.roomsArrayIndex = function(roomsID) {
       var classicRoomsArrayLength = classicGameStatus.classicTablesJson.rooms.length;
       for (var i = 0; i < classicRoomsArrayLength; i += 1) {
         if (classicGameStatus.classicTablesJson.rooms[i].roomNumber === roomsID) {
@@ -146,7 +151,7 @@
     }
 
 
-    clTabs.rooms.currentRoomIndex = function() {
+    clRooms.currentRoomIndex = function() {
       var currentRoomNumber = classicGameStatus.classicTablesJson.items.currentRoomNumber();
       return classicGameStatus.classicTablesJson.rooms.roomsArrayIndex(currentRoomNumber);
     }
@@ -275,7 +280,6 @@
 
     //A very clumsy initial implementation - definitely needs a better solution
 
-    var classicItemID = classicGameStatus.classicItemID; //Initialise with -1 as 0 is used to address the player
     var itemID = -1;
     var classicParsedValue = 0;
     var classicCommandParts = [];
@@ -284,7 +288,7 @@
     var classicSnippetsArrayLength;
     var classicListsArrayLength;
     var classicRoomsArrayLength;
-    var classicCurrentRoom;
+//    var classicCurrentRoom;
     var classicCurrentRoomArrayIndex;
 //    var clRoomNumberIndex;
 
@@ -292,21 +296,6 @@
     classicCommandParts = classicInstruction.match(/[A-Z][\-]?[0-9]+/g);
     console.log(classicCommandParts);
 
-
-    //make a note of the current room
-    classicRoomsArrayLength = classicGameStatus.classicTablesJson.rooms.length;
-    classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
-
-
-    for (var i = 0; i < classicRoomsArrayLength; i += 1) {
-      if (classicGameStatus.classicTablesJson.rooms[i].roomNumber === classicCurrentRoom) {
-        classicGameStatus.clRoomNumberIndex = i;
-      }
-    }
-
-    console.log(classicCurrentRoom);
-    console.log(classicGameStatus.classicTablesJson.items.currentRoomNumber());
-    console.log(classicGameStatus.clRoomNumberIndex);
 
 
     classicCommandPartsArrayLength = classicCommandParts.length;
@@ -326,20 +315,19 @@
           console.log(item);
           //****UNDER CONSTRUCTION****
           if (classicParsedValue < 100) {
-            if (classicGameStatus.classicTablesJson.rooms[classicGameStatus.clRoomNumberIndex][classicParsedValue] !== 1) {
+            if (clRooms[classicGameStatus.clRoomNumberIndex][classicParsedValue] !== 1) {
               //if the flag number is not set, skip the next command
               i += 1;
             }
           } else {
-            if (classicParsedValue === 100 && classicGameStatus.classicTablesJson.items[classicItemID].location !== 0) {
+            if (classicParsedValue === 100 && clItems[classicGameStatus.classicItemID].location !== 0) {
                i += 1;
             }
             if (classicParsedValue === 101) {
               classicGameStatus.classicflag = false;
               for (var j = 0; j < classicItemsArrayLength; j += 1) {
-                if (classicGameStatus.classicTablesJson.items[j].location === classicGameStatus.classicActiveNumber && (classicGameStatus.classicTablesJson.items[j].ID !== 0)) {
+                if (clItems[j].location === classicGameStatus.classicActiveNumber && (clItems[j].ID !== 0)) {
                   classicGameStatus.classicflag = true;
-                  console.log("classicItemID" + classicItemID);
                 }
               }
               if (classicGameStatus.classicflag) {
@@ -358,20 +346,20 @@
           console.log(item);
           //****UNDER CONSTRUCTION****
           if (classicParsedValue < 100) {
-            if (classicGameStatus.classicTablesJson.rooms[classicGameStatus.clRoomNumberIndex][classicParsedValue] === 1) {
+            console.log(classicGameStatus.clRoomNumberIndex);
+            if (clRooms[classicGameStatus.clRoomNumberIndex][classicParsedValue] === 1) {
               //if the flag number is not set, skip the next command
               i += 1;
             }
           } else {
-            if (classicParsedValue === 100 && classicGameStatus.classicTablesJson.items[classicItemID].location === 0) {
+            if (classicParsedValue === 100 && clItems[classicGameStatus.classicItemID].location === 0) {
              i += 1;
             }
             if (classicParsedValue === 101) {
               classicGameStatus.classicflag = false;
               for (var j = 0; j < classicItemsArrayLength; j += 1) {
-                if (classicGameStatus.classicTablesJson.items[j].location === classicGameStatus.classicActiveNumber && (classicGameStatus.classicTablesJson.items[j].ID !== 0)) {
+                if (clItems[j].location === classicGameStatus.classicActiveNumber && (clItems[j].ID !== 0)) {
                   classicGameStatus.classicflag = true;
-                  console.log("classicItemID" + classicItemID);
                 }
               }
             if (classicGameStatus.classicflag === false) {
@@ -392,9 +380,7 @@
           console.log(item);
           for (var j = 0; j < classicItemsArrayLength; j += 1) {
             if (classicGameStatus.classicTablesJson.items[j].ID === classicParsedValue) {
-              classicItemID = j;
               classicGameStatus.classicItemID = j;
-              console.log("classicItemID" + classicItemID);
             }
           }
         break;
@@ -404,18 +390,12 @@
         case "L":
           console.log(item);
           if (classicParsedValue === -1) {
-            classicParsedValue = classicCurrentRoom;
+            classicParsedValue = clItems.currentRoomNumber();
           }
-          classicGameStatus.classicTablesJson.items[classicItemID].location = classicParsedValue;
-          if (classicGameStatus.classicTablesJson.items[classicItemID].ID === 0) {
-            classicGameStatus.classicTablesJson.items[classicItemID].location = classicParsedValue;
-            classicGameStatus.locationID = classicParsedValue;
-            classicCurrentRoom = classicParsedValue;
-            for (var j = 0; j < classicRoomsArrayLength; j += 1) {
-              if (classicGameStatus.classicTablesJson.rooms[j].roomNumber === classicCurrentRoom) {
-                classicGameStatus.clRoomNumberIndex = j;
-              }
-            }
+          clItems[classicGameStatus.classicItemID].location = classicParsedValue;
+          if (classicGameStatus.classicTablesJson.items[classicGameStatus.classicItemID].ID === 0) {
+            clItems.setCurrentRoomNumber(classicParsedValue);
+            classicGameStatus.clRoomNumberIndex = clRooms.currentRoomIndex();
           }
         break;
         //The "N" instruction changes the active "number" to which subsequent incstructions refer
@@ -423,7 +403,7 @@
         case "N":
           console.log(item);
           if (classicParsedValue === -1) {
-            classicGameStatus.classicActiveNumber = classicCurrentRoom;
+            classicGameStatus.classicActiveNumber = clItems.currentRoomNumber();
           } else {
             classicGameStatus.classicActiveNumber = classicParsedValue;
           }
@@ -537,7 +517,7 @@
           if (classicGameStatus.classicTablesJson.items[i].location === 0) {
             classicInstruction = classicGameStatus.classicTablesJson.items[i][classicGameStatus.classicVerb] || "";
             console.log(classicInstruction + " inventory");
-          } else if (classicGameStatus.classicTablesJson.items[i].location === classicGameStatus.locationID) {
+          } else if (classicGameStatus.classicTablesJson.items[i].location === clItems.currentRoomNumber()) {
             classicInstruction = classicGameStatus.classicTablesJson.items[i][classicGameStatus.classicVerb] || "";
             console.log(classicInstruction + " location");
           } else if (classicInstruction === "") {
@@ -560,15 +540,12 @@
       classicRoomsArrayLength = classicGameStatus.classicTablesJson.rooms.length;
 
       for (var i = 0; i < classicRoomsArrayLength; i += 1) {
-        if (classicGameStatus.classicTablesJson.rooms[i].roomNumber === classicGameStatus.locationID) {
+        if (classicGameStatus.classicTablesJson.rooms[i].roomNumber === clItems.currentRoomNumber()) {
           clRoomNumberIndex = i;
         }
       }
 
 
-
-      console.log(clRoomNumberIndex);
-      console.log(classicGameStatus.locationID);
 
       if (classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicGameStatus.classicMovementVerb]) {
         classicInstruction = classicGameStatus.classicTablesJson.rooms[clRoomNumberIndex][classicGameStatus.classicMovementVerb];
