@@ -136,15 +136,60 @@
 
 
 
-    clItems.testForItemsAtLocation = function (currLocation) {
+    clItems.testForItemsAtLocation = function (clLocation) {
       var classicItemsArrayLength = clItems.length;
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
-        if (clItems[i].location === currLocation && (clItems[i].ID !== 0)) {
+        if (clItems[i].location === clLocation && clItems[i].ID !== 0) {
           return true;
         }
       }
       return false;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    clItems.testForNamedItemAtALocation = function (itemName, clLocation) {
+      var classicItemsArrayLength = clItems.length;
+      for (var i = 0; i < classicItemsArrayLength; i += 1) {
+        if (clItems[i].location === clLocation && clItems[i].word === itemName) {
+          return clItems[i].ID;
+        }
+      }
+      return false;
+    }
+
+
+    clItems.namedItemIsInPlayerScope = function (itemName) {
+      return (clItems.testForNamedItemAtALocation(itemName, 0) || clItems.testForNamedItemAtALocation(itemName, clItems.currentRoomNumber()));
+    }
+
+
+    clItems.getInstructionMatchingVerbNoun = function (clVerb, clNoun) {
+      var clInstruction = "";
+      var clItemID = clItems.namedItemIsInPlayerScope(clNoun);
+      if (clItemID) {
+        clInstruction = clItems[clItems.itemsArrayIndex(clItemID)][clVerb];
+      }
+      return clInstruction;
+    }
+
+
+
+
+
+
+
+
 
 
 
@@ -156,6 +201,13 @@
         }
       }
     }
+
+
+
+
+
+
+
 
 
 
@@ -326,7 +378,6 @@
         case "B":
           if (classicParsedValue < 100) {
             if (clRooms[clRooms.currentRoomIndex()][classicParsedValue] !== 1) {
-              //if the flag number is not set, skip the next command
               i += 1;
             }
           } else {
@@ -347,7 +398,6 @@
         case "C":
           if (classicParsedValue < 100) {
             if (clRooms[clRooms.currentRoomIndex()][classicParsedValue] === 1) {
-              //if the flag number is not set, skip the next command
               i += 1;
             }
           } else {
@@ -365,7 +415,7 @@
           classicGameStatus.classicMessageList += classicParsedValue.toString() + "~";
         break;
         //The "I" instruction changes the active "item" to which subsequent incstructions refer
-        //This may be replaced by the "N" instruction
+        //See also the related "N" instruction
         case "I":
           classicGameStatus.classicItemID = clItems.itemsArrayIndex(classicParsedValue);
         break;
@@ -382,7 +432,7 @@
           }
         break;
         //The "N" instruction changes the active "number" to which subsequent incstructions refer
-        //This may replace the "I" instruction
+        //See the related "I" instruction
         case "N":
           if (classicParsedValue === -1) {
             classicGameStatus.classicActiveNumber = clItems.currentRoomNumber();
@@ -462,22 +512,13 @@
     if (classicGameStatus.classicVerb !== "" && classicGameStatus.classicNoun !== "") {
       //verb+noun processing to go here.
 
-      //First identify the item matching the noun - scope is to check those in the inventory first then in the current room - frst to match wins
+      //First identify the item matching the noun - scope is to check those in the inventory first else in the current room
       //Then, from that item, extract the instruction string associated with the verb
-      classicItemsArrayLength = clItems.length;
 
-      for (var i = 0; i < classicItemsArrayLength; i += 1) {
-        if (clItems[i].word === classicGameStatus.classicNoun) {
-          if (clItems[i].location === 0) {
-            classicInstruction = clItems[i][classicGameStatus.classicVerb] || "";
-          } else if (clItems[i].location === clItems.currentRoomNumber()) {
-            classicInstruction = clItems[i][classicGameStatus.classicVerb] || "";
-          } else if (classicInstruction === "") {
-            classicInstruction = "D9";
-          }
-        }
+      classicInstruction = clItems.getInstructionMatchingVerbNoun(classicGameStatus.classicVerb, classicGameStatus.classicNoun);
+      if (classicInstruction === "") {
+        classicInstruction = "D9";
       }
-
 
 
 
@@ -491,7 +532,7 @@
       if (clRooms[clRooms.currentRoomIndex()][classicGameStatus.classicMovementVerb]) {
         classicInstruction = clRooms[clRooms.currentRoomIndex()][classicGameStatus.classicMovementVerb];
       } else {
-        //Temporary kludge - I'm sorry you can't go that way
+        //I'm sorry you can't go that way
         classicInstruction = "D4"; //Adds the above message to the message queue.
       }
     }
