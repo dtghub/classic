@@ -11,12 +11,6 @@
     //generic place to put tables imported from the database
     classicTablesJson: {uninitialised: true},
 
-    //This is an array to record whch rooms have already been visited - as each new room is visited it is pushed into the array. We can access the rooms list using if (roomPreviouslyVisited.includes(<roomnumber>))
-    roomPreviouslyVisited: [1],
-    roomDescriptionRequired: true,
-    roomLongDescriptionRequired: true,
-
-
     //The following are used for command parsing
     classicTurnCommand: "", //the text the user has entered in the current turn
     // Noun and verb are produced by the classicParsing funtion, and used as the command interface - might implement adverbs later?
@@ -29,7 +23,6 @@
     classicMessages: {messages: ""},
     classicActiveNumber: 0,
     classicItemID: -1,
-    //clRoomNumberIndex: -1,
     //classicFlag: false,
     //an array to store room statuses
     //an array to store object status elements
@@ -100,7 +93,7 @@
 
     //Add some common functions to the tables, such as returning the index number of an array element using the ID number
 
-
+    //also short reference some common ones
     clTabs = classicGameStatus.classicTablesJson;
     clItems = classicGameStatus.classicTablesJson.items;
     clRooms = classicGameStatus.classicTablesJson.rooms;
@@ -248,20 +241,13 @@
   function classicUpdateDescription() {
     'use strict';
 
-
     classicGameStatus.gameStatus.value += "\n\n> " + classicGameStatus.classicTurnCommand + "\n" + classicGameStatus.classicMessages.messages;
-    //classicGameStatus.classicMessages.messages = "";
     classicGameStatus.classicMessageList = "";
 
     classicGameStatus.gameStatus.setAttribute('disabled', false);
 
-
-
-
     //This makes sure that the bottom line of text in the gameStatus box is visible after an update.
     classicGameStatus.gameStatus.scrollTop = classicGameStatus.gameStatus.scrollHeight;
-
-
   }
 
 
@@ -270,13 +256,9 @@
 
   function classicParseEnteredCommand() {
     'use strict';
-
-
     classicGameStatus.classicMovementVerb = "";
     classicGameStatus.classicVerb = "";
     classicGameStatus.classicNoun = "";
-//    classicGameStatus.classicCommandNotRecognised = false;
-
 
     classicGameStatus.classicTurnCommand = classicGameStatus.commandBox.value;
 
@@ -345,26 +327,15 @@
   function classicProcessInstruction(classicInstruction) {
     'use strict';
 
-    //var clExp = "";
-
-    //A very clumsy initial implementation - definitely needs a better solution
-
     var itemID = -1;
     var classicParsedValue = 0;
     var classicCommandParts = [];
-    var classicCommandPartsArrayLength;
-    var classicItemsArrayLength;
-    var classicRoomsArrayLength;
-    var classicCurrentRoomArrayIndex;
+    var classicCommandPartsArrayLength = 0;
 
     console.log(classicInstruction);
     classicCommandParts = classicInstruction.match(/[A-Z][\-]?[0-9]+/g);
     console.log(classicCommandParts);
-
-
-
     classicCommandPartsArrayLength = classicCommandParts.length;
-    classicItemsArrayLength = clItems.length;
 
     for (var i = 0; i < classicCommandPartsArrayLength; i += 1) {
       var item = classicCommandParts[i];
@@ -458,7 +429,7 @@
         break;
         //The "X" instruction looks up the instruction code from the snippets table and executes the instructions by calling classicProcessInstruction recursively.
         case "X":
-          classicProcessInstruction(classicGameStatus.classicTablesJson.snippets[classicParsedValue]);
+          classicProcessInstruction(clTabs.snippets[classicParsedValue]);
         break;
         default:
           console.log("\nUnrecognised command; " + item);
@@ -472,22 +443,8 @@
 
   function classicProcessParsedCommand() {
     'use strict';
-
     //This variable holds the instruction line derived from the commands entered
     var classicInstruction = "";
-    var classicItemsArrayLength;
-    var classicRoomsArrayLength;
-    //var clRoomNumberIndex;
-
-    //classicGameStatus.classicCommandNotRecognised = false;
-    classicGameStatus.roomDescriptionRequired = false;
-    classicGameStatus.roomLongDescriptionRequired = false;
-
-    classicItemsArrayLength = clItems.length;
-
-    //echo the entered command to the main window
-    //classicGameStatus.gameStatus.value += '\n\n> ' + classicGameStatus.classicTurnCommand;
-
 
     if (classicGameStatus.classicMovementVerb === "" && classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun === "") {
       //classicGameStatus.gameStatus.value += "\nI'm sorry, I didn't understand that!";
@@ -525,15 +482,14 @@
     } else if (classicGameStatus.classicVerb !== "") {
       //verb only processing -
       //Look for the verb in the items entry for the player
-        classicInstruction = clItems[clItems.playerArrayIndex()][classicGameStatus.classicVerb] || "";
+        classicInstruction = clItems[clItems.playerArrayIndex()][classicGameStatus.classicVerb] || "D3";
     }
 
     if (classicGameStatus.classicMovementVerb !== "") {
       if (clRooms[clRooms.currentRoomIndex()][classicGameStatus.classicMovementVerb]) {
         classicInstruction = clRooms[clRooms.currentRoomIndex()][classicGameStatus.classicMovementVerb];
       } else {
-        //I'm sorry you can't go that way
-        classicInstruction = "D4"; //Adds the above message to the message queue.
+        classicInstruction = "D4"; //I'm sorry you can't go that way
       }
     }
 
@@ -564,11 +520,6 @@
     // return false to prevent form submission
     return false;
   }
-
-
-
-
-
 
 
   function classicTurnPart2() {
