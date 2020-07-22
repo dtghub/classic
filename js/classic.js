@@ -23,13 +23,13 @@
     classicMovementVerb: "", //Has the user requested to move?
     classicVerb: "", // the result of the parsing logic
     classicNoun: "", // the result of the parsing logic
-    classicCommandNotRecognised: false, // will set to true if no verb was identified
+    //classicCommandNotRecognised: false, // will set to true if no verb was identified
 
     classicMessageList: "",
     classicMessages: {messages: ""},
     classicActiveNumber: 0,
     classicItemID: -1,
-    clRoomNumberIndex: -1,
+    //clRoomNumberIndex: -1,
     //classicFlag: false,
     //an array to store room statuses
     //an array to store object status elements
@@ -135,6 +135,16 @@
     }
 
 
+    clItems.playerArrayIndexFromName = function (clItemName) {
+      var classicItemsArrayLength = clItems.length;
+      for (var i = 0; i < classicItemsArrayLength; i += 1) {
+        if (clItems[i].word === clItemName) {
+          return i;
+        }
+      }
+    }
+
+
 
     clItems.testForItemsAtLocation = function (clLocation) {
       var classicItemsArrayLength = clItems.length;
@@ -145,15 +155,6 @@
       }
       return false;
     }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -184,11 +185,10 @@
     }
 
 
-
-
-
-
-
+    clItems.getWordIfNounInScope = function (clNoun) {
+      var clItemID = clItems.namedItemIsInPlayerScope(clNoun);
+      return clItems[clItems.itemsArrayIndex(clItemID)].word;
+    }
 
 
 
@@ -201,7 +201,6 @@
         }
       }
     }
-
 
 
 
@@ -276,7 +275,7 @@
     classicGameStatus.classicMovementVerb = "";
     classicGameStatus.classicVerb = "";
     classicGameStatus.classicNoun = "";
-    classicGameStatus.classicCommandNotRecognised = false;
+//    classicGameStatus.classicCommandNotRecognised = false;
 
 
     classicGameStatus.classicTurnCommand = classicGameStatus.commandBox.value;
@@ -478,9 +477,9 @@
     var classicInstruction = "";
     var classicItemsArrayLength;
     var classicRoomsArrayLength;
-    var clRoomNumberIndex;
+    //var clRoomNumberIndex;
 
-    classicGameStatus.classicCommandNotRecognised = false;
+    //classicGameStatus.classicCommandNotRecognised = false;
     classicGameStatus.roomDescriptionRequired = false;
     classicGameStatus.roomLongDescriptionRequired = false;
 
@@ -492,17 +491,18 @@
 
     if (classicGameStatus.classicMovementVerb === "" && classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun === "") {
       //classicGameStatus.gameStatus.value += "\nI'm sorry, I didn't understand that!";
-      //Temporary kludge
       classicProcessInstruction("D3"); //Adds the above message to the message queue.
     }
 
-    //Needs improvement;
-    //As written, this allows the user to confirm the existance of any object name
-    //To be re-implemented - this will be done by loking at the nouns  table -the command associated with the noverb entry will be executed.
+
     if (classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun !== "") {
       //classicGameStatus.gameStatus.value += "\nHmmm, I don't follow; Please clarify what you would like me to do with the " + classicGameStatus.classicNoun + "?";
-      //Temporary kludge
-      classicProcessInstruction("D3"); //Adds a message to the message queue. Message can be expanded
+      if (clItems.namedItemIsInPlayerScope(classicGameStatus.classicNoun )) {
+        classicProcessInstruction("D5" + clItems.getInstructionMatchingVerbNoun("name", classicGameStatus.classicNoun)); //Adds a message to the message queue, only if the item is in the inventory or current room.
+      } else {
+        //classicGameStatus.gameStatus.value += "\nI'm sorry, I didn't understand that!";
+        classicProcessInstruction("D3"); //Adds the above message to the message queue if the item is not in the inventory or current room.
+      }
     }
 
 
