@@ -28,6 +28,8 @@
     //an array to store object status elements
   };
 
+  var classicCommands = {};
+
   //these references can only be properly assigned once their targets exist!
   //So the references are set up in function classicSetupTables()
   var clTabs = {};
@@ -49,6 +51,7 @@
         callback(JSON.parse(xobj.responseText));
 
         classicSetupTables();
+        classicSetupCommands();
         classicProcessInstruction("X1");
         classicGetMessages(function(classicGetMessages) {
           classicGameStatus.classicMessages = classicGetMessages;
@@ -101,6 +104,7 @@
 
 
     clItems.itemsArrayIndex = function (itemsID) {
+      'use strict';
       var classicItemsArrayLength = clItems.length;
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
         if (clItems[i].ID === itemsID) {
@@ -111,24 +115,28 @@
 
 
     clItems.playerArrayIndex = function () {
+    'use strict';
     //0 is the player ID in the items array
     return clItems.itemsArrayIndex(0);
     }
 
 
     clItems.currentRoomNumber = function () {
+    'use strict';
       var playerArrayIndex = clItems.playerArrayIndex();
       return clItems[playerArrayIndex].location;
     }
 
 
     clItems.setCurrentRoomNumber = function (roomNumber) {
+      'use strict';
       var playerArrayIndex = clItems.playerArrayIndex();
       clItems[playerArrayIndex].location = roomNumber;
     }
 
 
     clItems.playerArrayIndexFromName = function (clItemName) {
+      'use strict';
       var classicItemsArrayLength = clItems.length;
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
         if (clItems[i].word === clItemName) {
@@ -140,6 +148,7 @@
 
 
     clItems.testForItemsAtLocation = function (clLocation) {
+      'use strict';
       var classicItemsArrayLength = clItems.length;
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
         if (clItems[i].location === clLocation && clItems[i].ID !== 0) {
@@ -153,6 +162,7 @@
 
 
     clItems.testForNamedItemAtALocation = function (itemName, clLocation) {
+      'use strict';
       var classicItemsArrayLength = clItems.length;
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
         if (clItems[i].location === clLocation && clItems[i].word === itemName) {
@@ -164,11 +174,13 @@
 
 
     clItems.namedItemIsInPlayerScope = function (itemName) {
+      'use strict';
       return (clItems.testForNamedItemAtALocation(itemName, 0) || clItems.testForNamedItemAtALocation(itemName, clItems.currentRoomNumber()));
     }
 
 
     clItems.getInstructionMatchingVerbNoun = function (clVerb, clNoun) {
+      'use strict';
       var clInstruction = "";
       var clItemID = clItems.namedItemIsInPlayerScope(clNoun);
       if (clItemID) {
@@ -179,6 +191,7 @@
 
 
     clItems.getWordIfNounInScope = function (clNoun) {
+      'use strict';
       var clItemID = clItems.namedItemIsInPlayerScope(clNoun);
       return clItems[clItems.itemsArrayIndex(clItemID)].word;
     }
@@ -187,6 +200,7 @@
 
 
     clItems.printListOfItemsAtLocation = function (roomNumber) {
+      'use strict';
       var classicItemsArrayLength = clItems.length;
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
         if ((clItems[i].location === roomNumber) && (clItems[i].ID !== 0)) {
@@ -208,6 +222,7 @@
 
 
     clRooms.roomsArrayIndex = function(roomsID) {
+      'use strict';
       var classicRoomsArrayLength = clRooms.length;
       for (var i = 0; i < classicRoomsArrayLength; i += 1) {
         if (clRooms[i].roomNumber === roomsID) {
@@ -218,12 +233,123 @@
 
 
     clRooms.currentRoomIndex = function() {
+      'use strict';
       var currentRoomNumber = clItems.currentRoomNumber();
       return clRooms.roomsArrayIndex(currentRoomNumber);
     }
   }
 
-
+  function classicSetupCommands() {
+    'use strict';
+    //The "B" instruction is the inverse of the "C" Conditional test - if true then we skip the next instruction.
+    //B100 - is the item in the players inventory
+    //B101 - are any items in the location number defined in classicGameStatus.classicActiveNumber
+    classicCommands.B = function (classicParsedValue,i) {
+      'use strict';
+      if (classicParsedValue < 100) {
+        if (clRooms[clRooms.currentRoomIndex()][classicParsedValue] !== 1) {
+          return i += 1;
+        }
+      } else {
+        if (classicParsedValue === 100 && clItems[classicGameStatus.classicItemID].location !== 0) {
+          return i += 1;
+        }
+        if (classicParsedValue === 101 && clItems.testForItemsAtLocation(classicGameStatus.classicActiveNumber)) {
+          return i += 1;
+        }
+      }
+      return i;
+    };
+    //The "C" instruction is a Conditional test - if false then we skip the next instruction. - see related "B" and "S"
+    //In practice this means that a lot of the time the next instruction will be an 'X'
+    //At the moment this has only been implemented for the rooms table.
+    //classicParsedValue range of 1 to 99 is reserved for flags attached to the item objects
+    //C100 - is the item in the players inventory
+    //C101 - are any items in the location number defined in classicGameStatus.classicActiveNumber
+    classicCommands.C = function (classicParsedValue,i) {
+      'use strict';
+      if (classicParsedValue < 100) {
+        if (clRooms[clRooms.currentRoomIndex()][classicParsedValue] === 1) {
+          return i += 1;
+        }
+      } else {
+        if (classicParsedValue === 100 && clItems[classicGameStatus.classicItemID].location === 0) {
+          return i += 1;
+        }
+        if (classicParsedValue === 101 && !clItems.testForItemsAtLocation(classicGameStatus.classicActiveNumber)) {
+          return i += 1;
+        }
+      }
+      return i;
+    };
+    //The "D" instruction adds a message number for Display to the classicMessageList string
+    //The messages are retrieved and displayd after all instructions have been processed
+    classicCommands.D = function (classicParsedValue,i) {
+      'use strict';
+      classicGameStatus.classicMessageList += classicParsedValue.toString() + "~";
+      return i;
+    };
+    //The "I" instruction changes the active "item" to which subsequent incstructions refer
+    //See also the related "N" instruction
+    classicCommands.I = function (classicParsedValue,i) {
+      'use strict';
+      classicGameStatus.classicItemID = clItems.itemsArrayIndex(classicParsedValue);
+      return i;
+    };
+    //The "L" instruction sets the location of the acitive item
+    //location 0 is your own inventory
+    //location -1 is the current location
+    classicCommands.L = function (classicParsedValue,i) {
+      'use strict';
+      if (classicParsedValue === -1) {
+        classicParsedValue = clItems.currentRoomNumber();
+      }
+      clItems[classicGameStatus.classicItemID].location = classicParsedValue;
+      if (clItems[classicGameStatus.classicItemID].ID === 0) {
+        clItems.setCurrentRoomNumber(classicParsedValue);
+      }
+      return i;
+    };
+    //The "N" instruction changes the active "number" to which subsequent incstructions refer
+    //See the related "I" instruction
+    classicCommands.N = function (classicParsedValue,i) {
+      'use strict';
+      if (classicParsedValue === -1) {
+        classicGameStatus.classicActiveNumber = clItems.currentRoomNumber();
+      } else {
+        classicGameStatus.classicActiveNumber = classicParsedValue;
+      }
+      return i;
+    };
+    //The "P" instruction executes sPecial cases
+    //Probably the goal is to develop the interpreter to the point where P is never needed
+    //P1 adds the names of items located at the location matching classicGameStatus.classicActiveNumber to the display queue.
+    classicCommands.P = function (classicParsedValue,i) {
+      'use strict';
+      if (classicParsedValue === 1) {
+        clItems.printListOfItemsAtLocation(classicGameStatus.classicActiveNumber);
+      }
+      return i;
+    };
+    //The "R" instruction unsets the flag used for the "C" and "B" conditional tests. ("S" Sets it)
+    classicCommands.R = function (classicParsedValue,i) {
+      'use strict';
+      clRooms[clRooms.currentRoomIndex()][classicParsedValue] = 0;
+      return i;
+    };
+    //The "S" instruction Sets the flag used for the "C" and "B" conditional tests. ("R" unsets it)
+    classicCommands.S = function (classicParsedValue,i) {
+      'use strict';
+      clRooms[clRooms.currentRoomIndex()][classicParsedValue] = 1;
+      return i;
+    };
+    //The "X" instruction looks up the instruction code from the snippets table and executes the instructions by calling classicProcessInstruction recursively.
+    classicCommands.X = function (classicParsedValue,i) {
+      'use strict';
+      classicProcessInstruction(clTabs.snippets[classicParsedValue]);
+      return i;
+    };
+  }
 
 
 
@@ -340,100 +466,7 @@
     for (var i = 0; i < classicCommandPartsArrayLength; i += 1) {
       var item = classicCommandParts[i];
       classicParsedValue = parseInt(item.slice(1),10);
-
-      switch (item.charAt(0)) {
-        //The "B" instruction is the inverse of the "C" Conditional test - if true then we skip the next instruction.
-        //B100 - is the item in the players inventory
-        //B101 - are any items in the location number defined in classicGameStatus.classicActiveNumber
-        case "B":
-          if (classicParsedValue < 100) {
-            if (clRooms[clRooms.currentRoomIndex()][classicParsedValue] !== 1) {
-              i += 1;
-            }
-          } else {
-            if (classicParsedValue === 100 && clItems[classicGameStatus.classicItemID].location !== 0) {
-              i += 1;
-            }
-            if (classicParsedValue === 101 && clItems.testForItemsAtLocation(classicGameStatus.classicActiveNumber)) {
-              i += 1;
-            }
-          }
-        break;
-        //The "C" instruction is a Conditional test - if false then we skip the next instruction. - see related "B" and "S"
-        //In practice this means that a lot of the time the next instruction will be an 'X'
-        //At the moment this has only been implemented for the rooms table.
-        //classicParsedValue range of 1 to 99 is reserved for flags attached to the item objects
-        //C100 - is the item in the players inventory
-        //C101 - are any items in the location number defined in classicGameStatus.classicActiveNumber
-        case "C":
-          if (classicParsedValue < 100) {
-            if (clRooms[clRooms.currentRoomIndex()][classicParsedValue] === 1) {
-              i += 1;
-            }
-          } else {
-            if (classicParsedValue === 100 && clItems[classicGameStatus.classicItemID].location === 0) {
-              i += 1;
-            }
-            if (classicParsedValue === 101 && !clItems.testForItemsAtLocation(classicGameStatus.classicActiveNumber)) {
-              i += 1;
-            }
-          }
-        break;
-        //The "D" instruction adds a message number for Display to the classicMessageList string
-        //The messages are retrieved and displayd after all instructions have been processed
-        case "D":
-          classicGameStatus.classicMessageList += classicParsedValue.toString() + "~";
-        break;
-        //The "I" instruction changes the active "item" to which subsequent incstructions refer
-        //See also the related "N" instruction
-        case "I":
-          classicGameStatus.classicItemID = clItems.itemsArrayIndex(classicParsedValue);
-        break;
-        //The "L" instruction sets the location of the acitive item
-        //location 0 is your own inventory
-        //location -1 is the current location
-        case "L":
-          if (classicParsedValue === -1) {
-            classicParsedValue = clItems.currentRoomNumber();
-          }
-          clItems[classicGameStatus.classicItemID].location = classicParsedValue;
-          if (clItems[classicGameStatus.classicItemID].ID === 0) {
-            clItems.setCurrentRoomNumber(classicParsedValue);
-          }
-        break;
-        //The "N" instruction changes the active "number" to which subsequent incstructions refer
-        //See the related "I" instruction
-        case "N":
-          if (classicParsedValue === -1) {
-            classicGameStatus.classicActiveNumber = clItems.currentRoomNumber();
-          } else {
-            classicGameStatus.classicActiveNumber = classicParsedValue;
-          }
-        break;
-
-        //The "P" instruction executes sPecial cases
-        //Probably the goal is to develop the interpreter to the point where P is never needed
-        //P1 adds the names of items located at the location matching classicGameStatus.classicActiveNumber to the display queue.
-        case "P":
-          if (classicParsedValue === 1) {
-            clItems.printListOfItemsAtLocation(classicGameStatus.classicActiveNumber);
-          }
-        break;
-        //The "R" instruction unsets the flag used for the "C" and "B" conditional tests. ("S" Sets it)
-        case "R":
-          clRooms[clRooms.currentRoomIndex()][classicParsedValue] = 0;
-        break;
-        //The "S" instruction Sets the flag used for the "C" and "B" conditional tests. ("R" unsets it)
-        case "S":
-          clRooms[clRooms.currentRoomIndex()][classicParsedValue] = 1;
-        break;
-        //The "X" instruction looks up the instruction code from the snippets table and executes the instructions by calling classicProcessInstruction recursively.
-        case "X":
-          classicProcessInstruction(clTabs.snippets[classicParsedValue]);
-        break;
-        default:
-          console.log("\nUnrecognised command; " + item);
-      }
+      i = classicCommands[item.charAt(0)](classicParsedValue,i);
     }
   }
 
@@ -526,6 +559,7 @@
     'use strict';
     classicUpdateDescription();
     console.log(classicGameStatus);
+    console.log(classicCommands);
   }
 
 
