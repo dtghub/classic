@@ -41,7 +41,6 @@
 
 
   function classicLoadTablesJson(callback) {
-    'use strict';
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("text/application");
     xobj.open('GET', 'http://localhost/cgi-bin/fetchtables.pl', true);
@@ -69,7 +68,6 @@
 
 
   function classicGetMessages(callback) {
-    'use strict';
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("text/application");
     xobj.open('GET', 'http://localhost/cgi-bin/fetchmessages.pl?value=' + classicGameStatus.classicMessageList, true);
@@ -92,7 +90,6 @@
 
 
   function classicSetupTables() {
-    'use strict';
 
     //Add some common functions to the tables, such as returning the index number of an array element using the ID number
 
@@ -104,7 +101,6 @@
 
 
     clItems.itemsArrayIndex = function (itemsID) {
-      'use strict';
       var classicItemsArrayLength = clItems.length;
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
         if (clItems[i].ID === itemsID) {
@@ -115,28 +111,24 @@
 
 
     clItems.playerArrayIndex = function () {
-    'use strict';
     //0 is the player ID in the items array
     return clItems.itemsArrayIndex(0);
     }
 
 
     clItems.currentRoomNumber = function () {
-    'use strict';
       var playerArrayIndex = clItems.playerArrayIndex();
       return clItems[playerArrayIndex].location;
     }
 
 
     clItems.setCurrentRoomNumber = function (roomNumber) {
-      'use strict';
       var playerArrayIndex = clItems.playerArrayIndex();
       clItems[playerArrayIndex].location = roomNumber;
     }
 
 
     clItems.playerArrayIndexFromName = function (clItemName) {
-      'use strict';
       var classicItemsArrayLength = clItems.length;
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
         if (clItems[i].word === clItemName) {
@@ -148,7 +140,6 @@
 
 
     clItems.testForItemsAtLocation = function (clLocation) {
-      'use strict';
       var classicItemsArrayLength = clItems.length;
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
         if (clItems[i].location === clLocation && clItems[i].ID !== 0) {
@@ -162,7 +153,6 @@
 
 
     clItems.testForNamedItemAtALocation = function (itemName, clLocation) {
-      'use strict';
       var classicItemsArrayLength = clItems.length;
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
         if (clItems[i].location === clLocation && clItems[i].word === itemName) {
@@ -174,13 +164,11 @@
 
 
     clItems.namedItemIsInPlayerScope = function (itemName) {
-      'use strict';
       return (clItems.testForNamedItemAtALocation(itemName, 0) || clItems.testForNamedItemAtALocation(itemName, clItems.currentRoomNumber()));
     }
 
 
     clItems.getInstructionMatchingVerbNoun = function (clVerb, clNoun) {
-      'use strict';
       var clInstruction = "";
       var clItemID = clItems.namedItemIsInPlayerScope(clNoun);
       if (clItemID) {
@@ -191,7 +179,6 @@
 
 
     clItems.getWordIfNounInScope = function (clNoun) {
-      'use strict';
       var clItemID = clItems.namedItemIsInPlayerScope(clNoun);
       return clItems[clItems.itemsArrayIndex(clItemID)].word;
     }
@@ -200,7 +187,6 @@
 
 
     clItems.printListOfItemsAtLocation = function (roomNumber) {
-      'use strict';
       var classicItemsArrayLength = clItems.length;
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
         if ((clItems[i].location === roomNumber) && (clItems[i].ID !== 0)) {
@@ -222,7 +208,6 @@
 
 
     clRooms.roomsArrayIndex = function(roomsID) {
-      'use strict';
       var classicRoomsArrayLength = clRooms.length;
       for (var i = 0; i < classicRoomsArrayLength; i += 1) {
         if (clRooms[i].roomNumber === roomsID) {
@@ -233,19 +218,16 @@
 
 
     clRooms.currentRoomIndex = function() {
-      'use strict';
       var currentRoomNumber = clItems.currentRoomNumber();
       return clRooms.roomsArrayIndex(currentRoomNumber);
     }
   }
 
   function classicSetupCommands() {
-    'use strict';
     //The "B" instruction is the inverse of the "C" Conditional test - if true then we skip the next instruction.
     //B100 - is the item in the players inventory
     //B101 - are any items in the location number defined in classicGameStatus.classicActiveNumber
     classicCommands.B = function (classicParsedValue,i) {
-      'use strict';
       if (classicParsedValue < 100) {
         if (clRooms[clRooms.currentRoomIndex()][classicParsedValue] !== 1) {
           return i += 1;
@@ -267,7 +249,6 @@
     //C100 - is the item in the players inventory
     //C101 - are any items in the location number defined in classicGameStatus.classicActiveNumber
     classicCommands.C = function (classicParsedValue,i) {
-      'use strict';
       if (classicParsedValue < 100) {
         if (clRooms[clRooms.currentRoomIndex()][classicParsedValue] === 1) {
           return i += 1;
@@ -285,14 +266,12 @@
     //The "D" instruction adds a message number for Display to the classicMessageList string
     //The messages are retrieved and displayd after all instructions have been processed
     classicCommands.D = function (classicParsedValue,i) {
-      'use strict';
       classicGameStatus.classicMessageList += classicParsedValue.toString() + "~";
       return i;
     };
     //The "I" instruction changes the active "item" to which subsequent incstructions refer
     //See also the related "N" instruction
     classicCommands.I = function (classicParsedValue,i) {
-      'use strict';
       classicGameStatus.classicItemID = clItems.itemsArrayIndex(classicParsedValue);
       return i;
     };
@@ -300,7 +279,6 @@
     //location 0 is your own inventory
     //location -1 is the current location
     classicCommands.L = function (classicParsedValue,i) {
-      'use strict';
       if (classicParsedValue === -1) {
         classicParsedValue = clItems.currentRoomNumber();
       }
@@ -313,7 +291,6 @@
     //The "N" instruction changes the active "number" to which subsequent incstructions refer
     //See the related "I" instruction
     classicCommands.N = function (classicParsedValue,i) {
-      'use strict';
       if (classicParsedValue === -1) {
         classicGameStatus.classicActiveNumber = clItems.currentRoomNumber();
       } else {
@@ -325,7 +302,6 @@
     //Probably the goal is to develop the interpreter to the point where P is never needed
     //P1 adds the names of items located at the location matching classicGameStatus.classicActiveNumber to the display queue.
     classicCommands.P = function (classicParsedValue,i) {
-      'use strict';
       if (classicParsedValue === 1) {
         clItems.printListOfItemsAtLocation(classicGameStatus.classicActiveNumber);
       }
@@ -333,19 +309,16 @@
     };
     //The "R" instruction unsets the flag used for the "C" and "B" conditional tests. ("S" Sets it)
     classicCommands.R = function (classicParsedValue,i) {
-      'use strict';
       clRooms[clRooms.currentRoomIndex()][classicParsedValue] = 0;
       return i;
     };
     //The "S" instruction Sets the flag used for the "C" and "B" conditional tests. ("R" unsets it)
     classicCommands.S = function (classicParsedValue,i) {
-      'use strict';
       clRooms[clRooms.currentRoomIndex()][classicParsedValue] = 1;
       return i;
     };
     //The "X" instruction looks up the instruction code from the snippets table and executes the instructions by calling classicProcessInstruction recursively.
     classicCommands.X = function (classicParsedValue,i) {
-      'use strict';
       classicProcessInstruction(clTabs.snippets[classicParsedValue]);
       return i;
     };
@@ -365,8 +338,6 @@
 
 
   function classicUpdateDescription() {
-    'use strict';
-
     classicGameStatus.gameStatus.value += "\n\n> " + classicGameStatus.classicTurnCommand + "\n" + classicGameStatus.classicMessages.messages;
     classicGameStatus.classicMessageList = "";
 
@@ -381,7 +352,6 @@
 
 
   function classicParseEnteredCommand() {
-    'use strict';
     classicGameStatus.classicMovementVerb = "";
     classicGameStatus.classicVerb = "";
     classicGameStatus.classicNoun = "";
@@ -451,8 +421,6 @@
 
   //UNDER CONSTRUCTION
   function classicProcessInstruction(classicInstruction) {
-    'use strict';
-
     var itemID = -1;
     var classicParsedValue = 0;
     var classicCommandParts = [];
@@ -475,7 +443,6 @@
 
 
   function classicProcessParsedCommand() {
-    'use strict';
     //This variable holds the instruction line derived from the commands entered
     var classicInstruction = "";
 
@@ -539,7 +506,6 @@
 
   // Functioning as 'Main loop' for now...
   function classicTurnPart1() {
-    'use strict';
     classicGameStatus.gameStatus.setAttribute('disabled', true);
 
     classicParseEnteredCommand();
@@ -556,7 +522,6 @@
 
 
   function classicTurnPart2() {
-    'use strict';
     classicUpdateDescription();
     console.log(classicGameStatus);
     console.log(classicCommands);
@@ -568,7 +533,6 @@
 
 
   function init() {
-    'use strict';
     // We will call an init funtion here to set the initial parameters, and either load a saved game or initialise new game
 
     //fetch the data tables from the server
