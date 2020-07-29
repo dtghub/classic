@@ -20,7 +20,7 @@
     //classicCommandNotRecognised: false, // will set to true if no verb was identified
 
     classicMessageList: "",
-    classicMessages: {messages: ""},
+    classicMessages: "",
     classicActiveNumber: 0,
     classicItemID: -1,
     //classicFlag: false,
