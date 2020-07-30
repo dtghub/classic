@@ -14,10 +14,6 @@
     //The following are used for command parsing
     classicTurnCommand: "", //the text the user has entered in the current turn
     // Noun and verb are produced by the classicParsing funtion, and used as the command interface - might implement adverbs later?
-    classicMovementVerb: "", //Has the user requested to move?
-    classicVerb: "", // the result of the parsing logic
-    classicNoun: "", // the result of the parsing logic
-    //classicCommandNotRecognised: false, // will set to true if no verb was identified
 
     classicMessageList: "",
     classicMessages: "",
@@ -352,9 +348,9 @@
 
 
   function classicParseEnteredCommand() {
-    classicGameStatus.classicMovementVerb = "";
-    classicGameStatus.classicVerb = "";
-    classicGameStatus.classicNoun = "";
+    var classicMovementVerb = "";
+    var classicVerb = "";
+    var classicNoun = "";
 
     classicGameStatus.classicTurnCommand = classicGameStatus.commandBox.value;
 
@@ -390,31 +386,36 @@
     // - the first character of the value defines the type of command; either M, V or N (movement, verb or noun).
     // -- the rest of the value is the token; e.g. the user typing either 'ne' or 'northeast' will both be tokenised to 'northeast' - stored as 'Mnortheast' so classed as a movement verb
 
-    //if the first command is an M we assign the token to classicGameStatus.classicMovementVerb and ignore any second word.
-    //if the first command is an N we assign the token to classicGameStatus.classicNoun and ignore any second word
-    //if the first command is a V we assign the token to classicGameStatus.classicVerb and we then check if the second word is an N; if so we assign the second token to classicGameStatus.classicNoun
+    //if the first command is an M we assign the token to classicMovementVerb and ignore any second word.
+    //if the first command is an N we assign the token to classicNoun and ignore any second word
+    //if the first command is a V we assign the token to classicVerb and we then check if the second word is an N; if so we assign the second token to classicNoun
 
 
     if (firstStartPosition < classicGameStatus.classicTurnCommand.length) {
       if (clCommands[firstCommand].charAt(0) === 'M') {
-        classicGameStatus.classicMovementVerb = clCommands[firstCommand].slice(1);
+        classicMovementVerb = clCommands[firstCommand].slice(1);
       } else if (clCommands[firstCommand].charAt(0) === 'N') {
-        classicGameStatus.classicNoun = clCommands[firstCommand].slice(1);
+        classicNoun = clCommands[firstCommand].slice(1);
       } else if (clCommands[firstCommand].charAt(0) === 'V') {
-        classicGameStatus.classicVerb = clCommands[firstCommand].slice(1);
+        classicVerb = clCommands[firstCommand].slice(1);
         if (secondStartPosition < classicGameStatus.classicTurnCommand.length) {
           if (clCommands[secondCommand].charAt(0) === 'N') {
-            classicGameStatus.classicNoun = clCommands[secondCommand].slice(1);
+            classicNoun = clCommands[secondCommand].slice(1);
           }
         }
       }
     }
 
-    console.log(classicGameStatus.classicMovementVerb);
-    console.log(classicGameStatus.classicVerb);
-    console.log(classicGameStatus.classicNoun);
+    console.log(classicMovementVerb);
+    console.log(classicVerb);
+    console.log(classicNoun);
 
     classicGameStatus.commandBox.value = '';
+
+    var classicUserCommands = [classicMovementVerb, classicVerb, classicNoun]
+
+    return classicUserCommands;
+
   }
 
 
@@ -442,20 +443,25 @@
 
 
 
-  function classicProcessParsedCommand() {
+  function classicProcessParsedCommand(classicUserCommands) {
     //This variable holds the instruction line derived from the commands entered
     var classicInstruction = "";
 
-    if (classicGameStatus.classicMovementVerb === "" && classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun === "") {
+    var classicMovementVerb = classicUserCommands[0];
+    var classicVerb = classicUserCommands[1];
+    var classicNoun = classicUserCommands[2];
+
+
+    if (classicMovementVerb === "" && classicVerb === "" && classicNoun === "") {
       //classicGameStatus.gameStatus.value += "\nI'm sorry, I didn't understand that!";
       classicProcessInstruction("D3"); //Adds the above message to the message queue.
     }
 
 
-    if (classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun !== "") {
-      //classicGameStatus.gameStatus.value += "\nHmmm, I don't follow; Please clarify what you would like me to do with the " + classicGameStatus.classicNoun + "?";
-      if (clItems.namedItemIsInPlayerScope(classicGameStatus.classicNoun )) {
-        classicProcessInstruction("D5" + clItems.getInstructionMatchingVerbNoun("name", classicGameStatus.classicNoun)); //Adds a message to the message queue, only if the item is in the inventory or current room.
+    if (classicVerb === "" && classicNoun !== "") {
+      //classicGameStatus.gameStatus.value += "\nHmmm, I don't follow; Please clarify what you would like me to do with the " + classicNoun + "?";
+      if (clItems.namedItemIsInPlayerScope(classicNoun )) {
+        classicProcessInstruction("D5" + clItems.getInstructionMatchingVerbNoun("name", classicNoun)); //Adds a message to the message queue, only if the item is in the inventory or current room.
       } else {
         //classicGameStatus.gameStatus.value += "\nI'm sorry, I didn't understand that!";
         classicProcessInstruction("D3"); //Adds the above message to the message queue if the item is not in the inventory or current room.
@@ -466,28 +472,28 @@
     // verb-only and verb+noun processing under construction...
     //UNDER CONSTRUCTION
 
-    if (classicGameStatus.classicVerb !== "" && classicGameStatus.classicNoun !== "") {
+    if (classicVerb !== "" && classicNoun !== "") {
       //verb+noun processing to go here.
 
       //First identify the item matching the noun - scope is to check those in the inventory first else in the current room
       //Then, from that item, extract the instruction string associated with the verb
 
-      classicInstruction = clItems.getInstructionMatchingVerbNoun(classicGameStatus.classicVerb, classicGameStatus.classicNoun);
+      classicInstruction = clItems.getInstructionMatchingVerbNoun(classicVerb, classicNoun);
       if (classicInstruction === "") {
         classicInstruction = "D9";
       }
 
 
 
-    } else if (classicGameStatus.classicVerb !== "") {
+    } else if (classicVerb !== "") {
       //verb only processing -
       //Look for the verb in the items entry for the player
-        classicInstruction = clItems[clItems.playerArrayIndex()][classicGameStatus.classicVerb] || "D3";
+        classicInstruction = clItems[clItems.playerArrayIndex()][classicVerb] || "D3";
     }
 
-    if (classicGameStatus.classicMovementVerb !== "") {
-      if (clRooms[clRooms.currentRoomIndex()][classicGameStatus.classicMovementVerb]) {
-        classicInstruction = clRooms[clRooms.currentRoomIndex()][classicGameStatus.classicMovementVerb];
+    if (classicMovementVerb !== "") {
+      if (clRooms[clRooms.currentRoomIndex()][classicMovementVerb]) {
+        classicInstruction = clRooms[clRooms.currentRoomIndex()][classicMovementVerb];
       } else {
         classicInstruction = "D4"; //I'm sorry you can't go that way
       }
@@ -508,8 +514,10 @@
   function classicTurnPart1() {
     classicGameStatus.gameStatus.setAttribute('disabled', true);
 
-    classicParseEnteredCommand();
-    classicProcessParsedCommand();
+    var classicUserCommands = {};
+
+    classicUserCommands = classicParseEnteredCommand();
+    classicProcessParsedCommand(classicUserCommands);
 
     classicGetMessages(function(classicGetMessages) {
       classicGameStatus.classicMessages = classicGetMessages;
