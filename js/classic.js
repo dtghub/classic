@@ -2,7 +2,6 @@
   'use strict';
 
   var classicGameStatus = {
-    //locationID: 1, //the current room Initialised to room 1 just now - this needs to be looked at to allow for saved games - I don't think this is needed - just do the initialisation from the init function!
 
     //Form references
     gameStatus: document.getElementById('game'),
@@ -13,15 +12,13 @@
 
     //The following are used for command parsing
     classicTurnCommand: "", //the text the user has entered in the current turn
-    // Noun and verb are produced by the classicParsing funtion, and used as the command interface - might implement adverbs later?
+
 
     classicMessageList: "",
     classicMessages: "",
     classicActiveNumber: 0,
     classicItemID: -1,
-    //classicFlag: false,
-    //an array to store room statuses
-    //an array to store object status elements
+
   };
 
   var classicCommands = {};
