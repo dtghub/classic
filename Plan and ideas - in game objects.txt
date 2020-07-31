@@ -31,11 +31,11 @@ A crude command parser has been implemented and the code tidied up a bit, includ
 
 
 So the immediate plan is
-  - replace the switch statement structure with object notation initially in the form 'parentobject[command letter](value)'
+  - replace the switch statement structure with notation initially in the form 'parentobject[command letter](value)'
   - design and implement  a new layer of command syntax in the tables which is more human friendly and less error prone; "high level commands"
 
-  - first command to implement is exec(<low level command string>); which just executes the toString
-  - then implement move(<%destination room>); which generates a low level command string to be executed by the existing low level engine, taking advantage of the room numbering message convention described below, maybe via a template including D?000 or D?001 where ? is substituted with the room number when generating the string. 
+  - first command to implement is exec(<low level command string>); which just executes the string
+  - then implement move(<%destination room>); which generates a low level command string to be executed by the existing low level engine, taking advantage of the room numbering message convention described below, maybe via a template including D?000 or D?001 where ? is substituted with the room number when generating the string.
 
   - create a database table for "prototypes".
  -

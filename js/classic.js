@@ -103,6 +103,12 @@
     }
 
 
+    clItems.defaultArrayIndex = function () {
+    //-1 is the ID for the list of default values in the items array
+    return clItems.itemsArrayIndex(-1);
+    }
+
+
     clItems.playerArrayIndex = function () {
     //0 is the player ID in the items array
     return clItems.itemsArrayIndex(0);
@@ -207,6 +213,11 @@
           return i;
         }
       }
+    }
+
+
+    clRooms.defaultRoomIndex = function() {
+      return clRooms.roomsArrayIndex(-1);
     }
 
 
@@ -345,7 +356,6 @@
 
 
   function classicParseEnteredCommand() {
-    var classicMovementVerb = "";
     var classicVerb = "";
     var classicNoun = "";
 
@@ -383,15 +393,12 @@
     // - the first character of the value defines the type of command; either M, V or N (movement, verb or noun).
     // -- the rest of the value is the token; e.g. the user typing either 'ne' or 'northeast' will both be tokenised to 'northeast' - stored as 'Mnortheast' so classed as a movement verb
 
-    //if the first command is an M we assign the token to classicMovementVerb and ignore any second word.
     //if the first command is an N we assign the token to classicNoun and ignore any second word
     //if the first command is a V we assign the token to classicVerb and we then check if the second word is an N; if so we assign the second token to classicNoun
 
 
     if (firstStartPosition < classicGameStatus.classicTurnCommand.length) {
-      if (clCommands[firstCommand].charAt(0) === 'M') {
-        classicMovementVerb = clCommands[firstCommand].slice(1);
-      } else if (clCommands[firstCommand].charAt(0) === 'N') {
+      if (clCommands[firstCommand].charAt(0) === 'N') {
         classicNoun = clCommands[firstCommand].slice(1);
       } else if (clCommands[firstCommand].charAt(0) === 'V') {
         classicVerb = clCommands[firstCommand].slice(1);
@@ -403,13 +410,12 @@
       }
     }
 
-    console.log(classicMovementVerb);
     console.log(classicVerb);
     console.log(classicNoun);
 
     classicGameStatus.commandBox.value = '';
 
-    var classicUserCommands = [classicMovementVerb, classicVerb, classicNoun]
+    var classicUserCommands = [classicVerb, classicNoun]
 
     return classicUserCommands;
 
@@ -442,17 +448,11 @@
 
   function classicProcessParsedCommand(classicUserCommands) {
     //This variable holds the instruction line derived from the commands entered
-    var classicInstruction = "";
+    var classicInstruction = "X0"; //unrecognised command
 
-    var classicMovementVerb = classicUserCommands[0];
-    var classicVerb = classicUserCommands[1];
-    var classicNoun = classicUserCommands[2];
+    var classicVerb = classicUserCommands[0];
+    var classicNoun = classicUserCommands[1];
 
-
-    if (classicMovementVerb === "" && classicVerb === "" && classicNoun === "") {
-      //classicGameStatus.gameStatus.value += "\nI'm sorry, I didn't understand that!";
-      classicProcessInstruction("D3"); //Adds the above message to the message queue.
-    }
 
 
     if (classicVerb === "" && classicNoun !== "") {
@@ -485,21 +485,16 @@
     } else if (classicVerb !== "") {
       //verb only processing -
       //Look for the verb in the items entry for the player
-        classicInstruction = clItems[clItems.playerArrayIndex()][classicVerb] || "D3";
-    }
-
-    if (classicMovementVerb !== "") {
-      if (clRooms[clRooms.currentRoomIndex()][classicMovementVerb]) {
-        classicInstruction = clRooms[clRooms.currentRoomIndex()][classicMovementVerb];
+      if (clRooms[clRooms.defaultRoomIndex()][classicVerb]) {
+        classicInstruction = clRooms[clRooms.currentRoomIndex()][classicVerb] || clRooms[clRooms.defaultRoomIndex()][classicVerb];
       } else {
-        classicInstruction = "D4"; //I'm sorry you can't go that way
+        if (clItems[clItems.defaultArrayIndex()][classicVerb]) {
+          classicInstruction = clItems[clItems.playerArrayIndex()][classicVerb] || clItems[clItems.defaultArrayIndex()][classicVerb];
+        }
       }
     }
 
-
-    if (classicInstruction !== "") {
-      classicProcessInstruction(classicInstruction);
-    }
+    return classicInstruction;
   }
 
 
@@ -512,9 +507,11 @@
     classicGameStatus.gameStatus.setAttribute('disabled', true);
 
     var classicUserCommands = {};
+    var classicInstruction = "";
 
     classicUserCommands = classicParseEnteredCommand();
-    classicProcessParsedCommand(classicUserCommands);
+    classicInstruction = classicProcessParsedCommand(classicUserCommands);
+    classicProcessInstruction(classicInstruction);
 
     classicGetMessages(function(classicGetMessages) {
       classicGameStatus.classicMessages = classicGetMessages;
