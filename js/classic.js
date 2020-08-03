@@ -44,7 +44,7 @@
 
         classicSetupTables();
         classicSetupCommands();
-        classicProcessInstruction("X1");
+        classicProcessLowLevelInstruction("X1");
         classicGetMessages(function(classicGetMessages) {
           classicGameStatus.classicMessages = classicGetMessages;
         });
@@ -189,7 +189,7 @@
       var classicItemsArrayLength = clItems.length;
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
         if ((clItems[i].location === roomNumber) && (clItems[i].ID !== 0)) {
-          classicProcessInstruction(clItems[i].name);
+          classicProcessLowLevelInstruction(clItems[i].name);
         }
       }
     }
@@ -321,9 +321,9 @@
       clRooms[clRooms.currentRoomIndex()][classicParsedValue] = 1;
       return i;
     };
-    //The "X" instruction looks up the instruction code from the snippets table and executes the instructions by calling classicProcessInstruction recursively.
+    //The "X" instruction looks up the instruction code from the snippets table and executes the instructions by calling classicProcessLowLevelInstruction recursively.
     classicCommands.X = function (classicParsedValue,i) {
-      classicProcessInstruction(clTabs.snippets[classicParsedValue]);
+      classicProcessLowLevelInstruction(clTabs.snippets[classicParsedValue]);
       return i;
     };
   }
@@ -345,7 +345,7 @@
     classicGameStatus.gameStatus.value += "\n\n> " + classicGameStatus.classicTurnCommand + "\n" + classicGameStatus.classicMessages.messages;
     classicGameStatus.classicMessageList = "";
 
-    classicGameStatus.gameStatus.setAttribute('disabled', false);
+
 
     //This makes sure that the bottom line of text in the gameStatus box is visible after an update.
     classicGameStatus.gameStatus.scrollTop = classicGameStatus.gameStatus.scrollHeight;
@@ -390,8 +390,8 @@
     //Now that we have checked for the first 2 words, we categorise what we have.
     //The list of commands obtained from the database are in key:value pairs
     // - the key is what the user would type.
-    // - the first character of the value defines the type of command; either M, V or N (movement, verb or noun).
-    // -- the rest of the value is the token; e.g. the user typing either 'ne' or 'northeast' will both be tokenised to 'northeast' - stored as 'Mnortheast' so classed as a movement verb
+    // - the first character of the value defines the type of command; either V or N (verb or noun).
+    // -- the rest of the value is the token; e.g. the user typing either 'ne' or 'northeast' will both be tokenised to 'northeast' - stored as 'Mnortheast' so classed as a  verb
 
     //if the first command is an N we assign the token to classicNoun and ignore any second word
     //if the first command is a V we assign the token to classicVerb and we then check if the second word is an N; if so we assign the second token to classicNoun
@@ -413,7 +413,7 @@
     console.log(classicVerb);
     console.log(classicNoun);
 
-    classicGameStatus.commandBox.value = '';
+   
 
     var classicUserCommands = [classicVerb, classicNoun]
 
@@ -424,7 +424,7 @@
 
 
   //UNDER CONSTRUCTION
-  function classicProcessInstruction(classicInstruction) {
+  function classicProcessLowLevelInstruction(classicInstruction) {
     var itemID = -1;
     var classicParsedValue = 0;
     var classicCommandParts = [];
@@ -448,20 +448,25 @@
 
   function classicProcessParsedCommand(classicUserCommands) {
     //This variable holds the instruction line derived from the commands entered
-    var classicInstruction = "X0"; //unrecognised command
+    var classicInstruction = "X0"; //If completely unrecognised command then execute code snippet '0'
 
     var classicVerb = classicUserCommands[0];
     var classicNoun = classicUserCommands[1];
 
 
 
+    //We found a noun before finding any verbs;
+
     if (classicVerb === "" && classicNoun !== "") {
+      //This should be handled through the default actions in the config tables - not through hardcoding!!!
+
+
       //classicGameStatus.gameStatus.value += "\nHmmm, I don't follow; Please clarify what you would like me to do with the " + classicNoun + "?";
       if (clItems.namedItemIsInPlayerScope(classicNoun )) {
-        classicProcessInstruction("D5" + clItems.getInstructionMatchingVerbNoun("name", classicNoun)); //Adds a message to the message queue, only if the item is in the inventory or current room.
+        classicProcessLowLevelInstruction("D5" + clItems.getInstructionMatchingVerbNoun("name", classicNoun)); //Adds a message to the message queue, only if the item is in the inventory or current room.
       } else {
         //classicGameStatus.gameStatus.value += "\nI'm sorry, I didn't understand that!";
-        classicProcessInstruction("D3"); //Adds the above message to the message queue if the item is not in the inventory or current room.
+        classicProcessLowLevelInstruction("D3"); //Adds the above message to the message queue if the item is not in the inventory or current room.
       }
     }
 
@@ -470,7 +475,7 @@
     //UNDER CONSTRUCTION
 
     if (classicVerb !== "" && classicNoun !== "") {
-      //verb+noun processing to go here.
+      //verb+noun processing.
 
       //First identify the item matching the noun - scope is to check those in the inventory first else in the current room
       //Then, from that item, extract the instruction string associated with the verb
@@ -484,10 +489,11 @@
 
     } else if (classicVerb !== "") {
       //verb only processing -
-      //Look for the verb in the items entry for the player
       if (clRooms[clRooms.defaultRoomIndex()][classicVerb]) {
+      //Look for the verb in the rooms entry for the current room that the player is in.
         classicInstruction = clRooms[clRooms.currentRoomIndex()][classicVerb] || clRooms[clRooms.defaultRoomIndex()][classicVerb];
       } else {
+      //Look for the verb in the items entry for the player
         if (clItems[clItems.defaultArrayIndex()][classicVerb]) {
           classicInstruction = clItems[clItems.playerArrayIndex()][classicVerb] || clItems[clItems.defaultArrayIndex()][classicVerb];
         }
@@ -504,14 +510,14 @@
 
   // Functioning as 'Main loop' for now...
   function classicTurnPart1() {
-    classicGameStatus.gameStatus.setAttribute('disabled', true);
+    classicGameStatus.commandBox.disabled = true;
 
     var classicUserCommands = {};
     var classicInstruction = "";
 
     classicUserCommands = classicParseEnteredCommand();
     classicInstruction = classicProcessParsedCommand(classicUserCommands);
-    classicProcessInstruction(classicInstruction);
+    classicProcessLowLevelInstruction(classicInstruction);
 
     classicGetMessages(function(classicGetMessages) {
       classicGameStatus.classicMessages = classicGetMessages;
@@ -527,7 +533,9 @@
     classicUpdateDescription();
     console.log(classicGameStatus);
     console.log(classicCommands);
-  }
+    classicGameStatus.commandBox.disabled = false;
+    classicGameStatus.commandBox.value = '';
+   }
 
 
 
@@ -542,7 +550,8 @@
     //description tbd
 
     classicGameStatus.gameStatus.setAttribute('disabled', true);
-
+    classicGameStatus.commandBox.disabled = true;
+    
     classicLoadTablesJson(function(classicLoadTablesJson) {
       classicGameStatus.classicTablesJson = classicLoadTablesJson;
     });
