@@ -37,8 +37,7 @@ So the immediate plan is
   - first command to implement is exec(<low level command string>); which just executes the string
   - then implement move(<%destination room>); which generates a low level command string to be executed by the existing low level engine, taking advantage of the room numbering message convention described below, maybe via a template including D?000 or D?001 where ? is substituted with the room number when generating the string.
 
-  - create a database table for "prototypes".
- -
+  - create a database table for high level command values "templates"
 
 
 

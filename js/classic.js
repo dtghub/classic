@@ -28,11 +28,34 @@
   var clTabs = {};
   var clItems = {};
   var clRooms = {};
+  var clTemplates = {};
   var clCommands = {};
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
   function classicLoadTablesJson(callback) {
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("text/application");
@@ -44,7 +67,7 @@
 
         classicSetupTables();
         classicSetupCommands();
-        classicProcessLowLevelInstruction("X1");
+        classicProcessHighLevelInstruction("init(newGame);");
         classicGetMessages(function(classicGetMessages) {
           classicGameStatus.classicMessages = classicGetMessages;
         });
@@ -82,6 +105,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   function classicSetupTables() {
 
     //Add some common functions to the tables, such as returning the index number of an array element using the ID number
@@ -90,6 +129,7 @@
     clTabs = classicGameStatus.classicTablesJson;
     clItems = classicGameStatus.classicTablesJson.items;
     clRooms = classicGameStatus.classicTablesJson.rooms;
+    clTemplates = classicGameStatus.classicTablesJson.templates;
     clCommands = classicGameStatus.classicTablesJson.commands;
 
 
@@ -177,6 +217,7 @@
     }
 
 
+    
     clItems.getWordIfNounInScope = function (clNoun) {
       var clItemID = clItems.namedItemIsInPlayerScope(clNoun);
       return clItems[clItems.itemsArrayIndex(clItemID)].word;
@@ -193,11 +234,6 @@
         }
       }
     }
-
-
-
-
-
 
 
 
@@ -227,7 +263,24 @@
     }
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   function classicSetupCommands() {
+    //
+    //"Low level" commands
+    //
     //The "B" instruction is the inverse of the "C" Conditional test - if true then we skip the next instruction.
     //B100 - is the item in the players inventory
     //B101 - are any items in the location number defined in classicGameStatus.classicActiveNumber
@@ -326,7 +379,38 @@
       classicProcessLowLevelInstruction(clTabs.snippets[classicParsedValue]);
       return i;
     };
+    //
+    //"High level" commands
+    //
+    //The "exec" command passes the parameter string straight to the classicProcessLowLevelInstruction function for execution.
+    classicCommands.exec = function (classicParsedValue,i) {
+      classicProcessLowLevelInstruction(classicParsedValue);
+      return i;
+    };
+    //The "init" command calls game initialisation commands
+    classicCommands.init = function (classicParsedValue,i) {
+      if (classicParsedValue = "newGame") {
+        classicProcessLowLevelInstruction(clTemplates.newGame);
+      }
+      return i;
+    };
+    //The "move" command executes the standard change room low level command sequence - moving the player to the room number specified as the parameter.
+    classicCommands.move = function (classicParsedValue,i) {
+      var clMoveCommand = clTemplates.move;
+      clMoveCommand = clMoveCommand.replace(/\?/g, classicParsedValue);
+      classicProcessLowLevelInstruction(clMoveCommand);
+      return i;
+    };
+
+
   }
+
+
+
+
+
+
+
 
 
 
@@ -350,6 +434,26 @@
     //This makes sure that the bottom line of text in the gameStatus box is visible after an update.
     classicGameStatus.gameStatus.scrollTop = classicGameStatus.gameStatus.scrollHeight;
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -413,8 +517,6 @@
     console.log(classicVerb);
     console.log(classicNoun);
 
-   
-
     var classicUserCommands = [classicVerb, classicNoun]
 
     return classicUserCommands;
@@ -423,9 +525,46 @@
 
 
 
+
   //UNDER CONSTRUCTION
+  function classicProcessHighLevelInstruction(classicInstruction) {
+    var classicParsedValue = 0;
+    var classicCommandParts = [];
+    var classicCommandPartsArrayLength = 0;
+
+    console.log(classicInstruction);
+    classicCommandParts = classicInstruction.split(";");
+    
+    console.log(classicCommandParts);
+    classicCommandPartsArrayLength = classicCommandParts.length;
+    console.log(classicCommandPartsArrayLength);
+    //This is a kludge until high level commands are fully implemented
+    if (classicCommandPartsArrayLength === 1) {
+      classicProcessLowLevelInstruction(classicInstruction);
+      return;      
+    }
+    for (var i = 0; i < classicCommandPartsArrayLength; i += 1) {
+      if (classicCommandParts[i]) {
+        var clCommand = classicCommandParts[i].trim();
+        var clKeyword = clCommand.slice(0, clCommand.indexOf("("));
+        classicParsedValue = clCommand.slice(clCommand.indexOf("(") + 1, clCommand.indexOf(")"));
+        i = classicCommands[clKeyword](classicParsedValue,  i);
+      }
+    }  
+  }
+
+
+
+
+
+
+
+
+ 
+  //This splits the string of low level commands (in the form e.g. "D999I0L1C1D1000B1D1001N1X7") into an array, with one instruction in each element of the array
+  //The for loop then steps through the array, calling the function associated with each instruction e.g "D9999" will execute a function call within the for loop 'classicCommands.D(9999);'
+  //See function classicSetupCommands() for the details of the low level commands.
   function classicProcessLowLevelInstruction(classicInstruction) {
-    var itemID = -1;
     var classicParsedValue = 0;
     var classicCommandParts = [];
     var classicCommandPartsArrayLength = 0;
@@ -436,11 +575,12 @@
     classicCommandPartsArrayLength = classicCommandParts.length;
 
     for (var i = 0; i < classicCommandPartsArrayLength; i += 1) {
-      var item = classicCommandParts[i];
-      classicParsedValue = parseInt(item.slice(1),10);
-      i = classicCommands[item.charAt(0)](classicParsedValue,i);
+      var clValue = classicCommandParts[i];
+      classicParsedValue = parseInt(clValue.slice(1),10);
+      i = classicCommands[clValue.charAt(0)](classicParsedValue,i); //The function is able to manipulate the 'i' index - (skip next command = i++)
     }
   }
+
 
 
 
@@ -508,6 +648,18 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
   // Functioning as 'Main loop' for now...
   function classicTurnPart1() {
     classicGameStatus.commandBox.disabled = true;
@@ -517,7 +669,8 @@
 
     classicUserCommands = classicParseEnteredCommand();
     classicInstruction = classicProcessParsedCommand(classicUserCommands);
-    classicProcessLowLevelInstruction(classicInstruction);
+    //classicProcessLowLevelInstruction(classicInstruction);
+    classicProcessHighLevelInstruction(classicInstruction);
 
     classicGetMessages(function(classicGetMessages) {
       classicGameStatus.classicMessages = classicGetMessages;
@@ -536,6 +689,15 @@
     classicGameStatus.commandBox.disabled = false;
     classicGameStatus.commandBox.value = '';
    }
+
+
+
+
+
+
+
+
+
 
 
 

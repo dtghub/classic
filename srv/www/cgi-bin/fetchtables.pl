@@ -109,6 +109,21 @@ print $json,",\n\n";
 
 
 
+$sth = $dbh->prepare("SELECT hlcommand, template FROM templates") or die +DBI->errstr;
+$sth->execute() or die DBI->errstr;
+print "\n\"templates\" : ";
+delete $hash{$_} for (keys %hash);
+while( my( $hlcommand, $template ) = $sth->fetchrow_array() ) {
+  $hash{ $hlcommand } = $template;
+}
+$json = encode_json \%hash;
+print $json,",\n\n";
+
+
+
+
+
+
 
 $sth = $dbh->prepare("SELECT command, token FROM commands") or die +DBI->errstr;
 $sth->execute() or die DBI->errstr;

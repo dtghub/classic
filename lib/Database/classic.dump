@@ -116,6 +116,18 @@ CREATE TABLE public.snippets (
 ALTER TABLE public.snippets OWNER TO derek;
 
 --
+-- Name: templates; Type: TABLE; Schema: public; Owner: derek
+--
+
+CREATE TABLE public.templates (
+    hlcommand text NOT NULL,
+    template text
+);
+
+
+ALTER TABLE public.templates OWNER TO derek;
+
+--
 -- Data for Name: commands; Type: TABLE DATA; Schema: public; Owner: derek
 --
 
@@ -229,10 +241,10 @@ COPY public.messages ("ID", "Message") FROM stdin;
 --
 
 COPY public.rooms ("roomNumber", "shortDescription", "longDescription", north, south, east, west, northeast, northwest, southeast, southwest, up, down, "in", "out", "1", "where", "2") FROM stdin;
-1	You are in the starting room.	For the purposes of this draft, this is the initial starting room. i.e. the default starting room number one.	I0L2C1D2000B1D2001N2X7	\N	\N	\N	I0L3C1D3000B1D3001N3X7	\N	\N	\N	\N	\N	\N	\N	\N	D1000N1D2P1	\N
-2	You are in the second starting room.	This is the second starting room. i.e. the default starting room number two!	\N	I0L1C1D1000B1D1001N1X7	\N	\N	\N	\N	I0L3C1D3000B1D3001N3X7	\N	\N	\N	\N	\N	\N	D2000N2D2P1	\N
-3	Room number three looks ominous.	You have entered room number three. It has a foreboding look about it. Some would say ominous...	\N	\N	\N	\N	\N	I0L2C1D2000B1D2001N2X7	\N	I0L1C1D1000B1D1001N1X7	\N	\N	\N	\N	\N	D3000N3D2P1	\N
 -1	\N	\N	D4	D4	D4	D4	D4	D4	D4	D4	D4	D4	D4	D4	\N	D3	\N
+1	You are in the starting room.	For the purposes of this draft, this is the initial starting room. i.e. the default starting room number one.	move(2);	\N	\N	\N	move(3);	\N	\N	\N	\N	\N	\N	\N	\N	D1000N1D2P1	\N
+2	You are in the second starting room.	This is the second starting room. i.e. the default starting room number two!	\N	move(1);	\N	\N	\N	\N	move(3);	\N	\N	\N	\N	\N	\N	D2000N2D2P1	\N
+3	Room number three looks ominous.	You have entered room number three. It has a foreboding look about it. Some would say ominous...	\N	\N	\N	\N	\N	move(2);	\N	move(1);	\N	\N	\N	\N	\N	D3000N3D2P1	\N
 \.
 
 
@@ -252,6 +264,16 @@ COPY public.snippets ("ID", code) FROM stdin;
 7	S1C101D2B101D11P1
 2	\N
 0	D3
+\.
+
+
+--
+-- Data for Name: templates; Type: TABLE DATA; Schema: public; Owner: derek
+--
+
+COPY public.templates (hlcommand, template) FROM stdin;
+newGame	X1
+move	I0L?C1D?000B1D?001N?X7
 \.
 
 
@@ -301,6 +323,14 @@ ALTER TABLE ONLY public.rooms
 
 ALTER TABLE ONLY public.snippets
     ADD CONSTRAINT snippets_pkey PRIMARY KEY ("ID");
+
+
+--
+-- Name: templates templates_pkey; Type: CONSTRAINT; Schema: public; Owner: derek
+--
+
+ALTER TABLE ONLY public.templates
+    ADD CONSTRAINT templates_pkey PRIMARY KEY (hlcommand);
 
 
 --
