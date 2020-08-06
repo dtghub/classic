@@ -390,9 +390,23 @@
     //
     //"High level" commands
     //
+    //The "drop" command executes the low level command sequence to add the item to your inventory
+    classicCommands.drop = function (classicParsedValue,i) {
+      var clMessageCommand = clTemplates.drop;
+      clMessageCommand = clMessageCommand.replace(/\?/g, classicParsedValue);
+      classicProcessLowLevelInstruction(clMessageCommand);
+      return i;
+    };
     //The "exec" command passes the parameter string straight to the classicProcessLowLevelInstruction function for execution.
     classicCommands.exec = function (classicParsedValue,i) {
       classicProcessLowLevelInstruction(classicParsedValue);
+      return i;
+    };
+    //The "get" command executes the low level command sequence to add the item to your inventory
+    classicCommands.get = function (classicParsedValue,i) {
+      var clMessageCommand = clTemplates.get;
+      clMessageCommand = clMessageCommand.replace(/\?/g, classicParsedValue);
+      classicProcessLowLevelInstruction(clMessageCommand);
       return i;
     };
     //The "init" command calls game initialisation commands
@@ -416,6 +430,27 @@
       classicProcessLowLevelInstruction(clMoveCommand);
       return i;
     };
+    //The "swapInPlayer" command executes the low level command sequence to add the item to your inventory
+    classicCommands.swapInPlayer = function (classicParsedValue,i) {
+      var clMessageCommand = clTemplates.swapInPlayer;
+      clMessageCommand = clMessageCommand.replace(/\?/g, classicParsedValue);
+      classicProcessLowLevelInstruction(clMessageCommand);
+      return i;
+    };
+    //The "swapInRoom" command executes the low level command sequence to add the item to your inventory
+    classicCommands.swapInRoom = function (classicParsedValue,i) {
+      var clMessageCommand = clTemplates.swapInRoom;
+      clMessageCommand = clMessageCommand.replace(/\?/g, classicParsedValue);
+      classicProcessLowLevelInstruction(clMessageCommand);
+      return i;
+    };
+    //The "swapOut" command executes the low level command sequence to add the item to your inventory
+    classicCommands.swapOut = function (classicParsedValue,i) {
+      var clMessageCommand = clTemplates.swapOut;
+      clMessageCommand = clMessageCommand.replace(/\?/g, classicParsedValue);
+      classicProcessLowLevelInstruction(clMessageCommand);
+      return i;
+    };        
 
 
   }
@@ -750,7 +785,7 @@
 
 
 
-   
+
 
 
 
