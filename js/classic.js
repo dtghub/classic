@@ -211,7 +211,7 @@
       var clInstruction = "";
       var clItemID = clItems.namedItemIsInPlayerScope(clNoun);
       if (clItemID) {
-        clInstruction = clItems[clItems.itemsArrayIndex(clItemID)][clVerb];
+        clInstruction = clItems[clItems.itemsArrayIndex(clItemID)][clVerb] || clItems[clItems.defaultArrayIndex()][clVerb];
       }
       return clInstruction;
     }
@@ -262,6 +262,14 @@
       return clRooms.roomsArrayIndex(currentRoomNumber);
     }
   }
+
+
+
+
+
+
+
+
 
 
 
@@ -394,6 +402,13 @@
       }
       return i;
     };
+    //The "message" command executes the low level command to display the given message number
+    classicCommands.message = function (classicParsedValue,i) {
+      var clMessageCommand = clTemplates.message;
+      clMessageCommand = clMessageCommand.replace(/\?/g, classicParsedValue);
+      classicProcessLowLevelInstruction(clMessageCommand);
+      return i;
+    };
     //The "move" command executes the standard change room low level command sequence - moving the player to the room number specified as the parameter.
     classicCommands.move = function (classicParsedValue,i) {
       var clMoveCommand = clTemplates.move;
@@ -520,37 +535,6 @@
     var classicUserCommands = [classicVerb, classicNoun]
 
     return classicUserCommands;
-
-  }
-
-
-
-
-  //UNDER CONSTRUCTION
-  function classicProcessHighLevelInstruction(classicInstruction) {
-    var classicParsedValue = 0;
-    var classicCommandParts = [];
-    var classicCommandPartsArrayLength = 0;
-
-    console.log(classicInstruction);
-    classicCommandParts = classicInstruction.split(";");
-    
-    console.log(classicCommandParts);
-    classicCommandPartsArrayLength = classicCommandParts.length;
-    console.log(classicCommandPartsArrayLength);
-    //This is a kludge until high level commands are fully implemented
-    if (classicCommandPartsArrayLength === 1) {
-      classicProcessLowLevelInstruction(classicInstruction);
-      return;      
-    }
-    for (var i = 0; i < classicCommandPartsArrayLength; i += 1) {
-      if (classicCommandParts[i]) {
-        var clCommand = classicCommandParts[i].trim();
-        var clKeyword = clCommand.slice(0, clCommand.indexOf("("));
-        classicParsedValue = clCommand.slice(clCommand.indexOf("(") + 1, clCommand.indexOf(")"));
-        i = classicCommands[clKeyword](classicParsedValue,  i);
-      }
-    }  
   }
 
 
@@ -560,26 +544,6 @@
 
 
 
- 
-  //This splits the string of low level commands (in the form e.g. "D999I0L1C1D1000B1D1001N1X7") into an array, with one instruction in each element of the array
-  //The for loop then steps through the array, calling the function associated with each instruction e.g "D9999" will execute a function call within the for loop 'classicCommands.D(9999);'
-  //See function classicSetupCommands() for the details of the low level commands.
-  function classicProcessLowLevelInstruction(classicInstruction) {
-    var classicParsedValue = 0;
-    var classicCommandParts = [];
-    var classicCommandPartsArrayLength = 0;
-
-    console.log(classicInstruction);
-    classicCommandParts = classicInstruction.match(/[A-Z][\-]?[0-9]+/g);
-    console.log(classicCommandParts);
-    classicCommandPartsArrayLength = classicCommandParts.length;
-
-    for (var i = 0; i < classicCommandPartsArrayLength; i += 1) {
-      var clValue = classicCommandParts[i];
-      classicParsedValue = parseInt(clValue.slice(1),10);
-      i = classicCommands[clValue.charAt(0)](classicParsedValue,i); //The function is able to manipulate the 'i' index - (skip next command = i++)
-    }
-  }
 
 
 
@@ -619,7 +583,6 @@
 
       //First identify the item matching the noun - scope is to check those in the inventory first else in the current room
       //Then, from that item, extract the instruction string associated with the verb
-
       classicInstruction = clItems.getInstructionMatchingVerbNoun(classicVerb, classicNoun);
       if (classicInstruction === "") {
         classicInstruction = "D9";
@@ -642,6 +605,94 @@
 
     return classicInstruction;
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //UNDER CONSTRUCTION
+  function classicProcessHighLevelInstruction(classicInstruction) {
+    var classicParsedValue = 0;
+    var classicCommandParts = [];
+    var classicCommandPartsArrayLength = 0;
+
+    console.log(classicInstruction);
+    classicCommandParts = classicInstruction.split(";");
+    
+    console.log(classicCommandParts);
+    classicCommandPartsArrayLength = classicCommandParts.length;
+    //This is a kludge until high level commands are fully implemented - there are still low level commands in the database tables at the moment, so this executes them if they are encountered
+    if (classicCommandPartsArrayLength === 1) {
+      classicProcessLowLevelInstruction(classicInstruction);
+      return;      
+    }
+    for (var i = 0; i < classicCommandPartsArrayLength; i += 1) {
+      if (classicCommandParts[i]) {
+        var clCommand = classicCommandParts[i].trim();
+        var clKeyword = clCommand.slice(0, clCommand.indexOf("("));
+        classicParsedValue = clCommand.slice(clCommand.indexOf("(") + 1, clCommand.indexOf(")"));
+        i = classicCommands[clKeyword](classicParsedValue,  i);
+      }
+    }  
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+  //This splits the string of low level commands (in the form e.g. "D999I0L1C1D1000B1D1001N1X7") into an array, with one instruction in each element of the array
+  //The for loop then steps through the array, calling the function associated with each instruction e.g "D9999" will execute a function call within the for loop 'classicCommands.D(9999);'
+  //See function classicSetupCommands() for the details of the low level commands.
+  function classicProcessLowLevelInstruction(classicInstruction) {
+    var classicParsedValue = 0;
+    var classicCommandParts = [];
+    var classicCommandPartsArrayLength = 0;
+
+    console.log(classicInstruction);
+    classicCommandParts = classicInstruction.match(/[A-Z][\-]?[0-9]+/g);
+    console.log(classicCommandParts);
+    classicCommandPartsArrayLength = classicCommandParts.length;
+
+    for (var i = 0; i < classicCommandPartsArrayLength; i += 1) {
+      var clValue = classicCommandParts[i];
+      classicParsedValue = parseInt(clValue.slice(1),10);
+      i = classicCommands[clValue.charAt(0)](classicParsedValue,i); //The function is able to manipulate the 'i' index - (skip next command = i++)
+    }
+  }
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -691,6 +742,15 @@
    }
 
 
+
+
+
+
+
+
+
+
+   
 
 
 
