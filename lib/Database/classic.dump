@@ -173,7 +173,7 @@ COPY public.commands ("ID", command, token) FROM stdin;
 23	out	Vout
 24	leave	Vout
 25	exit	Vout
-42	where	Vwhere
+42	where	Vlook
 \.
 
 
@@ -182,11 +182,11 @@ COPY public.commands ("ID", command, token) FROM stdin;
 --
 
 COPY public.items ("ID", location, name, look, read, light, get, drop, word, inventory) FROM stdin;
--1	9999	D12	message(3);	message(3);	message(3);	message(3);	message(3);	\N	N0C101D6P1B101D10
-2	2	D10200	D10201	D10202	\N	get(2);	drop(2);	note	\N
-1	1	D10100	D10101	\N	swapOut(1);swapInPlayer(3);message(500);	get(1);	drop(1);	lamp	\N
-3	9999	D10300	D10301	\N	\N	\N	swapOut(3);swapInPlayer(1);drop(1);message(501);	lamp	\N
-0	1	--------	N-1X7	\N	\N	\N	\N	\N	N0C101D6P1B101D10
+1	1	printItemName(1);	look(1);	\N	swapOut(1);swapInPlayer(3);message(500);	get(1);	drop(1);	lamp	\N
+2	2	printItemName(2);	look(2);	read(2);	\N	get(2);	drop(2);	note	\N
+3	9999	printItemName(3);	look(3);	\N	\N	\N	swapOut(3);swapInPlayer(1);drop(1);message(501);	lamp	\N
+-1	9999	message(12);	message(3);	message(3);	message(3);	message(3);	message(3);	\N	inventory(-1);
+0	1	--------	lookAround(-1);	\N	\N	\N	\N	\N	inventory(-1);
 \.
 
 
@@ -241,10 +241,10 @@ COPY public.messages ("ID", "Message") FROM stdin;
 --
 
 COPY public.rooms ("roomNumber", "shortDescription", "longDescription", north, south, east, west, northeast, northwest, southeast, southwest, up, down, "in", "out", "1", "where", "2") FROM stdin;
-1	You are in the starting room.	For the purposes of this draft, this is the initial starting room. i.e. the default starting room number one.	move(2);	\N	\N	\N	move(3);	\N	\N	\N	\N	\N	\N	\N	\N	D1000N1D2P1	\N
-2	You are in the second starting room.	This is the second starting room. i.e. the default starting room number two!	\N	move(1);	\N	\N	\N	\N	move(3);	\N	\N	\N	\N	\N	\N	D2000N2D2P1	\N
-3	Room number three looks ominous.	You have entered room number three. It has a foreboding look about it. Some would say ominous...	\N	\N	\N	\N	\N	move(2);	\N	move(1);	\N	\N	\N	\N	\N	D3000N3D2P1	\N
 -1	\N	\N	message(4);	message(4);	message(4);	message(4);	message(4);	message(4);	message(4);	message(4);	message(4);	message(4);	message(4);	message(4);	\N	message(3);	\N
+1	You are in the starting room.	For the purposes of this draft, this is the initial starting room. i.e. the default starting room number one.	move(2);	\N	\N	\N	move(3);	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+2	You are in the second starting room.	This is the second starting room. i.e. the default starting room number two!	\N	move(1);	\N	\N	\N	\N	move(3);	\N	\N	\N	\N	\N	\N	\N	\N
+3	Room number three looks ominous.	You have entered room number three. It has a foreboding look about it. Some would say ominous...	\N	\N	\N	\N	\N	move(2);	\N	move(1);	\N	\N	\N	\N	\N	\N	\N
 \.
 
 
@@ -280,6 +280,11 @@ drop	I?X6
 swapOut	I?L9999
 swapInRoom	I?L-1
 swapInPlayer	I?L0
+lookAround	D?000N?X7
+read	D10?02
+look	D10?01
+printItemName	D10?00
+inventory	N0C101D6P1B101D10
 \.
 
 

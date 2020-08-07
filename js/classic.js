@@ -230,7 +230,7 @@
       var classicItemsArrayLength = clItems.length;
       for (var i = 0; i < classicItemsArrayLength; i += 1) {
         if ((clItems[i].location === roomNumber) && (clItems[i].ID !== 0)) {
-          classicProcessLowLevelInstruction(clItems[i].name);
+          classicProcessHighLevelInstruction(clItems[i].name);
         }
       }
     }
@@ -416,6 +416,30 @@
       }
       return i;
     };
+    //The "inventory" command displays a list of items.
+    classicCommands.inventory = function (classicParsedValue,i) {
+      var clMessageCommand = clTemplates.inventory;
+      clMessageCommand = clMessageCommand.replace(/\?/g, classicParsedValue);
+      classicProcessLowLevelInstruction(clMessageCommand);
+      return i;
+    };   
+    //The "look" command displays the messagenumber "10?02" where "?" is the item number.
+    classicCommands.look = function (classicParsedValue,i) {
+      var clMessageCommand = clTemplates.look;
+      clMessageCommand = clMessageCommand.replace(/\?/g, classicParsedValue);
+      classicProcessLowLevelInstruction(clMessageCommand);
+      return i;
+    };   
+    //The "lookAround" command displays the long description of the room and lists the items in that room 
+    classicCommands.lookAround = function (classicParsedValue,i) {
+      var cllookAroundCommand = clTemplates.lookAround;
+      if (classicParsedValue === "-1") {
+        classicParsedValue = clItems.currentRoomNumber();
+      } 
+      cllookAroundCommand = cllookAroundCommand.replace(/\?/g, classicParsedValue);
+      classicProcessLowLevelInstruction(cllookAroundCommand);
+      return i;
+    };
     //The "message" command executes the low level command to display the given message number
     classicCommands.message = function (classicParsedValue,i) {
       var clMessageCommand = clTemplates.message;
@@ -430,6 +454,20 @@
       classicProcessLowLevelInstruction(clMoveCommand);
       return i;
     };
+    //The "printItemName" command displays the messagenumber "10?00" where "?" is the item number.
+    classicCommands.printItemName = function (classicParsedValue,i) {
+      var clMessageCommand = clTemplates.printItemName;
+      clMessageCommand = clMessageCommand.replace(/\?/g, classicParsedValue);
+      classicProcessLowLevelInstruction(clMessageCommand);
+      return i;
+    };  
+    //The "read" command displays the messagenumber "10?02" where "?" is the item number.
+    classicCommands.read = function (classicParsedValue,i) {
+      var clMessageCommand = clTemplates.read;
+      clMessageCommand = clMessageCommand.replace(/\?/g, classicParsedValue);
+      classicProcessLowLevelInstruction(clMessageCommand);
+      return i;
+    };   
     //The "swapInPlayer" command executes the low level command sequence to add the item to your inventory
     classicCommands.swapInPlayer = function (classicParsedValue,i) {
       var clMessageCommand = clTemplates.swapInPlayer;
