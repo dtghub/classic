@@ -121,6 +121,9 @@
 
 
 
+
+
+
   function classicSetupTables() {
 
     //Add some common functions to the tables, such as returning the index number of an array element using the ID number
@@ -261,7 +264,20 @@
       var currentRoomNumber = clItems.currentRoomNumber();
       return clRooms.roomsArrayIndex(currentRoomNumber);
     }
+
+
+
+
+
+
+    clCommands.templateLookup = function(clTemplateCommand, classicParsedValue) {
+      var clCommand = clTemplates[clTemplateCommand];
+      return clCommand.replace(/\?/g, classicParsedValue);
+    }
   }
+
+
+
 
 
 
@@ -392,9 +408,8 @@
     //
     //The "drop" command executes the low level command sequence to add the item to your inventory
     classicCommands.drop = function (classicParsedValue,i) {
-      var clMessageCommand = clTemplates.drop;
-      clMessageCommand = clMessageCommand.replace(/\?/g, classicParsedValue);
-      classicProcessLowLevelInstruction(clMessageCommand);
+      var clCommand = clCommands.templateLookup("drop", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
       return i;
     };
     //The "exec" command passes the parameter string straight to the classicProcessLowLevelInstruction function for execution.
@@ -404,9 +419,8 @@
     };
     //The "get" command executes the low level command sequence to add the item to your inventory
     classicCommands.get = function (classicParsedValue,i) {
-      var clMessageCommand = clTemplates.get;
-      clMessageCommand = clMessageCommand.replace(/\?/g, classicParsedValue);
-      classicProcessLowLevelInstruction(clMessageCommand);
+      var clCommand = clCommands.templateLookup("get", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
       return i;
     };
     //The "init" command calls game initialisation commands
@@ -418,79 +432,67 @@
     };
     //The "inventory" command displays a list of items.
     classicCommands.inventory = function (classicParsedValue,i) {
-      var clMessageCommand = clTemplates.inventory;
-      clMessageCommand = clMessageCommand.replace(/\?/g, classicParsedValue);
-      classicProcessLowLevelInstruction(clMessageCommand);
+      var clCommand = clCommands.templateLookup("inventory", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
       return i;
     };   
     //The "look" command displays the messagenumber "10?02" where "?" is the item number.
     classicCommands.look = function (classicParsedValue,i) {
-      var clMessageCommand = clTemplates.look;
-      clMessageCommand = clMessageCommand.replace(/\?/g, classicParsedValue);
-      classicProcessLowLevelInstruction(clMessageCommand);
+      var clCommand = clCommands.templateLookup("look", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
       return i;
     };   
     //The "lookAround" command displays the long description of the room and lists the items in that room 
     classicCommands.lookAround = function (classicParsedValue,i) {
-      var cllookAroundCommand = clTemplates.lookAround;
-      if (classicParsedValue === "-1") {
+       if (classicParsedValue === "-1") {
         classicParsedValue = clItems.currentRoomNumber();
       } 
-      cllookAroundCommand = cllookAroundCommand.replace(/\?/g, classicParsedValue);
-      classicProcessLowLevelInstruction(cllookAroundCommand);
+      var clCommand = clCommands.templateLookup("lookAround", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
       return i;
     };
     //The "message" command executes the low level command to display the given message number
     classicCommands.message = function (classicParsedValue,i) {
-      var clMessageCommand = clTemplates.message;
-      clMessageCommand = clMessageCommand.replace(/\?/g, classicParsedValue);
-      classicProcessLowLevelInstruction(clMessageCommand);
+      var clCommand = clCommands.templateLookup("message", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
       return i;
     };
     //The "move" command executes the standard change room low level command sequence - moving the player to the room number specified as the parameter.
     classicCommands.move = function (classicParsedValue,i) {
-      var clMoveCommand = clTemplates.move;
-      clMoveCommand = clMoveCommand.replace(/\?/g, classicParsedValue);
-      classicProcessLowLevelInstruction(clMoveCommand);
+      var clCommand = clCommands.templateLookup("move", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
       return i;
     };
     //The "printItemName" command displays the messagenumber "10?00" where "?" is the item number.
     classicCommands.printItemName = function (classicParsedValue,i) {
-      var clMessageCommand = clTemplates.printItemName;
-      clMessageCommand = clMessageCommand.replace(/\?/g, classicParsedValue);
-      classicProcessLowLevelInstruction(clMessageCommand);
+      var clCommand = clCommands.templateLookup("printItemName", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
       return i;
     };  
     //The "read" command displays the messagenumber "10?02" where "?" is the item number.
     classicCommands.read = function (classicParsedValue,i) {
-      var clMessageCommand = clTemplates.read;
-      clMessageCommand = clMessageCommand.replace(/\?/g, classicParsedValue);
-      classicProcessLowLevelInstruction(clMessageCommand);
+      var clCommand = clCommands.templateLookup("read", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
       return i;
     };   
     //The "swapInPlayer" command executes the low level command sequence to add the item to your inventory
     classicCommands.swapInPlayer = function (classicParsedValue,i) {
-      var clMessageCommand = clTemplates.swapInPlayer;
-      clMessageCommand = clMessageCommand.replace(/\?/g, classicParsedValue);
-      classicProcessLowLevelInstruction(clMessageCommand);
+      var clCommand = clCommands.templateLookup("swapInPlayer", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
       return i;
     };
     //The "swapInRoom" command executes the low level command sequence to add the item to your inventory
     classicCommands.swapInRoom = function (classicParsedValue,i) {
-      var clMessageCommand = clTemplates.swapInRoom;
-      clMessageCommand = clMessageCommand.replace(/\?/g, classicParsedValue);
-      classicProcessLowLevelInstruction(clMessageCommand);
+      var clCommand = clCommands.templateLookup("swapInRoom", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
       return i;
     };
     //The "swapOut" command executes the low level command sequence to add the item to your inventory
     classicCommands.swapOut = function (classicParsedValue,i) {
-      var clMessageCommand = clTemplates.swapOut;
-      clMessageCommand = clMessageCommand.replace(/\?/g, classicParsedValue);
-      classicProcessLowLevelInstruction(clMessageCommand);
+      var clCommand = clCommands.templateLookup("swapOut", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
       return i;
     };        
-
-
   }
 
 
@@ -710,7 +712,7 @@
     
     console.log(classicCommandParts);
     classicCommandPartsArrayLength = classicCommandParts.length;
-    //This is a kludge until high level commands are fully implemented - there are still low level commands in the database tables at the moment, so this executes them if they are encountered
+    //This is a kludge until high level commands are fully implemented - there are still low level commands in the code at the moment, so this executes them if they are encountered
     if (classicCommandPartsArrayLength === 1) {
       classicProcessLowLevelInstruction(classicInstruction);
       return;      
@@ -724,8 +726,6 @@
       }
     }  
   }
-
-
 
 
 
@@ -812,6 +812,7 @@
     console.log(classicCommands);
     classicGameStatus.commandBox.disabled = false;
     classicGameStatus.commandBox.value = '';
+    classicGameStatus.commandBox.focus();
    }
 
 
