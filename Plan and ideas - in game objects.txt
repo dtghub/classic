@@ -15,29 +15,22 @@ Ways to interact with objects;
   - move item; set the location of an item (room number, ?room number but invisible?, in your inventory, other special locations such as in a drawer).
 
 
-          - 'blank' values need to have a default response - populate the blank values for the initial early stage, but implement some form of prototype inheritance
-
-
-    - So now we need a 'protype' database table(s) which has a set of default commands for each inventory
-      - maybe allow different items to inherit from other than the default.
 
 
 
 
-A crude command parser has been implemented and the code tidied up a bit, including moving some code into small dedicated-purpose functions to remove duplication and help readability.
-  - It's very clear that the syntax as implemented works but is not human friendly, and the switch statement used for processing the commands is clumsy, so I'll work on both of those.
+
 
 
 
 
 So the immediate plan is
-  - replace the switch statement structure with notation initially in the form 'parentobject[command letter](value)'
-  - design and implement  a new layer of command syntax in the tables which is more human friendly and less error prone; "high level commands"
 
-  - first command to implement is exec(<low level command string>); which just executes the string
-  - then implement move(<%destination room>); which generates a low level command string to be executed by the existing low level engine, taking advantage of the room numbering message convention described below, maybe via a template including D?000 or D?001 where ? is substituted with the room number when generating the string.
 
-  - create a database table for high level command values "templates"
+
+
+
+  
 
 
 

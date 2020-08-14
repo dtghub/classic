@@ -211,7 +211,7 @@
 
 
     clItems.getInstructionMatchingVerbNoun = function (clVerb, clNoun) {
-      var clInstruction = "";
+      var clInstruction = "systemResponse(8);";
       var clItemID = clItems.namedItemIsInPlayerScope(clNoun);
       if (clItemID) {
         clInstruction = clItems[clItems.itemsArrayIndex(clItemID)][clVerb] || clItems[clItems.defaultArrayIndex()][clVerb];
@@ -475,6 +475,12 @@
       classicProcessLowLevelInstruction(clCommand);
       return i;
     };   
+    //The "systemResponse" command is intended to be called from the code and executes the specified code snippet number.
+    classicCommands.systemResponse = function (classicParsedValue,i) {
+      var clCommand = clCommands.templateLookup("systemResponse", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
+      return i;
+    };       
     //The "swapInPlayer" command executes the low level command sequence to add the item to your inventory
     classicCommands.swapInPlayer = function (classicParsedValue,i) {
       var clCommand = clCommands.templateLookup("swapInPlayer", classicParsedValue);
@@ -518,8 +524,6 @@
   function classicUpdateDescription() {
     classicGameStatus.gameStatus.value += "\n\n> " + classicGameStatus.classicTurnCommand + "\n" + classicGameStatus.classicMessages.messages;
     classicGameStatus.classicMessageList = "";
-
-
 
     //This makes sure that the bottom line of text in the gameStatus box is visible after an update.
     classicGameStatus.gameStatus.scrollTop = classicGameStatus.gameStatus.scrollHeight;
@@ -608,7 +612,6 @@
     console.log(classicNoun);
 
     var classicUserCommands = [classicVerb, classicNoun]
-
     return classicUserCommands;
   }
 
@@ -626,58 +629,27 @@
 
 
   function classicProcessParsedCommand(classicUserCommands) {
-    //This variable holds the instruction line derived from the commands entered
-    var classicInstruction = "X0"; //If completely unrecognised command then execute code snippet '0'
-
+    var classicInstruction = "systemResponse(0);"; //If unrecognised command then execute code snippet '0'
     var classicVerb = classicUserCommands[0];
     var classicNoun = classicUserCommands[1];
 
-
-
-    //We found a noun before finding any verbs;
-
-    if (classicVerb === "" && classicNoun !== "") {
-      //This should be handled through the default actions in the config tables - not through hardcoding!!!
-
-
-      //classicGameStatus.gameStatus.value += "\nHmmm, I don't follow; Please clarify what you would like me to do with the " + classicNoun + "?";
-      if (clItems.namedItemIsInPlayerScope(classicNoun )) {
-        classicProcessLowLevelInstruction("D5" + clItems.getInstructionMatchingVerbNoun("name", classicNoun)); //Adds a message to the message queue, only if the item is in the inventory or current room.
-      } else {
-        //classicGameStatus.gameStatus.value += "\nI'm sorry, I didn't understand that!";
-        classicProcessLowLevelInstruction("D3"); //Adds the above message to the message queue if the item is not in the inventory or current room.
-      }
-    }
-
-
-    // verb-only and verb+noun processing under construction...
-    //UNDER CONSTRUCTION
-
     if (classicVerb !== "" && classicNoun !== "") {
       //verb+noun processing.
-
       //First identify the item matching the noun - scope is to check those in the inventory first else in the current room
       //Then, from that item, extract the instruction string associated with the verb
       classicInstruction = clItems.getInstructionMatchingVerbNoun(classicVerb, classicNoun);
-      if (classicInstruction === "") {
-        classicInstruction = "D9";
-      }
-
-
-
     } else if (classicVerb !== "") {
       //verb only processing -
       if (clRooms[clRooms.defaultRoomIndex()][classicVerb]) {
-      //Look for the verb in the rooms entry for the current room that the player is in.
+        //Look for the verb in the rooms entry for the current room that the player is in.
         classicInstruction = clRooms[clRooms.currentRoomIndex()][classicVerb] || clRooms[clRooms.defaultRoomIndex()][classicVerb];
       } else {
-      //Look for the verb in the items entry for the player
+        //Look for the verb in the items entry for the player
         if (clItems[clItems.defaultArrayIndex()][classicVerb]) {
           classicInstruction = clItems[clItems.playerArrayIndex()][classicVerb] || clItems[clItems.defaultArrayIndex()][classicVerb];
         }
       }
     }
-
     return classicInstruction;
   }
 
@@ -784,7 +756,7 @@
 
 
 
-  // Functioning as 'Main loop' for now...
+
   function classicTurnPart1() {
     classicGameStatus.commandBox.disabled = true;
 
@@ -793,7 +765,6 @@
 
     classicUserCommands = classicParseEnteredCommand();
     classicInstruction = classicProcessParsedCommand(classicUserCommands);
-    //classicProcessLowLevelInstruction(classicInstruction);
     classicProcessHighLevelInstruction(classicInstruction);
 
     classicGetMessages(function(classicGetMessages) {

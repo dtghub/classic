@@ -262,8 +262,9 @@ COPY public.snippets ("ID", code) FROM stdin;
 6	C100D8B100X4
 1	D999I0L1C1D1000B1D1001N1X7
 7	S1C101D2B101D11P1
-2	\N
 0	D3
+2	D3
+8	D9
 \.
 
 
@@ -285,6 +286,7 @@ read	D10?02
 look	D10?01
 printItemName	D10?00
 inventory	N0C101D6P1B101D10
+systemResponse	X?
 \.
 
 

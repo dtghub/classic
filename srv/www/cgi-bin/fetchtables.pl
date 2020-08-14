@@ -6,7 +6,6 @@ use CGI;
 use DBI;
 use JSON;
 use Data::Dumper qw(Dumper);
-#use DBI qw(:sql_types);
 
 my %hash;
 my $hash;
