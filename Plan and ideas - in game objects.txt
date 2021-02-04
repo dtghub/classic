@@ -16,33 +16,28 @@ Ways to interact with objects;
 
 
 
-  Do we want 'nested' actions - i.e. 1 command causes a series of responses
 
 
 
-    - Know info intents - these can be stored under the 'paper' object as a {key: value} pair in the form {examine: K10} K10 causes message number 10 from the 'K' list to be displayed.
 
-    - move item intents - these can be in the form of location changes e.g. 'L15' moves the item to Location 15
-        - need to be able to identify the  object being moved - so 'I10' might be the lamp and 'I11' is the lit lamp - syntax might be in the form 'I10L15' = move lamp to location 15, maybe include a separator character to help with command parsing. Light lamp command could move lamp to location 9999 and move lit lamp to location 0 (where 0 is your inventory)
-        - might want to be able to require that you have a box of matches - and have a way of decrementing the number left (swapping items) - to implement this we could have conditionals e.g. {?I23L0?I23L9999?I22L0?} meaning if box with 3 matches in inventory (L0) then move I23 out and put I22 (box with 2 matches) in inventory. Also can use conditional for something as simple as if the item is in your inventory then
-        - need to be able to access the properties of an object - syntax maybe %I15%location% returns the location of I15 - I0 represents the player, so that %I0%location% represents the location of the player!
-          -in a wider sense, commands that don't (directly) affect items could also use this syntax - it actually follows that they should do for consistency - so the processing of a verb like 'look' with no noun should be implemented as an action attached to the room.
-            - a consequence of this is that we no longer need movement verbs as a special case.
-          - another consequence is that I now need to implement (at least) 2 more database tables one for messages to display, and another as a repository of commands/command chains that can be called
-          - need to reimplement the initialisation routine so that it pulls all of these databases in via one JSON
-          - 'blank' values need to have a default response - populate the blank values for the initial early stage, but implement some form of prototype inheritance
-
-
-    - So now we need a 'protype' database table(s) which has a set of default commands for each inventory
-      - maybe allow different items to inherit from other than the default.
 
 
 
 
 So the immediate plan is
 
-  - create a database table for prototypes.
-  - the initial idea was to deal with calls to the commands table by recursively calling the interpreter for each call. The problem is that if there is a command to change room within in the chain, that needs an asynchronous callback. As things stand the rooms table could probably just be read in a one table like all of the others, since the room descriptions are planned to be moved to the message table, and thats where the large table is likely to be.
-      - I had 2 ideas;
-        -stay with the rooms table for now and unwind the recursion by returning he outstanding values to the parent, and passing the array of returned values into the callback to allow it to recreate and resume the recursion
-      - Have a list of messages in the form of M1M56M02 etc which allows a new AJAX callback routine to retrieve the required messages at the end, after all instructions have been processed. This replaces the rooms AJAX requests.
+
+
+
+
+  
+
+
+
+
+
+
+- Convention for room description message numbering;
+  - room numbers map to message numbers by adding 3 zeros to the end, so room 1 maps to message 1000, 1001 etc
+  - x000 will always be the detailed room description, x001 will be the short descriptions
+  - x100 will be the start of the numbering range for 'non-standard' messages.

@@ -3,7 +3,7 @@
 --
 
 -- Dumped from database version 10.12
--- Dumped by pg_dump version 10.12
+-- Dumped by pg_dump version 12.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -16,23 +16,7 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
---
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
---
-
-CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
-
-
---
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
---
-
-COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
-
-
 SET default_tablespace = '';
-
-SET default_with_oids = false;
 
 --
 -- Name: commands; Type: TABLE; Schema: public; Owner: derek
@@ -57,15 +41,27 @@ CREATE TABLE public.items (
     name text,
     look text,
     read text,
-    lit boolean,
     light text,
     get text,
     drop text,
-    word text
+    word text,
+    inventory text
 );
 
 
 ALTER TABLE public.items OWNER TO derek;
+
+--
+-- Name: lists; Type: TABLE; Schema: public; Owner: derek
+--
+
+CREATE TABLE public.lists (
+    "ID" integer NOT NULL,
+    list text
+);
+
+
+ALTER TABLE public.lists OWNER TO derek;
 
 --
 -- Name: messages; Type: TABLE; Schema: public; Owner: derek
@@ -87,19 +83,21 @@ CREATE TABLE public.rooms (
     "roomNumber" integer NOT NULL,
     "shortDescription" text,
     "longDescription" text,
-    dark boolean,
-    north integer,
-    south integer,
-    east integer,
-    west integer,
-    northeast integer,
-    northwest integer,
-    southeast integer,
-    southwest integer,
-    up integer,
-    down integer,
-    "in" integer,
-    "out" integer
+    north text,
+    south text,
+    east text,
+    west text,
+    northeast text,
+    northwest text,
+    southeast text,
+    southwest text,
+    up text,
+    down text,
+    "in" text,
+    "out" text,
+    "1" integer,
+    "where" text,
+    "2" integer
 );
 
 
@@ -118,35 +116,22 @@ CREATE TABLE public.snippets (
 ALTER TABLE public.snippets OWNER TO derek;
 
 --
+-- Name: templates; Type: TABLE; Schema: public; Owner: derek
+--
+
+CREATE TABLE public.templates (
+    hlcommand text NOT NULL,
+    template text
+);
+
+
+ALTER TABLE public.templates OWNER TO derek;
+
+--
 -- Data for Name: commands; Type: TABLE DATA; Schema: public; Owner: derek
 --
 
 COPY public.commands ("ID", command, token) FROM stdin;
-1	north	Mnorth
-2	n	Mnorth
-3	south	Msouth
-4	s	Msouth
-5	east	Meast
-6	e	Meast
-7	west	Mwest
-9	northeast	Mnortheast
-8	w	Mwest
-10	ne	Mnortheast
-11	northwest	Mnorthwest
-12	nw	Mnorthwest
-13	southeast	Msoutheast
-14	se	Msoutheast
-15	southwest	Msouthwest
-16	sw	Msouthwest
-17	up	Mup
-18	u	Mup
-19	down	Mdown
-20	d	Mdown
-21	in	Min
-22	enter	Min
-23	out	Mout
-24	leave	Mout
-25	exit	Mout
 26	look	Vlook
 27	examine	Vlook
 28	exam	Vlook
@@ -160,6 +145,35 @@ COPY public.commands ("ID", command, token) FROM stdin;
 36	note	Nnote
 37	paper	Nnote
 38	light	Vlight
+39	inventory	Vinventory
+40	inv	Vinventory
+41	read	Vread
+2	n	Vnorth
+1	north	Vnorth
+3	south	Vsouth
+4	s	Vsouth
+5	east	Veast
+6	e	Veast
+7	west	Vwest
+9	northeast	Vnortheast
+8	w	Vwest
+10	ne	Vnortheast
+11	northwest	Vnorthwest
+12	nw	Vnorthwest
+13	southeast	Vsoutheast
+14	se	Vsoutheast
+15	southwest	Vsouthwest
+16	sw	Vsouthwest
+17	up	Vup
+18	u	Vup
+19	down	Vdown
+20	d	Vdown
+21	in	Vin
+22	enter	Vin
+23	out	Vout
+24	leave	Vout
+25	exit	Vout
+42	where	Vlook
 \.
 
 
@@ -167,10 +181,21 @@ COPY public.commands ("ID", command, token) FROM stdin;
 -- Data for Name: items; Type: TABLE DATA; Schema: public; Owner: derek
 --
 
-COPY public.items ("ID", location, name, look, read, lit, light, get, drop, word) FROM stdin;
-1	1	lamp	This is an oil lamp	\N	f	I1L9999:I3L0	I1L0	I1L-1	lamp
-2	2	paper	A grotty looking piece of paper. You can see a faded note written on it.	The note reads; "Light the lamp!"	f	\N	I2L0	I2L-1	note
-3	9999	lit lamp	The oil lamp is lit, providing a dull glow which is just bright enough to let you see you immediate surroundings when it is dark.	\N	f	\N	\N	I3L9999I1L-1	lamp
+COPY public.items ("ID", location, name, look, read, light, get, drop, word, inventory) FROM stdin;
+1	1	printItemName(1);	look(1);	\N	swapOut(1);swapInPlayer(3);message(500);	get(1);	drop(1);	lamp	\N
+2	2	printItemName(2);	look(2);	read(2);	\N	get(2);	drop(2);	note	\N
+3	9999	printItemName(3);	look(3);	\N	\N	\N	swapOut(3);swapInPlayer(1);drop(1);message(501);	lamp	\N
+-1	9999	message(12);	message(3);	message(3);	message(3);	message(3);	message(3);	\N	inventory(-1);
+0	1	--------	lookAround(-1);	\N	\N	\N	\N	\N	inventory(-1);
+\.
+
+
+--
+-- Data for Name: lists; Type: TABLE DATA; Schema: public; Owner: derek
+--
+
+COPY public.lists ("ID", list) FROM stdin;
+0	1
 \.
 
 
@@ -179,8 +204,35 @@ COPY public.items ("ID", location, name, look, read, lit, light, get, drop, word
 --
 
 COPY public.messages ("ID", "Message") FROM stdin;
-0	OK
-1	I have it
+0	OK\\n
+1	You have it.\\n
+500	The lamp begins to emit a dull glow.\\n
+501	The light from the lamp flickers and dies.\\n
+3	Sorry, I didn't understand that!\\n
+4	You can't go that way.\\n
+5	Hmmm, I don't follow; Please clarify what you would like me to do with the 
+10100	lamp\\n
+10101	This is an oil lamp\\n
+10200	paper\\n
+10201	A grotty looking piece of paper. You can see a faded note written on it.\\n
+10300	lit lamp\\n
+10301	The oil lamp is lit, providing a dull glow which is just bright enough to let you see you immediate surroundings when it is dark.\\n
+2	\\n\\nYou can see the following;\\n
+7	You already have it.\\n
+6	\\n\\nYou are carrying the following;\\n
+8	You don't have it.\\n
+9	I don't see it.\\n
+10	You aren't carrying anything.\\n
+999	Welcome!\\n\\nThis is the introductory message for the game, with some basic instructions.\\n\\nYou are now taken to he first room...\\n\\n\\n
+10202	The note reads; \\"Light the lamp!\\"\\n
+1000	For the purposes of this draft, this is the initial starting room. i.e. the default starting room number one.\\n
+1001	You are in the starting room.\\n
+2000	This is the second starting room. i.e. the default starting room number two!\\n
+2001	You are in the second starting room.\\n
+3000	You have entered room number three. It has a foreboding look about it. Some would say ominous...\\n
+3001	Room number three looks ominous.\\n
+12	Strange... that's an error!/n
+11	You cannot see any objects nearby\\n
 \.
 
 
@@ -188,10 +240,11 @@ COPY public.messages ("ID", "Message") FROM stdin;
 -- Data for Name: rooms; Type: TABLE DATA; Schema: public; Owner: derek
 --
 
-COPY public.rooms ("roomNumber", "shortDescription", "longDescription", dark, north, south, east, west, northeast, northwest, southeast, southwest, up, down, "in", "out") FROM stdin;
-3	Room number three looks ominous.	You have entered room number three. It has a foreboding look about it. Some would say ominous...	f	0	0	0	0	1	0	2	0	0	0	0	0
-2	You are in the second starting room.	This is the second starting room. i.e. the default starting room number two!	f	0	1	0	0	0	0	0	3	0	0	0	0
-1	You are in the starting room.	For the purposes of this draft, this is the initial starting room. i.e. the default starting room number one.	f	2	0	0	0	0	3	0	0	0	0	0	0
+COPY public.rooms ("roomNumber", "shortDescription", "longDescription", north, south, east, west, northeast, northwest, southeast, southwest, up, down, "in", "out", "1", "where", "2") FROM stdin;
+-1	\N	\N	message(4);	message(4);	message(4);	message(4);	message(4);	message(4);	message(4);	message(4);	message(4);	message(4);	message(4);	message(4);	\N	message(3);	\N
+1	You are in the starting room.	For the purposes of this draft, this is the initial starting room. i.e. the default starting room number one.	move(2);	\N	\N	\N	move(3);	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+2	You are in the second starting room.	This is the second starting room. i.e. the default starting room number two!	\N	move(1);	\N	\N	\N	\N	move(3);	\N	\N	\N	\N	\N	\N	\N	\N
+3	Room number three looks ominous.	You have entered room number three. It has a foreboding look about it. Some would say ominous...	\N	\N	\N	\N	\N	move(2);	\N	move(1);	\N	\N	\N	\N	\N	\N	\N
 \.
 
 
@@ -200,6 +253,40 @@ COPY public.rooms ("roomNumber", "shortDescription", "longDescription", dark, no
 --
 
 COPY public.snippets ("ID", code) FROM stdin;
+1001	I1L-1D0
+1002	I1L9999:I3L0D500
+1000	L0D1
+3	L0D1
+4	L-1D0
+5	B100D7C100X3
+6	C100D8B100X4
+1	D999I0L1C1D1000B1D1001N1X7
+7	S1C101D2B101D11P1
+0	D3
+2	D3
+8	D9
+\.
+
+
+--
+-- Data for Name: templates; Type: TABLE DATA; Schema: public; Owner: derek
+--
+
+COPY public.templates (hlcommand, template) FROM stdin;
+newGame	X1
+move	I0L?C1D?000B1D?001N?X7
+message	D?
+get	I?X5
+drop	I?X6
+swapOut	I?L9999
+swapInRoom	I?L-1
+swapInPlayer	I?L0
+lookAround	D?000N?X7
+read	D10?02
+look	D10?01
+printItemName	D10?00
+inventory	N0C101D6P1B101D10
+systemResponse	X?
 \.
 
 
@@ -217,6 +304,14 @@ ALTER TABLE ONLY public.commands
 
 ALTER TABLE ONLY public.items
     ADD CONSTRAINT items_pkey PRIMARY KEY ("ID");
+
+
+--
+-- Name: lists lists_pkey; Type: CONSTRAINT; Schema: public; Owner: derek
+--
+
+ALTER TABLE ONLY public.lists
+    ADD CONSTRAINT lists_pkey PRIMARY KEY ("ID");
 
 
 --
@@ -241,6 +336,14 @@ ALTER TABLE ONLY public.rooms
 
 ALTER TABLE ONLY public.snippets
     ADD CONSTRAINT snippets_pkey PRIMARY KEY ("ID");
+
+
+--
+-- Name: templates templates_pkey; Type: CONSTRAINT; Schema: public; Owner: derek
+--
+
+ALTER TABLE ONLY public.templates
+    ADD CONSTRAINT templates_pkey PRIMARY KEY (hlcommand);
 
 
 --

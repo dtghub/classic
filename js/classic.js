@@ -2,42 +2,61 @@
   'use strict';
 
   var classicGameStatus = {
-    locationID: 1, //the current room Initialised to room 1 just now - this needs to be looked at to allow for saved games - I don't think this is needed - just do the initialisation from the init function!
 
     //Form references
     gameStatus: document.getElementById('game'),
     commandBox: document.getElementById('commandBox'),
 
-    //These are places to load the game data to - the 'rooms' 'commands' 'objects' etc
-    classicRoomJson: {uninitialised: true},
-
     //generic place to put tables imported from the database
     classicTablesJson: {uninitialised: true},
 
-    //This is an array to record whch rooms have already been visited - as each new room is visited it is pushed into the array. We can access the rooms list using if (roomPreviouslyVisited.includes(<roomnumber>))
-    roomPreviouslyVisited: [1],
-    roomDescriptionRequired: true,
-    roomLongDescriptionRequired: true,
-
-
     //The following are used for command parsing
     classicTurnCommand: "", //the text the user has entered in the current turn
-    // Noun and verb are produced by the classicParsing funtion, and used as the command interface - might implement adverbs later?
-    classicMovementVerb: "", //Has the user requested to move?
-    classicVerb: "", // the result of the parsing logic
-    classicNoun: "", // the result of the parsing logic
-    classicCommandNotRecognised: false, // will set to true if no verb was identified
-    //an array to store room statuses
-    //an array to store object status elements
+
+
+    classicMessageList: "",
+    classicMessages: "",
+    classicActiveNumber: 0,
+    classicItemID: -1,
+
   };
 
+  var classicCommands = {};
+
+  //these references can only be properly assigned once their targets exist!
+  //So the references are set up in function classicSetupTables()
+  var clTabs = {};
+  var clItems = {};
+  var clRooms = {};
+  var clTemplates = {};
+  var clCommands = {};
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
   function classicLoadTablesJson(callback) {
-    'use strict';
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("text/application");
     xobj.open('GET', 'http://localhost/cgi-bin/fetchtables.pl', true);
@@ -46,9 +65,13 @@
       if (xobj.readyState == 4 && xobj.status == "200") {
         callback(JSON.parse(xobj.responseText));
 
-        classicLoadRoomJson(function(classicLoadRoomJson) {
-          classicGameStatus.classicRoomJson = classicLoadRoomJson;
+        classicSetupTables();
+        classicSetupCommands();
+        classicProcessHighLevelInstruction("init(newGame);");
+        classicGetMessages(function(classicGetMessages) {
+          classicGameStatus.classicMessages = classicGetMessages;
         });
+        //When the messages have been displayed the flow continues in classicTurnPart2()
       }
     };
     xobj.send(null);
@@ -60,11 +83,10 @@
 
 
 
-  function classicLoadRoomJson(callback) {
-    'use strict';
+  function classicGetMessages(callback) {
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("text/application");
-    xobj.open('GET', 'http://localhost/cgi-bin/fetchroom.pl?value=' + classicGameStatus.locationID, true);
+    xobj.open('GET', 'http://localhost/cgi-bin/fetchmessages.pl?value=' + classicGameStatus.classicMessageList, true);
 
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
@@ -72,8 +94,427 @@
         classicTurnPart2(); //Complete the classicTurn loop when ready.
       }
     };
-    xobj.send(classicGameStatus.locationID);
+    xobj.send(null);
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function classicSetupTables() {
+
+    //Add some common functions to the tables, such as returning the index number of an array element using the ID number
+
+    //also short reference some common ones
+    clTabs = classicGameStatus.classicTablesJson;
+    clItems = classicGameStatus.classicTablesJson.items;
+    clRooms = classicGameStatus.classicTablesJson.rooms;
+    clTemplates = classicGameStatus.classicTablesJson.templates;
+    clCommands = classicGameStatus.classicTablesJson.commands;
+
+
+    clItems.itemsArrayIndex = function (itemsID) {
+      var classicItemsArrayLength = clItems.length;
+      for (var i = 0; i < classicItemsArrayLength; i += 1) {
+        if (clItems[i].ID === itemsID) {
+          return i;
+        }
+      }
+    }
+
+
+    clItems.defaultArrayIndex = function () {
+    //-1 is the ID for the list of default values in the items array
+    return clItems.itemsArrayIndex(-1);
+    }
+
+
+    clItems.playerArrayIndex = function () {
+    //0 is the player ID in the items array
+    return clItems.itemsArrayIndex(0);
+    }
+
+
+    clItems.currentRoomNumber = function () {
+      var playerArrayIndex = clItems.playerArrayIndex();
+      return clItems[playerArrayIndex].location;
+    }
+
+
+    clItems.setCurrentRoomNumber = function (roomNumber) {
+      var playerArrayIndex = clItems.playerArrayIndex();
+      clItems[playerArrayIndex].location = roomNumber;
+    }
+
+
+    clItems.playerArrayIndexFromName = function (clItemName) {
+      var classicItemsArrayLength = clItems.length;
+      for (var i = 0; i < classicItemsArrayLength; i += 1) {
+        if (clItems[i].word === clItemName) {
+          return i;
+        }
+      }
+    }
+
+
+
+    clItems.testForItemsAtLocation = function (clLocation) {
+      var classicItemsArrayLength = clItems.length;
+      for (var i = 0; i < classicItemsArrayLength; i += 1) {
+        if (clItems[i].location === clLocation && clItems[i].ID !== 0) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+
+
+
+    clItems.testForNamedItemAtALocation = function (itemName, clLocation) {
+      var classicItemsArrayLength = clItems.length;
+      for (var i = 0; i < classicItemsArrayLength; i += 1) {
+        if (clItems[i].location === clLocation && clItems[i].word === itemName) {
+          return clItems[i].ID;
+        }
+      }
+      return false;
+    }
+
+
+    clItems.namedItemIsInPlayerScope = function (itemName) {
+      return (clItems.testForNamedItemAtALocation(itemName, 0) || clItems.testForNamedItemAtALocation(itemName, clItems.currentRoomNumber()));
+    }
+
+
+    clItems.getInstructionMatchingVerbNoun = function (clVerb, clNoun) {
+      var clInstruction = "systemResponse(8);";
+      var clItemID = clItems.namedItemIsInPlayerScope(clNoun);
+      if (clItemID) {
+        clInstruction = clItems[clItems.itemsArrayIndex(clItemID)][clVerb] || clItems[clItems.defaultArrayIndex()][clVerb];
+      }
+      return clInstruction;
+    }
+
+
+    
+    clItems.getWordIfNounInScope = function (clNoun) {
+      var clItemID = clItems.namedItemIsInPlayerScope(clNoun);
+      return clItems[clItems.itemsArrayIndex(clItemID)].word;
+    }
+
+
+
+
+    clItems.printListOfItemsAtLocation = function (roomNumber) {
+      var classicItemsArrayLength = clItems.length;
+      for (var i = 0; i < classicItemsArrayLength; i += 1) {
+        if ((clItems[i].location === roomNumber) && (clItems[i].ID !== 0)) {
+          classicProcessHighLevelInstruction(clItems[i].name);
+        }
+      }
+    }
+
+
+
+
+
+
+
+
+    clRooms.roomsArrayIndex = function(roomsID) {
+      var classicRoomsArrayLength = clRooms.length;
+      for (var i = 0; i < classicRoomsArrayLength; i += 1) {
+        if (clRooms[i].roomNumber === roomsID) {
+          return i;
+        }
+      }
+    }
+
+
+    clRooms.defaultRoomIndex = function() {
+      return clRooms.roomsArrayIndex(-1);
+    }
+
+
+    clRooms.currentRoomIndex = function() {
+      var currentRoomNumber = clItems.currentRoomNumber();
+      return clRooms.roomsArrayIndex(currentRoomNumber);
+    }
+
+
+
+
+
+
+    clCommands.templateLookup = function(clTemplateCommand, classicParsedValue) {
+      var clCommand = clTemplates[clTemplateCommand];
+      return clCommand.replace(/\?/g, classicParsedValue);
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function classicSetupCommands() {
+    //
+    //"Low level" commands
+    //
+    //The "B" instruction is the inverse of the "C" Conditional test - if true then we skip the next instruction.
+    //B100 - is the item in the players inventory
+    //B101 - are any items in the location number defined in classicGameStatus.classicActiveNumber
+    classicCommands.B = function (classicParsedValue,i) {
+      if (classicParsedValue < 100) {
+        if (clRooms[clRooms.currentRoomIndex()][classicParsedValue] !== 1) {
+          return i += 1;
+        }
+      } else {
+        if (classicParsedValue === 100 && clItems[classicGameStatus.classicItemID].location !== 0) {
+          return i += 1;
+        }
+        if (classicParsedValue === 101 && clItems.testForItemsAtLocation(classicGameStatus.classicActiveNumber)) {
+          return i += 1;
+        }
+      }
+      return i;
+    };
+    //The "C" instruction is a Conditional test - if false then we skip the next instruction. - see related "B" and "S"
+    //In practice this means that a lot of the time the next instruction will be an 'X'
+    //At the moment this has only been implemented for the rooms table.
+    //classicParsedValue range of 1 to 99 is reserved for flags attached to the item objects
+    //C100 - is the item in the players inventory
+    //C101 - are any items in the location number defined in classicGameStatus.classicActiveNumber
+    classicCommands.C = function (classicParsedValue,i) {
+      if (classicParsedValue < 100) {
+        if (clRooms[clRooms.currentRoomIndex()][classicParsedValue] === 1) {
+          return i += 1;
+        }
+      } else {
+        if (classicParsedValue === 100 && clItems[classicGameStatus.classicItemID].location === 0) {
+          return i += 1;
+        }
+        if (classicParsedValue === 101 && !clItems.testForItemsAtLocation(classicGameStatus.classicActiveNumber)) {
+          return i += 1;
+        }
+      }
+      return i;
+    };
+    //The "D" instruction adds a message number for Display to the classicMessageList string
+    //The messages are retrieved and displayd after all instructions have been processed
+    classicCommands.D = function (classicParsedValue,i) {
+      classicGameStatus.classicMessageList += classicParsedValue.toString() + "~";
+      return i;
+    };
+    //The "I" instruction changes the active "item" to which subsequent incstructions refer
+    //See also the related "N" instruction
+    classicCommands.I = function (classicParsedValue,i) {
+      classicGameStatus.classicItemID = clItems.itemsArrayIndex(classicParsedValue);
+      return i;
+    };
+    //The "L" instruction sets the location of the acitive item
+    //location 0 is your own inventory
+    //location -1 is the current location
+    classicCommands.L = function (classicParsedValue,i) {
+      if (classicParsedValue === -1) {
+        classicParsedValue = clItems.currentRoomNumber();
+      }
+      clItems[classicGameStatus.classicItemID].location = classicParsedValue;
+      if (clItems[classicGameStatus.classicItemID].ID === 0) {
+        clItems.setCurrentRoomNumber(classicParsedValue);
+      }
+      return i;
+    };
+    //The "N" instruction changes the active "number" to which subsequent incstructions refer
+    //See the related "I" instruction
+    classicCommands.N = function (classicParsedValue,i) {
+      if (classicParsedValue === -1) {
+        classicGameStatus.classicActiveNumber = clItems.currentRoomNumber();
+      } else {
+        classicGameStatus.classicActiveNumber = classicParsedValue;
+      }
+      return i;
+    };
+    //The "P" instruction executes sPecial cases
+    //Probably the goal is to develop the interpreter to the point where P is never needed
+    //P1 adds the names of items located at the location matching classicGameStatus.classicActiveNumber to the display queue.
+    classicCommands.P = function (classicParsedValue,i) {
+      if (classicParsedValue === 1) {
+        clItems.printListOfItemsAtLocation(classicGameStatus.classicActiveNumber);
+      }
+      return i;
+    };
+    //The "R" instruction unsets the flag used for the "C" and "B" conditional tests. ("S" Sets it)
+    classicCommands.R = function (classicParsedValue,i) {
+      clRooms[clRooms.currentRoomIndex()][classicParsedValue] = 0;
+      return i;
+    };
+    //The "S" instruction Sets the flag used for the "C" and "B" conditional tests. ("R" unsets it)
+    classicCommands.S = function (classicParsedValue,i) {
+      clRooms[clRooms.currentRoomIndex()][classicParsedValue] = 1;
+      return i;
+    };
+    //The "X" instruction looks up the instruction code from the snippets table and executes the instructions by calling classicProcessLowLevelInstruction recursively.
+    classicCommands.X = function (classicParsedValue,i) {
+      classicProcessLowLevelInstruction(clTabs.snippets[classicParsedValue]);
+      return i;
+    };
+    //
+    //"High level" commands
+    //
+    //The "drop" command executes the low level command sequence to add the item to your inventory
+    classicCommands.drop = function (classicParsedValue,i) {
+      var clCommand = clCommands.templateLookup("drop", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
+      return i;
+    };
+    //The "exec" command passes the parameter string straight to the classicProcessLowLevelInstruction function for execution.
+    classicCommands.exec = function (classicParsedValue,i) {
+      classicProcessLowLevelInstruction(classicParsedValue);
+      return i;
+    };
+    //The "get" command executes the low level command sequence to add the item to your inventory
+    classicCommands.get = function (classicParsedValue,i) {
+      var clCommand = clCommands.templateLookup("get", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
+      return i;
+    };
+    //The "init" command calls game initialisation commands
+    classicCommands.init = function (classicParsedValue,i) {
+      if (classicParsedValue = "newGame") {
+        classicProcessLowLevelInstruction(clTemplates.newGame);
+      }
+      return i;
+    };
+    //The "inventory" command displays a list of items.
+    classicCommands.inventory = function (classicParsedValue,i) {
+      var clCommand = clCommands.templateLookup("inventory", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
+      return i;
+    };   
+    //The "look" command displays the messagenumber "10?02" where "?" is the item number.
+    classicCommands.look = function (classicParsedValue,i) {
+      var clCommand = clCommands.templateLookup("look", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
+      return i;
+    };   
+    //The "lookAround" command displays the long description of the room and lists the items in that room 
+    classicCommands.lookAround = function (classicParsedValue,i) {
+       if (classicParsedValue === "-1") {
+        classicParsedValue = clItems.currentRoomNumber();
+      } 
+      var clCommand = clCommands.templateLookup("lookAround", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
+      return i;
+    };
+    //The "message" command executes the low level command to display the given message number
+    classicCommands.message = function (classicParsedValue,i) {
+      var clCommand = clCommands.templateLookup("message", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
+      return i;
+    };
+    //The "move" command executes the standard change room low level command sequence - moving the player to the room number specified as the parameter.
+    classicCommands.move = function (classicParsedValue,i) {
+      var clCommand = clCommands.templateLookup("move", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
+      return i;
+    };
+    //The "printItemName" command displays the messagenumber "10?00" where "?" is the item number.
+    classicCommands.printItemName = function (classicParsedValue,i) {
+      var clCommand = clCommands.templateLookup("printItemName", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
+      return i;
+    };  
+    //The "read" command displays the messagenumber "10?02" where "?" is the item number.
+    classicCommands.read = function (classicParsedValue,i) {
+      var clCommand = clCommands.templateLookup("read", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
+      return i;
+    };   
+    //The "systemResponse" command is intended to be called from the code and executes the specified code snippet number.
+    classicCommands.systemResponse = function (classicParsedValue,i) {
+      var clCommand = clCommands.templateLookup("systemResponse", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
+      return i;
+    };       
+    //The "swapInPlayer" command executes the low level command sequence to add the item to your inventory
+    classicCommands.swapInPlayer = function (classicParsedValue,i) {
+      var clCommand = clCommands.templateLookup("swapInPlayer", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
+      return i;
+    };
+    //The "swapInRoom" command executes the low level command sequence to add the item to your inventory
+    classicCommands.swapInRoom = function (classicParsedValue,i) {
+      var clCommand = clCommands.templateLookup("swapInRoom", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
+      return i;
+    };
+    //The "swapOut" command executes the low level command sequence to add the item to your inventory
+    classicCommands.swapOut = function (classicParsedValue,i) {
+      var clCommand = clCommands.templateLookup("swapOut", classicParsedValue);
+      classicProcessLowLevelInstruction(clCommand);
+      return i;
+    };        
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -81,46 +522,11 @@
 
 
   function classicUpdateDescription() {
-    'use strict';
-
-    var classicItemList = "";
-    var classicItemsArrayLength;
-
-
-    if (classicGameStatus.classicCommandNotRecognised) {
-      classicGameStatus.gameStatus.value += "\nSorry, I didn't understand that!";
-    }
-
-
-    //gameStatus.setAttribute('disabled', false);
-    if (classicGameStatus.roomDescriptionRequired) {
-      if (classicGameStatus.roomLongDescriptionRequired)  {
-        classicGameStatus.gameStatus.value += "\n" + classicGameStatus.classicRoomJson.longDescription;
-      } else {
-        classicGameStatus.gameStatus.value += "\n" + classicGameStatus.classicRoomJson.shortDescription;
-      }
-
-      //List the items in the room - this will probably get replaced as the command parsing is implemented as it probably belongs up at that level
-
-      classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
-
-      for (var i = 0; i < classicItemsArrayLength; i += 1) {
-        if (classicGameStatus.classicTablesJson.items[i].location === classicGameStatus.locationID) {
-          console.log("/nMatched " + i);
-          classicItemList += "\n" + classicGameStatus.classicTablesJson.items[i].name;
-        }
-      }
-
-      if (classicItemList !== "") {
-        classicGameStatus.gameStatus.value += "\nYou can see the following;" + classicItemList;
-      }
-    }
-
+    classicGameStatus.gameStatus.value += "\n\n> " + classicGameStatus.classicTurnCommand + "\n" + classicGameStatus.classicMessages.messages;
+    classicGameStatus.classicMessageList = "";
 
     //This makes sure that the bottom line of text in the gameStatus box is visible after an update.
     classicGameStatus.gameStatus.scrollTop = classicGameStatus.gameStatus.scrollHeight;
-
-    classicGameStatus.gameStatus.setAttribute('disabled', true);
   }
 
 
@@ -128,15 +534,28 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   function classicParseEnteredCommand() {
-    'use strict';
-
-
-    classicGameStatus.classicMovementVerb = "";
-    classicGameStatus.classicVerb = "";
-    classicGameStatus.classicNoun = "";
-    classicGameStatus.classicCommandNotRecognised = false;
-
+    var classicVerb = "";
+    var classicNoun = "";
 
     classicGameStatus.classicTurnCommand = classicGameStatus.commandBox.value;
 
@@ -150,7 +569,7 @@
     //Locate the first two words from our syntax list that the user has entered into the commandBox.
     //This is done by stepping through the list of recognised words ('commands').
 
-    for (var index in classicGameStatus.classicTablesJson.commands) {
+    for (var index in clCommands) {
       clExp = new RegExp('\\b' + index + '\\b', 'i');
       wordMatch = classicGameStatus.classicTurnCommand.search(clExp);
       if ((wordMatch > -1) && (wordMatch < secondStartPosition)) {
@@ -169,176 +588,144 @@
     //Now that we have checked for the first 2 words, we categorise what we have.
     //The list of commands obtained from the database are in key:value pairs
     // - the key is what the user would type.
-    // - the first character of the value defines the type of command; either M, V or N (movement, verb or noun).
-    // -- the rest of the value is the token; e.g. the user typing either 'ne' or 'northeast' will both be tokenised to 'northeast' - stored as 'Mnortheast' so classed as a movement verb
+    // - the first character of the value defines the type of command; either V or N (verb or noun).
+    // -- the rest of the value is the token; e.g. the user typing either 'ne' or 'northeast' will both be tokenised to 'northeast' - stored as 'Mnortheast' so classed as a  verb
 
-    //if the first command is an M we assign the token to classicGameStatus.classicMovementVerb and ignore any second word.
-    //if the first command is an N we assign the token to classicGameStatus.classicNoun and ignore any second word
-    //if the first command is a V we assign the token to classicGameStatus.classicVerb and we then check if the second word is an N; if so we assign the second token to classicGameStatus.classicNoun
+    //if the first command is an N we assign the token to classicNoun and ignore any second word
+    //if the first command is a V we assign the token to classicVerb and we then check if the second word is an N; if so we assign the second token to classicNoun
 
 
     if (firstStartPosition < classicGameStatus.classicTurnCommand.length) {
-      if (classicGameStatus.classicTablesJson.commands[firstCommand].charAt(0) === 'M') {
-        classicGameStatus.classicMovementVerb = classicGameStatus.classicTablesJson.commands[firstCommand].slice(1);
-      } else if (classicGameStatus.classicTablesJson.commands[firstCommand].charAt(0) === 'N') {
-        classicGameStatus.classicNoun = classicGameStatus.classicTablesJson.commands[firstCommand].slice(1);
-      } else if (classicGameStatus.classicTablesJson.commands[firstCommand].charAt(0) === 'V') {
-        classicGameStatus.classicVerb = classicGameStatus.classicTablesJson.commands[firstCommand].slice(1);
+      if (clCommands[firstCommand].charAt(0) === 'N') {
+        classicNoun = clCommands[firstCommand].slice(1);
+      } else if (clCommands[firstCommand].charAt(0) === 'V') {
+        classicVerb = clCommands[firstCommand].slice(1);
         if (secondStartPosition < classicGameStatus.classicTurnCommand.length) {
-          if (classicGameStatus.classicTablesJson.commands[secondCommand].charAt(0) === 'N') {
-            classicGameStatus.classicNoun = classicGameStatus.classicTablesJson.commands[secondCommand].slice(1);
+          if (clCommands[secondCommand].charAt(0) === 'N') {
+            classicNoun = clCommands[secondCommand].slice(1);
           }
         }
       }
     }
 
-    console.log(classicGameStatus.classicMovementVerb);
-    console.log(classicGameStatus.classicVerb);
-    console.log(classicGameStatus.classicNoun);
+    console.log(classicVerb);
+    console.log(classicNoun);
 
-    classicGameStatus.commandBox.value = '';
+    var classicUserCommands = [classicVerb, classicNoun]
+    return classicUserCommands;
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function classicProcessParsedCommand(classicUserCommands) {
+    var classicInstruction = "systemResponse(0);"; //If unrecognised command then execute code snippet '0'
+    var classicVerb = classicUserCommands[0];
+    var classicNoun = classicUserCommands[1];
+
+    if (classicVerb !== "" && classicNoun !== "") {
+      //verb+noun processing.
+      //First identify the item matching the noun - scope is to check those in the inventory first else in the current room
+      //Then, from that item, extract the instruction string associated with the verb
+      classicInstruction = clItems.getInstructionMatchingVerbNoun(classicVerb, classicNoun);
+    } else if (classicVerb !== "") {
+      //verb only processing -
+      if (clRooms[clRooms.defaultRoomIndex()][classicVerb]) {
+        //Look for the verb in the rooms entry for the current room that the player is in.
+        classicInstruction = clRooms[clRooms.currentRoomIndex()][classicVerb] || clRooms[clRooms.defaultRoomIndex()][classicVerb];
+      } else {
+        //Look for the verb in the items entry for the player
+        if (clItems[clItems.defaultArrayIndex()][classicVerb]) {
+          classicInstruction = clItems[clItems.playerArrayIndex()][classicVerb] || clItems[clItems.defaultArrayIndex()][classicVerb];
+        }
+      }
+    }
+    return classicInstruction;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
   //UNDER CONSTRUCTION
-  function classsicProcessInstruction(classicInstruction) {
-    'use strict';
-
-    //var clExp = "";
-
-    //A very clumsy initial implementation - definitely needs a better solution
-
-    var classicItemID = -1; //Initialise with -1 as 0 is used to address the player
-    var itemID = -1;
+  function classicProcessHighLevelInstruction(classicInstruction) {
     var classicParsedValue = 0;
     var classicCommandParts = [];
-    //var i;
-    var classicCommandPartsArrayLength;
-    var classicItemsArrayLength;
+    var classicCommandPartsArrayLength = 0;
+
+    console.log(classicInstruction);
+    classicCommandParts = classicInstruction.split(";");
+    
+    console.log(classicCommandParts);
+    classicCommandPartsArrayLength = classicCommandParts.length;
+    //This is a kludge until high level commands are fully implemented - there are still low level commands in the code at the moment, so this executes them if they are encountered
+    if (classicCommandPartsArrayLength === 1) {
+      classicProcessLowLevelInstruction(classicInstruction);
+      return;      
+    }
+    for (var i = 0; i < classicCommandPartsArrayLength; i += 1) {
+      if (classicCommandParts[i]) {
+        var clCommand = classicCommandParts[i].trim();
+        var clKeyword = clCommand.slice(0, clCommand.indexOf("("));
+        classicParsedValue = clCommand.slice(clCommand.indexOf("(") + 1, clCommand.indexOf(")"));
+        i = classicCommands[clKeyword](classicParsedValue,  i);
+      }
+    }  
+  }
+
+
+
+
+
+
+
+
+
+
+ 
+  //This splits the string of low level commands (in the form e.g. "D999I0L1C1D1000B1D1001N1X7") into an array, with one instruction in each element of the array
+  //The for loop then steps through the array, calling the function associated with each instruction e.g "D9999" will execute a function call within the for loop 'classicCommands.D(9999);'
+  //See function classicSetupCommands() for the details of the low level commands.
+  function classicProcessLowLevelInstruction(classicInstruction) {
+    var classicParsedValue = 0;
+    var classicCommandParts = [];
+    var classicCommandPartsArrayLength = 0;
 
     console.log(classicInstruction);
     classicCommandParts = classicInstruction.match(/[A-Z][\-]?[0-9]+/g);
     console.log(classicCommandParts);
-
-    //Need to re-implement this a a flat loop as callbacks aren't appropriate in this situation (need the code to be synchonous)
-
     classicCommandPartsArrayLength = classicCommandParts.length;
-    classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
 
     for (var i = 0; i < classicCommandPartsArrayLength; i += 1) {
-      var item = classicCommandParts[i];
-
-      switch (item.charAt(0)) {
-        //The "I" instruction changes the active "item" to which subsequent incstructions refer
-        case "I":
-          console.log(item);
-          itemID = parseInt(item.slice(1),10);
-
-          for (var j = 0; j < classicItemsArrayLength; j += 1) {
-            if (classicGameStatus.classicTablesJson.items[j].ID === itemID) {
-              classicItemID = j;
-            }
-          }
-          break;
-        //The "L" instruction sets the location of the current item
-        //location 0 is your own inventory
-        //location -1 is the current location
-        case "L":
-          console.log(item);
-          classicParsedValue = parseInt(item.slice(1),10);
-          if (classicParsedValue === -1) {
-            classicParsedValue = classicGameStatus.locationID;
-          }
-          classicGameStatus.classicTablesJson.items[classicItemID].location = classicParsedValue;
-          break;
-      }
-    }
-  }
-
-
-
-  function classicProcessParsedCommand() {
-    'use strict';
-
-    //This variable holds the instruction line derived from the commands entered
-    var classicInstruction = "";
-    var classicItemsArrayLength;
-
-
-    classicGameStatus.classicCommandNotRecognised = false;
-    classicGameStatus.roomDescriptionRequired = false;
-    classicGameStatus.roomLongDescriptionRequired = false;
-
-    //echo the entered command to the main window
-    classicGameStatus.gameStatus.value += '\n' + classicGameStatus.classicTurnCommand;
-
-
-    if (classicGameStatus.classicMovementVerb === "" && classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun === "") {
-      classicGameStatus.gameStatus.value += "\nI'm sorry, I didn't understand that!";
-    }
-
-    //Needs improvement;
-    //As written, this allows the user to confirm the existance of any object name
-    //To be re-implemented - this will be done by loking at the nouns  table -the command associated with the noverb entry will be executed.
-    if (classicGameStatus.classicVerb === "" && classicGameStatus.classicNoun !== "") {
-      classicGameStatus.gameStatus.value += "\nHmmm, I don't follow; Please clarify what you would like me to do with the " + classicGameStatus.classicNoun + "?";
-    }
-
-
-    // verb-only and verb+noun processing under construction...
-    //UNDER CONSTRUCTION
-
-    if (classicGameStatus.classicVerb !== "" && classicGameStatus.classicNoun !== "") {
-      //verb+noun processing to go here.
-
-      //First identify the item matching the noun - scope is to check those in the inventory first then in the current room - frst to match wins
-      //Then, from that item, extract the instruction string associated with the verb
-      classicItemsArrayLength = classicGameStatus.classicTablesJson.items.length;
-
-      for (var i = 0; i < classicItemsArrayLength; i += 1) {
-
-        if (classicGameStatus.classicTablesJson.items[i].word === classicGameStatus.classicNoun) {
-          if (classicGameStatus.classicTablesJson.items[i].location === 0) {
-            classicInstruction = classicGameStatus.classicTablesJson.items[i][classicGameStatus.classicVerb] || "";
-            console.log(classicInstruction + " inventory");
-          } else if (classicGameStatus.classicTablesJson.items[i].location === classicGameStatus.locationID) {
-            classicInstruction = classicGameStatus.classicTablesJson.items[i][classicGameStatus.classicVerb] || "";
-            console.log(classicInstruction + " location");
-          }
-        }
-      }
-
-
-
-
-    } else {
-      //verb only processing - to be re-implemented - this will be done by loking at the current room's table - if the verb exists there, then the command is executed.
-      if (classicGameStatus.classicVerb === "look") {
-        classicGameStatus.roomDescriptionRequired = true;
-        classicGameStatus.roomLongDescriptionRequired = true;
-      }
-    }
-
-
-
-
-    if (classicGameStatus.classicMovementVerb !== "") {
-      var clRoomNumber = classicGameStatus.classicRoomJson[classicGameStatus.classicMovementVerb];
-      if (clRoomNumber !== 0) {
-        classicGameStatus.locationID = clRoomNumber;
-        classicGameStatus.roomDescriptionRequired = true;
-        if (!classicGameStatus.roomPreviouslyVisited.includes(clRoomNumber)) {
-          classicGameStatus.roomPreviouslyVisited.push(clRoomNumber);
-          classicGameStatus.roomLongDescriptionRequired = true;
-        }
-      } else {
-        classicGameStatus.gameStatus.value += "\nYou can't go that way.";
-      }
-    }
-
-    if (classicInstruction !== "") {
-      classsicProcessInstruction(classicInstruction);
+      var clValue = classicCommandParts[i];
+      classicParsedValue = parseInt(clValue.slice(1),10);
+      i = classicCommands[clValue.charAt(0)](classicParsedValue,i); //The function is able to manipulate the 'i' index - (skip next command = i++)
     }
   }
 
@@ -347,35 +734,75 @@
 
 
 
-  // Functioning as 'Main loop' for now...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   function classicTurnPart1() {
-    'use strict';
+    classicGameStatus.commandBox.disabled = true;
 
-    classicParseEnteredCommand();
+    var classicUserCommands = {};
+    var classicInstruction = "";
 
-    classicProcessParsedCommand();
+    classicUserCommands = classicParseEnteredCommand();
+    classicInstruction = classicProcessParsedCommand(classicUserCommands);
+    classicProcessHighLevelInstruction(classicInstruction);
 
-    classicLoadRoomJson(function(classicLoadRoomJson) {
-      classicGameStatus.classicRoomJson = classicLoadRoomJson;
-    }); //When the JSON is loaded the loop resumes in classicTurnPart2()
+    classicGetMessages(function(classicGetMessages) {
+      classicGameStatus.classicMessages = classicGetMessages;
+    });
+    //When the messages have been displayed the flow continues in classicTurnPart2()
 
-    // return false to prevent submission for now:
+    // return false to prevent form submission
     return false;
   }
 
 
-
-
-
-
-
   function classicTurnPart2() {
-    'use strict';
-
     classicUpdateDescription();
     console.log(classicGameStatus);
+    console.log(classicCommands);
+    classicGameStatus.commandBox.disabled = false;
+    classicGameStatus.commandBox.value = '';
+    classicGameStatus.commandBox.focus();
+   }
 
-  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -383,17 +810,15 @@
 
 
   function init() {
-    'use strict';
     // We will call an init funtion here to set the initial parameters, and either load a saved game or initialise new game
 
-    //fetch list of game commands from the server
-    //Since this needs callbacks to fetch the data,
-    //I've implemented this as a chain of callbacks to ensure that we can't start the game until the data is ready
-    //We start by calling classicLoadCommandsJson which calls the next function  when it's ready
-    //The successful callback for classicLoadCommandsJson calls classicLoadItemsJson
-    //The successful callback for classicLoadItemsJson calls a routine to create the item objects (underconstruction)
+    //fetch the data tables from the server
+    //as the messages table could become large, it is queried from the database at the end and only the required messages are retrieved and displayed
     //description tbd
 
+    classicGameStatus.gameStatus.setAttribute('disabled', true);
+    classicGameStatus.commandBox.disabled = true;
+    
     classicLoadTablesJson(function(classicLoadTablesJson) {
       classicGameStatus.classicTablesJson = classicLoadTablesJson;
     });
