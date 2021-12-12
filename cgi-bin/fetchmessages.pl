@@ -15,7 +15,7 @@ my $dtmessage = $q->param("value");
 my @dtmessage =  split('~', $dtmessage);
 
 
-my $dbh = DBI->connect('dbi:Pg:dbname=classic1;host=localhost','derek','dtDerek',{AutoCommit=>1,RaiseError=>1,PrintError=>0});
+my $dbh = DBI->connect('dbi:Pg:dbname=classic;host=localhost','derek','dtDerek',{AutoCommit=>1,RaiseError=>1,PrintError=>0});
 
 
 #this will fetch each of the requested messages and create a string ready to use.

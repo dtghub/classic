@@ -59,10 +59,11 @@
   function classicLoadTablesJson(callback) {
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("text/application");
-    xobj.open('GET', 'http://localhost/cgi-bin/fetchtables.pl', true);
+    xobj.open('GET', 'http://127.0.0.1/cgi-bin/fetchtables.pl', true);
 
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
+        console.log(xobj.responseText)
         callback(JSON.parse(xobj.responseText));
 
         classicSetupTables();
@@ -86,7 +87,7 @@
   function classicGetMessages(callback) {
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("text/application");
-    xobj.open('GET', 'http://localhost/cgi-bin/fetchmessages.pl?value=' + classicGameStatus.classicMessageList, true);
+    xobj.open('GET', 'http://127.0.0.1/cgi-bin/fetchmessages.pl?value=' + classicGameStatus.classicMessageList, true);
 
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {

@@ -1,0 +1,5 @@
+Header set Access-Control-Allow-Origin "*"
+
+
+Options +ExecCGI
+AddHandler cgi-script cgi pl

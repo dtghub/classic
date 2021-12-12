@@ -23,7 +23,7 @@ print $q->header(
 
 
 
-my $dbh = DBI->connect('dbi:Pg:dbname=classic1;host=127.0.0.1','derek','dtDerek',{AutoCommit=>1,RaiseError=>1,PrintError=>0});
+my $dbh = DBI->connect('dbi:Pg:dbname=classic;host=127.0.0.1','derek','dtDerek',{AutoCommit=>1,RaiseError=>1,PrintError=>0});
 
 my $sth = $dbh->prepare("SELECT * FROM items WHERE 1=0");
 $sth->execute();
