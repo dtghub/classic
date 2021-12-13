@@ -288,6 +288,45 @@
 
 
 
+  function classicSaveGame() {
+    console.log("Save game feature under construction");
+
+    // psueudocode partially implemented
+    var saveStructure = {
+      classicGameStatusSaved: classicGameStatus,
+      classicCommandsSaved: classicCommands
+    }
+
+
+
+    var stringifiedSaveStructure = JSON.stringify(saveStructure);
+
+
+    localStorage.setItem('classicSave', stringifiedSaveStructure);
+
+
+
+  }
+
+
+  function classicRestoreGameFromStorage() {
+    console.log("Load game feature under construction");
+
+    // Psuedocode to be implemented
+    var stringifiedSaveStructure = localStorage.getItem('classicSave');
+
+
+    var saveStructure = JSON.parse(stringifiedSaveStructure);
+
+    classicGameStatus = saveStructure.classicGameStatusSaved;
+    classicCommands = saveStructure.classicCommandsSaved;
+
+  }
+
+
+
+
+
 
 
 
